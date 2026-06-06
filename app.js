@@ -362,7 +362,10 @@ function renderSectionInventory() {
         return;
     }
 
-    sectionClothes.forEach(item => {
+    sectionClothes.forEach((item, index) => {
+        const isFirst = (index === 0);
+        const isLast = (index === sectionClothes.length - 1);
+
         const card = document.createElement('div');
         card.className = 'clothing-item-card';
         card.innerHTML = `
@@ -377,10 +380,28 @@ function renderSectionInventory() {
                 </div>
             </div>
             <div class="card-actions">
+                <button class="btn-move-up" title="Sposta su" data-id="${item.id}" ${isFirst ? 'disabled' : ''}>▲</button>
+                <button class="btn-move-down" title="Sposta giù" data-id="${item.id}" ${isLast ? 'disabled' : ''}>▼</button>
                 <button class="btn-edit-cloth" title="Modifica capo" data-id="${item.id}">✏️</button>
                 <button class="btn-delete-cloth" title="Elimina capo" data-id="${item.id}">&times;</button>
             </div>
         `;
+
+        // Move Up listener
+        if (!isFirst) {
+            card.querySelector('.btn-move-up').addEventListener('click', (e) => {
+                e.stopPropagation();
+                moveClothing(item.id, 'up');
+            });
+        }
+
+        // Move Down listener
+        if (!isLast) {
+            card.querySelector('.btn-move-down').addEventListener('click', (e) => {
+                e.stopPropagation();
+                moveClothing(item.id, 'down');
+            });
+        }
 
         // Edit button listener
         card.querySelector('.btn-edit-cloth').addEventListener('click', (e) => {
@@ -405,6 +426,43 @@ function deleteClothing(itemId) {
         renderSectionInventory();
         renderClothesInWardrobe();
     }
+}
+
+function moveClothing(itemId, direction) {
+    const itemIndex = clothes.findIndex(c => c.id === itemId);
+    if (itemIndex === -1) return;
+    
+    const targetItem = clothes[itemIndex];
+    const sectionId = targetItem.section;
+    const house = targetItem.house;
+    
+    const siblingIndices = [];
+    clothes.forEach((c, idx) => {
+        if (c.house === house && c.section === sectionId) {
+            siblingIndices.push(idx);
+        }
+    });
+    
+    const siblingPos = siblingIndices.indexOf(itemIndex);
+    if (siblingPos === -1) return;
+    
+    if (direction === 'up' && siblingPos > 0) {
+        const prevGlobalIdx = siblingIndices[siblingPos - 1];
+        const temp = clothes[itemIndex];
+        clothes[itemIndex] = clothes[prevGlobalIdx];
+        clothes[prevGlobalIdx] = temp;
+    } else if (direction === 'down' && siblingPos < siblingIndices.length - 1) {
+        const nextGlobalIdx = siblingIndices[siblingPos + 1];
+        const temp = clothes[itemIndex];
+        clothes[itemIndex] = clothes[nextGlobalIdx];
+        clothes[nextGlobalIdx] = temp;
+    } else {
+        return;
+    }
+    
+    saveData();
+    renderSectionInventory();
+    renderClothesInWardrobe();
 }
 
 // 9. NEW CLOTHING FORM MANAGEMENT

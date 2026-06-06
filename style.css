@@ -638,7 +638,6 @@ body {
 }
 
 .drawer-folded-item:hover {
-    transform: scale(1.15) translateY(-1px);
     z-index: 10;
 }
 
@@ -1032,6 +1031,34 @@ body {
     gap: 4px;
 }
 
+.btn-move-up,
+.btn-move-down {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 10px;
+    padding: 4px 2px;
+    color: var(--text-muted);
+    transition: color 0.15s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-move-up:hover,
+.btn-move-down:hover {
+    color: var(--primary);
+    transform: scale(1.2);
+}
+
+.btn-move-up[disabled],
+.btn-move-down[disabled] {
+    opacity: 0.25;
+    cursor: not-allowed;
+    transform: none !important;
+    color: var(--text-muted) !important;
+}
+
 .btn-edit-cloth {
     background: transparent;
     border: none;
@@ -1183,9 +1210,6 @@ body {
 }
 
 .visual-hanger:hover {
-    transform: translateY(-8px) scale(1.2);
-    margin-right: 8px;
-    margin-left: 8px;
     z-index: 100;
 }
 
@@ -1224,7 +1248,6 @@ body {
 .folded-item-group:hover rect {
     stroke: var(--primary);
     stroke-width: 2px;
-    filter: brightness(1.05);
 }
 
 /* Folded clothes on shelves style */
@@ -1241,7 +1264,6 @@ body {
 }
 
 .visual-folded:hover {
-    transform: scale(1.15) translateY(-2px);
     z-index: 10;
 }
 
