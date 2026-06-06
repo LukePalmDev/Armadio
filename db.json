@@ -368,5 +368,15 @@
         "color": "#cffafe",
         "brand": "ONLY&SONS",
         "notes": ""
+    },
+    {
+        "id": "cloth_1780769604681_625",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Cappotto",
+        "type": "jacket",
+        "color": "#eab308",
+        "brand": "PRIMARK",
+        "notes": ""
     }
 ]
