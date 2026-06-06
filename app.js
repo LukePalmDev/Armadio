@@ -18,23 +18,23 @@ function getSeedData() {
     return [
         // Milano Clothes
         { id: 'm1', house: 'Milano', section: 'sec1-top-rail', name: 'Camicia di Lino Celeste', type: 'shirt', color: '#87ceeb', brand: 'Ralph Lauren', notes: 'Taglia M' },
-        { id: 'm2', house: 'Milano', section: 'sec1-top-rail', name: 'T-Shirt Bianca Slim Fit', type: 'tshirt', color: '#ffffff', brand: 'Uniqlo', notes: 'Cotone organico' },
+        { id: 'm2', house: 'Milano', section: 'sec1-top-rail', name: 'Felpa Bianca Slim Fit', type: 'hoodie', color: '#ffffff', brand: 'Uniqlo', notes: 'Cotone organico' },
         { id: 'm3', house: 'Milano', section: 'sec1-bottom-rail', name: 'Giacca Vintage Beige', type: 'jacket', color: '#f5f5dc', brand: 'Baracuta', notes: 'Primaverile' },
         { id: 'm4', house: 'Milano', section: 'sec2-middle-rail', name: 'Cappotto di Lana Nero', type: 'jacket', color: '#333333', brand: 'Zara', notes: 'Invernale pesante' },
         { id: 'm5', house: 'Milano', section: 'sec2-middle-rail', name: 'Camicia di Jeans Lavaggio Scuro', type: 'shirt', color: '#3b82f6', brand: 'Levi\'s', notes: 'Molto resistente' },
         { id: 'm6', house: 'Milano', section: 'sec2-top-shelf', name: 'Maglione in Cashmere Grigio', type: 'sweater', color: '#8c8c8c', brand: 'Falconeri', notes: 'Lavare a mano' },
-        { id: 'm7', house: 'Milano', section: 'sec2-drawer1', name: 'Boxer in Cotone Grigio x5', type: 'other', color: '#8c8c8c', brand: 'Calvin Klein', notes: 'Intimo' },
-        { id: 'm8', house: 'Milano', section: 'sec2-drawer2', name: 'Cintura in Cuoio Marrone', type: 'other', color: '#ff9f00', brand: 'Timberland', notes: 'Accessorio' },
+        { id: 'm7', house: 'Milano', section: 'sec2-drawer1', name: 'Calze di Lana x5', type: 'sweater', color: '#8c8c8c', brand: 'Calvin Klein', notes: 'Invernali' },
+        { id: 'm8', house: 'Milano', section: 'sec2-drawer2', name: 'Pantalone Corto Beige', type: 'shorts', color: '#ff9f00', brand: 'Timberland', notes: 'Estivo' },
 
         // Reggio Clothes
         { id: 'r1', house: 'Reggio', section: 'sec1-top-rail', name: 'Camicia di Lino Bianca', type: 'shirt', color: '#ffffff', brand: 'Boggi', notes: 'Perfetta per il caldo' },
         { id: 'r2', house: 'Reggio', section: 'sec2-middle-rail', name: 'Giacca Bomber Verde Militare', type: 'jacket', color: '#22c55e', brand: 'Alpha Industries', notes: 'Autunnale' },
-        { id: 'r3', house: 'Reggio', section: 'sec2-top-shelf', name: 'Felpa con Cappuccio Grigia', type: 'sweater', color: '#8c8c8c', brand: 'Nike', notes: 'Tempo libero' },
+        { id: 'r3', house: 'Reggio', section: 'sec2-top-shelf', name: 'Felpa con Cappuccio Grigia', type: 'hoodie', color: '#8c8c8c', brand: 'Nike', notes: 'Tempo libero' },
 
         // Sardegna Clothes
-        { id: 's1', house: 'Sardegna', section: 'sec1-top-rail', name: 'T-shirt Gialla Limone', type: 'tshirt', color: '#eab308', brand: 'Patagonia', notes: 'Vacanza mare' },
+        { id: 's1', house: 'Sardegna', section: 'sec1-top-rail', name: 'Felpa Gialla Limone', type: 'hoodie', color: '#eab308', brand: 'Patagonia', notes: 'Estiva' },
         { id: 's2', house: 'Sardegna', section: 'sec1-bottom-rail', name: 'Costume da Bagno Rosso', type: 'shorts', color: '#ef4444', brand: 'Sundek', notes: 'Con velcro' },
-        { id: 's3', house: 'Sardegna', section: 'sec2-top-shelf', name: 'Cappello di Paglia Fedora', type: 'hat', color: '#ff9f00', brand: 'Panama', notes: 'Protezione solare' }
+        { id: 's3', house: 'Sardegna', section: 'sec2-top-shelf', name: 'Felpa Grigia Melange', type: 'hoodie', color: '#8c8c8c', brand: 'Nike', notes: 'Tempo libero' }
     ];
 }
 
@@ -235,21 +235,11 @@ function renderClothesInWardrobe() {
         const isHanging = item.section.includes('rail');
         
         if (isHanging) {
-            // Render hanger shirt
+            // Render dynamic hanger based on type
             const shirtDiv = document.createElement('div');
             shirtDiv.className = 'visual-hanger';
             shirtDiv.innerHTML = `
-                <svg viewBox="0 0 40 40" width="22" height="28" style="filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.15));">
-                    <!-- Hanger hook -->
-                    <path d="M20,6 C18,6 17,9 20,11 C23,9 22,6 20,6 Z" fill="none" stroke="#333" stroke-width="1.5" />
-                    <path d="M20,11 L20,13" fill="none" stroke="#333" stroke-width="1.5" />
-                    <!-- Hanger shoulders -->
-                    <path d="M4,15 L20,13 L36,15" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
-                    <!-- Shirt -->
-                    <path d="M6,16 L11,36 L29,36 L34,16 L28,15 L25,20 L15,20 L12,15 Z" fill="${item.color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-                    <!-- Collar details -->
-                    <path d="M15,15 L20,19 L25,15" fill="none" stroke="#333" stroke-width="1.5" />
-                </svg>
+                ${getHangerSvg(item.type, item.color)}
                 <div class="cloth-tooltip">
                     <strong>${item.name}</strong><br>
                     ${item.brand ? `[${item.brand}]` : ''}
@@ -569,3 +559,101 @@ window.addEventListener('DOMContentLoaded', () => {
     // Back button in active inspector
     document.getElementById('btn-back-to-default').addEventListener('click', resetInspector);
 });
+
+// 14. DYNAMIC HANGER SVG GENERATOR (Line-art style)
+function getHangerSvg(type, color) {
+    const hook = `
+        <!-- Hanger Hook -->
+        <path d="M20,6 C18,6 17,9 20,11 C23,9 22,6 20,6 Z" fill="none" stroke="#333" stroke-width="1.5" />
+        <path d="M20,11 L20,14" fill="none" stroke="#333" stroke-width="1.5" />
+    `;
+
+    let content = '';
+
+    if (type === 'shirt') {
+        content = `
+            <!-- Camicia -->
+            <path d="M12,14 L5,23 L9,25 L12,21 L12,37 L28,37 L28,21 L31,25 L35,23 L28,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M15,14 L20,18 L25,14" fill="none" stroke="#333" stroke-width="1.5" />
+            <path d="M20,18 L20,37" fill="none" stroke="#333" stroke-width="1.5" />
+            <circle cx="20" cy="22" r="1.2" fill="#333" />
+            <circle cx="20" cy="27" r="1.2" fill="#333" />
+            <circle cx="20" cy="32" r="1.2" fill="#333" />
+        `;
+    } else if (type === 'jacket') {
+        content = `
+            <!-- Giacca -->
+            <path d="M12,14 L5,23 L9,25 L12,21 L12,37 L28,37 L28,21 L31,25 L35,23 L28,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <!-- High collar -->
+            <path d="M15,14 L15,10 C15,9 25,9 25,10 L25,14" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <!-- Zipper -->
+            <path d="M20,10 L20,37" fill="none" stroke="#333" stroke-width="1.5" />
+            <!-- Pocket lines -->
+            <path d="M14,29 L17,29 L17,33 L14,33 Z" fill="none" stroke="#333" stroke-width="1.2" />
+            <path d="M23,29 L26,29 L26,33 L23,33 Z" fill="none" stroke="#333" stroke-width="1.2" />
+        `;
+    } else if (type === 'sweater') {
+        content = `
+            <!-- Maglione -->
+            <path d="M12,14 L5,23 L9,25 L12,21 L12,37 L28,37 L28,21 L31,25 L35,23 L28,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <!-- Crew neck -->
+            <path d="M15,14 C15,17 25,17 25,14" fill="none" stroke="#333" stroke-width="1.5" />
+            <!-- Ribbed cuffs and hem -->
+            <path d="M12,35 L28,35" fill="none" stroke="#333" stroke-width="1.5" />
+            <!-- Knit pattern detail (simple line) -->
+            <path d="M20,16 L20,34" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
+        `;
+    } else if (type === 'hoodie') {
+        content = `
+            <!-- Felpa con cappuccio -->
+            <path d="M12,14 L5,23 L9,25 L12,21 L12,37 L28,37 L28,21 L31,25 L35,23 L28,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <!-- Hood behind neck -->
+            <path d="M13,14 C12,6 28,6 27,14" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <!-- Drawstrings -->
+            <path d="M18,15 L18,23" fill="none" stroke="#333" stroke-width="1.2" stroke-linecap="round" />
+            <path d="M22,15 L22,23" fill="none" stroke="#333" stroke-width="1.2" stroke-linecap="round" />
+            <circle cx="18" cy="24" r="0.8" fill="#333" />
+            <circle cx="22" cy="24" r="0.8" fill="#333" />
+            <!-- Pouch pocket -->
+            <path d="M15,27 L25,27 L23,33 L17,33 Z" fill="none" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+        `;
+    } else if (type === 'pants') {
+        content = `
+            <!-- Pantalone Lungo -->
+            <!-- Hanger Bar -->
+            <path d="M4,14 L36,14" fill="none" stroke="#333" stroke-width="1.5" />
+            <!-- Pants folded over hanger bar -->
+            <path d="M11,14 L11,38 L19,38 L19,17 L21,17 L21,38 L29,38 L29,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <!-- Waistband -->
+            <path d="M11,17 L29,17" fill="none" stroke="#333" stroke-width="1.2" />
+            <!-- Crease lines -->
+            <path d="M15,18 L15,36" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="3,3" />
+            <path d="M25,18 L25,36" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="3,3" />
+        `;
+    } else if (type === 'shorts') {
+        content = `
+            <!-- Pantalone Corto -->
+            <!-- Hanger Bar -->
+            <path d="M4,14 L36,14" fill="none" stroke="#333" stroke-width="1.5" />
+            <!-- Shorts folded over hanger bar -->
+            <path d="M11,14 L11,26 L19,26 L19,17 L21,17 L21,26 L29,26 L29,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <!-- Waistband -->
+            <path d="M11,17 L29,17" fill="none" stroke="#333" stroke-width="1.2" />
+            <!-- Crease lines -->
+            <path d="M15,18 L15,24" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
+            <path d="M25,18 L25,24" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
+        `;
+    } else {
+        // Fallback standard hanger
+        content = `
+            <path d="M4,15 L20,13 L36,15 Z" fill="${color}" stroke="#333" stroke-width="1.5" />
+        `;
+    }
+
+    return `
+    <svg viewBox="0 0 40 40" width="22" height="28" style="filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.15));">
+        ${content}
+        ${hook}
+    </svg>
+    `;
+}
