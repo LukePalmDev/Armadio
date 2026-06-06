@@ -1,6 +1,6 @@
-# Armasio 💾
+# Armadio 💾
 
-**Armasio** è un'applicazione web in stile **Retro OS & Terminal Aesthetics** ideata per archiviare, gestire e organizzare il proprio guardaroba, diviso per diverse abitazioni: **Milano**, **Reggio** e **Sardegna**.
+**Armadio** è un'applicazione web in stile **Retro OS & Terminal Aesthetics** ideata per archiviare, gestire e organizzare il proprio guardaroba, diviso per diverse abitazioni: **Milano**, **Reggio** e **Sardegna**.
 
 Il design del sito è ispirato alla seguente guida estetica retro:
 ![Inspiration Styleguide](wardrobe_inspiration.jpg)
@@ -44,4 +44,4 @@ Dopodiché, apri il browser all'indirizzo:
 ## Repository GitHub
 
 La repository è pubblicata su GitHub all'indirizzo:
-[https://github.com/LukePalmDev/Armasio](https://github.com/LukePalmDev/Armasio)
+[https://github.com/LukePalmDev/Armadio](https://github.com/LukePalmDev/Armadio)
