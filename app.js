@@ -42,6 +42,7 @@ function getSeedData() {
 let currentHouse = 'Milano';
 let selectedSection = null;
 let clothes = [];
+let editingItemId = null;
 
 // 4. CORE DATA METHODS
 function loadData() {
@@ -296,6 +297,7 @@ function renderClothesInWardrobe() {
 
 // 8. INSPECTOR ACTIONS & STATE SYNC
 function selectSection(sectionId) {
+    cancelEditClothing();
     selectedSection = sectionId;
     
     // Ensure appropriate doors are open so user doesn't inspect closed elements
@@ -325,6 +327,7 @@ function selectSection(sectionId) {
 }
 
 function resetInspector() {
+    cancelEditClothing();
     selectedSection = null;
     document.querySelectorAll('.compartment-node').forEach(node => {
         node.classList.remove('selected');
@@ -373,8 +376,17 @@ function renderSectionInventory() {
                     </span>
                 </div>
             </div>
-            <button class="btn-delete-cloth" title="Elimina capo" data-id="${item.id}">&times;</button>
+            <div class="card-actions">
+                <button class="btn-edit-cloth" title="Modifica capo" data-id="${item.id}">✏️</button>
+                <button class="btn-delete-cloth" title="Elimina capo" data-id="${item.id}">&times;</button>
+            </div>
         `;
+
+        // Edit button listener
+        card.querySelector('.btn-edit-cloth').addEventListener('click', (e) => {
+            e.stopPropagation();
+            startEditClothing(item.id);
+        });
 
         // Delete button listener
         card.querySelector('.btn-delete-cloth').addEventListener('click', (e) => {
@@ -414,6 +426,12 @@ function initForm() {
         });
     }
 
+    // Cancel edit button listener
+    const cancelBtn = document.getElementById('btn-cancel-edit');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', cancelEditClothing);
+    }
+
     form.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -438,19 +456,38 @@ function initForm() {
             }
         }
 
-        const newItem = {
-            id: 'cloth_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-            house: currentHouse,
-            section: selectedSection,
-            name: nameInput.value.trim(),
-            type: typeSelect.value,
-            color: selectedColor,
-            brand: brandInput.value.trim(),
-            notes: notesText.value.trim()
-        };
+        if (editingItemId) {
+            // Edit Mode
+            const idx = clothes.findIndex(item => item.id === editingItemId);
+            if (idx !== -1) {
+                clothes[idx].name = nameInput.value.trim();
+                clothes[idx].type = typeSelect.value;
+                clothes[idx].color = selectedColor;
+                clothes[idx].brand = brandInput.value.trim();
+                clothes[idx].notes = notesText.value.trim();
+            }
+            
+            editingItemId = null;
+            
+            // Reset Form UI
+            document.getElementById('form-title').textContent = "+ AGGIUNGI CAPO";
+            document.getElementById('btn-submit-cloth').textContent = "REGISTRA CAPO";
+            document.getElementById('btn-cancel-edit').style.display = "none";
+        } else {
+            // Add Mode
+            const newItem = {
+                id: 'cloth_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                house: currentHouse,
+                section: selectedSection,
+                name: nameInput.value.trim(),
+                type: typeSelect.value,
+                color: selectedColor,
+                brand: brandInput.value.trim(),
+                notes: notesText.value.trim()
+            };
+            clothes.push(newItem);
+        }
 
-        // Add to database
-        clothes.push(newItem);
         saveData();
 
         // Reset form inputs except color
@@ -462,6 +499,70 @@ function initForm() {
         renderSectionInventory();
         renderClothesInWardrobe();
     });
+}
+
+// 9.5. EDIT MODALITY LOGIC
+function startEditClothing(itemId) {
+    const item = clothes.find(c => c.id === itemId);
+    if (!item) return;
+    
+    editingItemId = itemId;
+    
+    // Populate form fields
+    document.getElementById('cloth-name').value = item.name;
+    document.getElementById('cloth-type').value = item.type;
+    document.getElementById('cloth-brand').value = item.brand || '';
+    document.getElementById('cloth-notes').value = item.notes || '';
+    
+    // Select the correct color swatch radio
+    const customColorInput = document.getElementById('cloth-color-custom');
+    const customColorRadio = document.getElementById('radio-custom-color');
+    const colorRadios = document.querySelectorAll('input[name="cloth-color"]');
+    
+    colorRadios.forEach(radio => radio.checked = false);
+    
+    let matched = false;
+    for (let radio of colorRadios) {
+        if (radio.value.toLowerCase() === item.color.toLowerCase() && radio.id !== 'radio-custom-color') {
+            radio.checked = true;
+            matched = true;
+            break;
+        }
+    }
+    
+    if (!matched && customColorInput && customColorRadio) {
+        customColorInput.value = item.color;
+        customColorRadio.value = item.color;
+        customColorRadio.checked = true;
+    }
+    
+    // Update Form UI
+    document.getElementById('form-title').textContent = "MODIFICA CAPO";
+    document.getElementById('btn-submit-cloth').textContent = "SALVA MODIFICHE";
+    document.getElementById('btn-cancel-edit').style.display = "block";
+    
+    // Smooth scroll form into view
+    document.getElementById('add-clothing-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function cancelEditClothing() {
+    editingItemId = null;
+    
+    const form = document.getElementById('add-clothing-form');
+    if (form) {
+        document.getElementById('cloth-name').value = '';
+        document.getElementById('cloth-brand').value = '';
+        document.getElementById('cloth-notes').value = '';
+    }
+    
+    const formTitle = document.getElementById('form-title');
+    if (formTitle) formTitle.textContent = "+ AGGIUNGI CAPO";
+    
+    const submitBtn = document.getElementById('btn-submit-cloth');
+    if (submitBtn) submitBtn.textContent = "REGISTRA CAPO";
+    
+    const cancelBtn = document.getElementById('btn-cancel-edit');
+    if (cancelBtn) cancelBtn.style.display = "none";
 }
 
 // 10. STATISTICS CALCULATION

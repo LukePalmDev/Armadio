@@ -223,7 +223,7 @@
 
                             <!-- Add Clothing Form -->
                             <form id="add-clothing-form" class="retro-form">
-                                <h3>+ AGGIUNGI CAPO</h3>
+                                <h3 id="form-title">+ AGGIUNGI CAPO</h3>
                                 <div class="form-grid">
                                     <div class="form-group">
                                         <label for="cloth-name">Descrizione/Nome *</label>
@@ -251,15 +251,24 @@
                                             <label>Colore</label>
                                             <div class="color-picker-grid">
                                                 <label class="color-swatch-label" style="background-color: #ffffff; border: 1px solid #333;"><input type="radio" name="cloth-color" value="#ffffff" checked></label>
-                                                <label class="color-swatch-label" style="background-color: #333333;"><input type="radio" name="cloth-color" value="#333333"></label>
+                                                <label class="color-swatch-label" style="background-color: #e7e5e4;"><input type="radio" name="cloth-color" value="#e7e5e4"></label>
+                                                <label class="color-swatch-label" style="background-color: #d6d3d1;"><input type="radio" name="cloth-color" value="#d6d3d1"></label>
                                                 <label class="color-swatch-label" style="background-color: #8c8c8c;"><input type="radio" name="cloth-color" value="#8c8c8c"></label>
-                                                <label class="color-swatch-label" style="background-color: #3b82f6;"><input type="radio" name="cloth-color" value="#3b82f6"></label>
-                                                <label class="color-swatch-label" style="background-color: #ef4444;"><input type="radio" name="cloth-color" value="#ef4444"></label>
-                                                <label class="color-swatch-label" style="background-color: #22c55e;"><input type="radio" name="cloth-color" value="#22c55e"></label>
+                                                <label class="color-swatch-label" style="background-color: #333333;"><input type="radio" name="cloth-color" value="#333333"></label>
+                                                <label class="color-swatch-label" style="background-color: #000000;"><input type="radio" name="cloth-color" value="#000000"></label>
+                                                <label class="color-swatch-label" style="background-color: #b45309;"><input type="radio" name="cloth-color" value="#b45309"></label>
+                                                <label class="color-swatch-label" style="background-color: #d97706;"><input type="radio" name="cloth-color" value="#d97706"></label>
                                                 <label class="color-swatch-label" style="background-color: #eab308;"><input type="radio" name="cloth-color" value="#eab308"></label>
-                                                <label class="color-swatch-label" style="background-color: #ec4899;"><input type="radio" name="cloth-color" value="#ec4899"></label>
+                                                <label class="color-swatch-label" style="background-color: #22c55e;"><input type="radio" name="cloth-color" value="#22c55e"></label>
+                                                <label class="color-swatch-label" style="background-color: #10b981;"><input type="radio" name="cloth-color" value="#10b981"></label>
+                                                <label class="color-swatch-label" style="background-color: #14b8a6;"><input type="radio" name="cloth-color" value="#14b8a6"></label>
+                                                <label class="color-swatch-label" style="background-color: #06b6d4;"><input type="radio" name="cloth-color" value="#06b6d4"></label>
+                                                <label class="color-swatch-label" style="background-color: #3b82f6;"><input type="radio" name="cloth-color" value="#3b82f6"></label>
+                                                <label class="color-swatch-label" style="background-color: #1e3a8a;"><input type="radio" name="cloth-color" value="#1e3a8a"></label>
                                                 <label class="color-swatch-label" style="background-color: #a855f7;"><input type="radio" name="cloth-color" value="#a855f7"></label>
-                                                <label class="color-swatch-label" style="background-color: #ff9f00;"><input type="radio" name="cloth-color" value="#ff9f00"></label>
+                                                <label class="color-swatch-label" style="background-color: #ec4899;"><input type="radio" name="cloth-color" value="#ec4899"></label>
+                                                <label class="color-swatch-label" style="background-color: #f43f5e;"><input type="radio" name="cloth-color" value="#f43f5e"></label>
+                                                <label class="color-swatch-label" style="background-color: #ef4444;"><input type="radio" name="cloth-color" value="#ef4444"></label>
                                                 <label class="color-swatch-label swatch-custom" title="Seleziona colore personalizzato">
                                                     <input type="color" id="cloth-color-custom" value="#000000">
                                                     <input type="radio" name="cloth-color" id="radio-custom-color" value="custom">
@@ -272,7 +281,10 @@
                                         <textarea id="cloth-notes" rows="2" placeholder="Taglia, stagionalità, tessuto, ecc."></textarea>
                                     </div>
                                 </div>
-                                <button type="submit" class="retro-btn btn-block">REGISTRA CAPO</button>
+                                <div class="form-actions" style="display: flex; gap: 8px; margin-top: 15px; width: 100%;">
+                                    <button type="submit" id="btn-submit-cloth" class="retro-btn" style="flex: 1; padding: 10px; font-size: 13px; margin-top: 0;">REGISTRA CAPO</button>
+                                    <button type="button" id="btn-cancel-edit" class="retro-btn" style="display: none; padding: 10px; font-size: 13px; margin-top: 0; background-color: var(--surface-dark);">ANNULLA</button>
+                                </div>
                             </form>
                         </div>
                     </div>

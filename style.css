@@ -1026,6 +1026,30 @@ body {
     color: var(--text-muted);
 }
 
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-edit-cloth {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: grayscale(1);
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.btn-edit-cloth:hover {
+    filter: grayscale(0);
+    transform: scale(1.2);
+}
+
 .btn-delete-cloth {
     background: transparent;
     border: none;
@@ -1103,8 +1127,8 @@ body {
 /* Custom Grid Color Picker */
 .color-picker-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
 }
 
 .color-swatch-label {
