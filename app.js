@@ -260,24 +260,18 @@ function renderClothesInWardrobe() {
                 selectSection(item.section);
             });
             container.appendChild(shirtDiv);
-        } else if (item.section.includes('shelf')) {
-            // Render folded clothes stack
-            const foldedDiv = document.createElement('div');
-            foldedDiv.className = 'visual-folded';
-            foldedDiv.style.backgroundColor = item.color;
-            foldedDiv.innerHTML = `
-                <div style="position: absolute; bottom: 1px; left: 2px; right: 2px; height: 1.5px; background: rgba(0,0,0,0.15);"></div>
-                <div class="cloth-tooltip">
-                    <strong>${item.name}</strong><br>
-                    ${item.brand ? `[${item.brand}]` : ''}
-                </div>
-            `;
-            foldedDiv.addEventListener('click', (e) => {
-                e.stopPropagation();
-                selectSection(item.section);
-            });
-            container.appendChild(foldedDiv);
         }
+    });
+
+    // Render shelves as aggregated folded stacks
+    const shelfNodes = document.querySelectorAll('.shelf-node');
+    shelfNodes.forEach(shelfNode => {
+        const sectionId = shelfNode.getAttribute('data-section');
+        const container = document.getElementById(`container-${sectionId}`);
+        if (!container) return;
+        
+        const items = houseClothes.filter(c => c.section === sectionId);
+        container.innerHTML = getFoldedStackSvg(items);
     });
 
     // Draw the horizontal shirt stacks in the open drawers
@@ -636,120 +630,182 @@ function renderDrawerColumns() {
             return;
         }
         
-        const stack = document.createElement('div');
-        stack.className = 'drawer-folded-stack';
-        
-        items.forEach(item => {
-            const folded = document.createElement('div');
-            folded.className = 'drawer-folded-item';
-            folded.style.backgroundColor = item.color;
-            folded.innerHTML = `
-                <div class="cloth-tooltip">
-                    <strong>${item.name}</strong><br>
-                    ${item.brand ? `[${item.brand}]` : ''}
-                </div>
-            `;
-            stack.appendChild(folded);
-        });
-        
-        el.appendChild(stack);
+        el.innerHTML = getFoldedStackSvg(items);
     });
 }
 
-// 14. DYNAMIC HANGER SVG GENERATOR (Line-art style)
+// 14. DYNAMIC HANGER SVG GENERATOR (Line-art 3/4 style)
 function getHangerSvg(type, color) {
     const hook = `
         <!-- Hanger Hook -->
-        <path d="M20,6 C18,6 17,9 20,11 C23,9 22,6 20,6 Z" fill="none" stroke="#333" stroke-width="1.5" />
-        <path d="M20,11 L20,14" fill="none" stroke="#333" stroke-width="1.5" />
+        <path d="M20,4 C17,4 15,7 18,11 C20,13 20,16 20,18" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
+        <!-- Hanger shoulders -->
+        <path d="M8,22 L20,18 L32,22" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
     `;
 
     let content = '';
 
     if (type === 'shirt') {
         content = `
-            <!-- Camicia -->
-            <path d="M12,14 L5,23 L9,25 L12,21 L12,37 L28,37 L28,21 L31,25 L35,23 L28,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <path d="M15,14 L20,18 L25,14" fill="none" stroke="#333" stroke-width="1.5" />
-            <path d="M20,18 L20,37" fill="none" stroke="#333" stroke-width="1.5" />
-            <circle cx="20" cy="22" r="1.2" fill="#333" />
-            <circle cx="20" cy="27" r="1.2" fill="#333" />
-            <circle cx="20" cy="32" r="1.2" fill="#333" />
+            <!-- Camicia Profile -->
+            <path d="M 12,21 Q 8,40 8,72 L 26,72 Q 28,45 28,21 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M 10,21 C 12,18 24,18 26,21 L 22,25 C 20,23 14,23 12,25 Z" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+            <path d="M 24,23 C 27,30 29,42 27,55 L 21,54 C 23,42 21,30 18,22" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+            <path d="M 15,22 L 15,72" fill="none" stroke="#333" stroke-width="1" />
+            <circle cx="15" cy="30" r="1" fill="#333" />
+            <circle cx="15" cy="40" r="1" fill="#333" />
+            <circle cx="15" cy="50" r="1" fill="#333" />
+            <circle cx="15" cy="65" r="1" fill="#333" />
         `;
     } else if (type === 'jacket') {
         content = `
-            <!-- Giacca -->
-            <path d="M12,14 L5,23 L9,25 L12,21 L12,37 L28,37 L28,21 L31,25 L35,23 L28,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <!-- High collar -->
-            <path d="M15,14 L15,10 C15,9 25,9 25,10 L25,14" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <!-- Zipper -->
-            <path d="M20,10 L20,37" fill="none" stroke="#333" stroke-width="1.5" />
-            <!-- Pocket lines -->
-            <path d="M14,29 L17,29 L17,33 L14,33 Z" fill="none" stroke="#333" stroke-width="1.2" />
-            <path d="M23,29 L26,29 L26,33 L23,33 Z" fill="none" stroke="#333" stroke-width="1.2" />
+            <!-- Giacca Profile -->
+            <path d="M 12,21 Q 8,40 8,72 L 26,72 Q 28,45 28,21 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M 12,21 L 16,28 L 19,21" fill="none" stroke="#333" stroke-width="1.2" />
+            <path d="M 15,21 C 15,28 15,68 15,72" fill="none" stroke="#333" stroke-width="1.2" />
+            <path d="M 23,22 C 26,30 28,42 26,55 L 20,54 C 22,42 20,30 17,22" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+            <path d="M 10,48 L 14,48" fill="none" stroke="#333" stroke-width="1.5" />
+            <path d="M 18,48 L 24,48" fill="none" stroke="#333" stroke-width="1.5" />
         `;
     } else if (type === 'sweater') {
         content = `
-            <!-- Maglione -->
-            <path d="M12,14 L5,23 L9,25 L12,21 L12,37 L28,37 L28,21 L31,25 L35,23 L28,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <!-- Crew neck -->
-            <path d="M15,14 C15,17 25,17 25,14" fill="none" stroke="#333" stroke-width="1.5" />
-            <!-- Ribbed cuffs and hem -->
-            <path d="M12,35 L28,35" fill="none" stroke="#333" stroke-width="1.5" />
-            <!-- Knit pattern detail (simple line) -->
-            <path d="M20,16 L20,34" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
+            <!-- Maglione Profile -->
+            <path d="M 12,21 Q 8,40 8,72 L 26,72 Q 28,45 28,21 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M 12,21 C 14,19 22,19 24,21" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M 12,21 C 14,19 22,19 24,21" fill="none" stroke="#fff" stroke-width="0.8" stroke-dasharray="1,1" />
+            <path d="M 23,22 C 26,30 28,42 26,55 L 20,54 C 22,42 20,30 17,22" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+            <path d="M 20,54 L 26,55" fill="none" stroke="#333" stroke-width="2.5" />
+            <path d="M 8,72 L 26,72" fill="none" stroke="#333" stroke-width="2.5" />
         `;
     } else if (type === 'hoodie') {
         content = `
-            <!-- Felpa con cappuccio -->
-            <path d="M12,14 L5,23 L9,25 L12,21 L12,37 L28,37 L28,21 L31,25 L35,23 L28,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <!-- Hood behind neck -->
-            <path d="M13,14 C12,6 28,6 27,14" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <!-- Drawstrings -->
-            <path d="M18,15 L18,23" fill="none" stroke="#333" stroke-width="1.2" stroke-linecap="round" />
-            <path d="M22,15 L22,23" fill="none" stroke="#333" stroke-width="1.2" stroke-linecap="round" />
-            <circle cx="18" cy="24" r="0.8" fill="#333" />
-            <circle cx="22" cy="24" r="0.8" fill="#333" />
-            <!-- Pouch pocket -->
-            <path d="M15,27 L25,27 L23,33 L17,33 Z" fill="none" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+            <!-- Felpa Profile -->
+            <path d="M 12,22 Q 8,40 8,72 L 26,72 Q 28,45 28,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M 13,22 C 10,12 24,10 26,22 C 28,24 22,27 13,22" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+            <path d="M 17,24 C 17,32 15,35 15,38" fill="none" stroke="#333" stroke-width="1" stroke-linecap="round" />
+            <path d="M 22,23 C 25,31 27,43 25,56 L 19,55 C 21,43 19,31 16,23" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+            <path d="M 8,72 L 26,72" fill="none" stroke="#333" stroke-width="2.5" />
+            <path d="M 19,55 L 25,56" fill="none" stroke="#333" stroke-width="2.5" />
         `;
     } else if (type === 'pants') {
         content = `
-            <!-- Pantalone Lungo -->
-            <!-- Hanger Bar -->
-            <path d="M4,14 L36,14" fill="none" stroke="#333" stroke-width="1.5" />
-            <!-- Pants folded over hanger bar -->
-            <path d="M11,14 L11,38 L19,38 L19,17 L21,17 L21,38 L29,38 L29,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <!-- Waistband -->
-            <path d="M11,17 L29,17" fill="none" stroke="#333" stroke-width="1.2" />
-            <!-- Crease lines -->
-            <path d="M15,18 L15,36" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="3,3" />
-            <path d="M25,18 L25,36" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="3,3" />
+            <!-- Pantalone Lungo Profile -->
+            <path d="M 6,22 L 34,22" fill="none" stroke="#333" stroke-width="1.5" />
+            <path d="M 10,22 L 10,72 Q 10,74 12,74 L 18,74 Q 20,74 20,72 L 20,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M 20,22 L 20,72 Q 20,74 22,74 L 28,74 Q 30,74 30,72 L 30,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M 15,24 L 15,70" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
+            <path d="M 25,24 L 25,70" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
         `;
     } else if (type === 'shorts') {
         content = `
-            <!-- Pantalone Corto -->
-            <!-- Hanger Bar -->
-            <path d="M4,14 L36,14" fill="none" stroke="#333" stroke-width="1.5" />
-            <!-- Shorts folded over hanger bar -->
-            <path d="M11,14 L11,26 L19,26 L19,17 L21,17 L21,26 L29,26 L29,14 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <!-- Waistband -->
-            <path d="M11,17 L29,17" fill="none" stroke="#333" stroke-width="1.2" />
-            <!-- Crease lines -->
-            <path d="M15,18 L15,24" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
-            <path d="M25,18 L25,24" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
+            <!-- Pantalone Corto Profile -->
+            <path d="M 6,22 L 34,22" fill="none" stroke="#333" stroke-width="1.5" />
+            <path d="M 10,22 L 10,48 Q 10,50 12,50 L 18,50 Q 20,50 20,48 L 20,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M 20,22 L 20,48 Q 20,50 22,50 L 28,50 Q 30,50 30,48 L 30,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M 15,24 L 15,46" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
+            <path d="M 25,24 L 25,46" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
         `;
     } else {
-        // Fallback standard hanger
         content = `
-            <path d="M4,15 L20,13 L36,15 Z" fill="${color}" stroke="#333" stroke-width="1.5" />
+            <path d="M 12,21 Q 8,40 8,72 L 26,72 Q 28,45 28,21 Z" fill="${color}" stroke="#333" stroke-width="1.5" />
         `;
     }
 
     return `
-    <svg viewBox="0 0 40 40" width="22" height="28" style="filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.15));">
+    <svg viewBox="0 0 40 80" width="30" height="60" style="filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.15));">
         ${content}
         ${hook}
+    </svg>
+    `;
+}
+
+// 15. DYNAMIC FOLDED STACK SVG GENERATOR (Line-art folded style)
+function getFoldedStackSvg(items) {
+    if (!items || items.length === 0) return '';
+    
+    const maxLayers = 6;
+    const displayItems = items.slice(-maxLayers);
+    const K = displayItems.length;
+    
+    const dy = K > 1 ? Math.min(6, 24 / (K - 1)) : 6;
+    const yTop = 44 - 16 - (K - 1) * dy;
+    
+    let layersSvg = '';
+    
+    for (let i = 0; i < K; i++) {
+        const item = displayItems[i];
+        const color = item.color || '#fff';
+        const isTop = (i === K - 1);
+        
+        if (isTop) {
+            const y = yTop;
+            let details = '';
+            
+            if (item.type === 'shirt') {
+                details = `
+                    <path d="M 30,${y} L 35,${y+6} L 40,${y+2} L 30,${y}" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+                    <path d="M 50,${y} L 45,${y+6} L 40,${y+2} L 50,${y}" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+                    <path d="M 40,${y+2} L 40,${y+16}" fill="none" stroke="#333" stroke-width="1.2" />
+                    <circle cx="40" cy="${y+6}" r="0.8" fill="#333" />
+                    <circle cx="40" cy="${y+11}" r="0.8" fill="#333" />
+                `;
+            } else if (item.type === 'sweater') {
+                details = `
+                    <path d="M 30,${y} C 33,${y+5} 47,${y+5} 50,${y}" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M 30,${y} C 33,${y+5} 47,${y+5} 50,${y}" fill="none" stroke="#fff" stroke-width="0.8" stroke-dasharray="1,1" />
+                    <path d="M 24,${y+8} L 24,${y+14}" fill="none" stroke="#333" stroke-width="0.5" stroke-dasharray="1,1" />
+                    <path d="M 56,${y+8} L 56,${y+14}" fill="none" stroke="#333" stroke-width="0.5" stroke-dasharray="1,1" />
+                `;
+            } else if (item.type === 'hoodie') {
+                details = `
+                    <path d="M 28,${y} C 25,${y+4} 55,${y+4} 52,${y}" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+                    <path d="M 37,${y+4} L 37,${y+10}" fill="none" stroke="#333" stroke-width="1" stroke-linecap="round" />
+                    <path d="M 43,${y+4} L 43,${y+10}" fill="none" stroke="#333" stroke-width="1" stroke-linecap="round" />
+                    <path d="M 22,${y+13} L 58,${y+13}" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="1,1" />
+                `;
+            } else if (item.type === 'jacket') {
+                details = `
+                    <path d="M 28,${y} L 34,${y+4} L 40,${y}" fill="none" stroke="#333" stroke-width="1.2" />
+                    <path d="M 52,${y} L 46,${y+4} L 40,${y}" fill="none" stroke="#333" stroke-width="1.2" />
+                    <path d="M 40,${y+4} L 40,${y+16}" fill="none" stroke="#333" stroke-width="1.2" />
+                `;
+            } else {
+                details = `
+                    <path d="M 12,${y+4} L 68,${y+4}" fill="none" stroke="#333" stroke-width="1.2" />
+                    <line x1="20" y1="${y}" x2="20" y2="${y+4}" stroke="#333" stroke-width="1" />
+                    <line x1="30" y1="${y}" x2="30" y2="${y+4}" stroke="#333" stroke-width="1" />
+                    <line x1="50" y1="${y}" x2="50" y2="${y+4}" stroke="#333" stroke-width="1" />
+                    <line x1="60" y1="${y}" x2="60" y2="${y+4}" stroke="#333" stroke-width="1" />
+                    <path d="M 12,${y+6} Q 20,${y+6} 22,${y+4}" fill="none" stroke="#333" stroke-width="1" />
+                    <path d="M 68,${y+6} Q 60,${y+6} 58,${y+4}" fill="none" stroke="#333" stroke-width="1" />
+                `;
+            }
+            
+            layersSvg += `
+                <g class="folded-item-group" data-id="${item.id}">
+                    <rect x="12" y="${y}" width="56" height="16" rx="3" fill="${color}" stroke="#333" stroke-width="1.5" />
+                    <line x1="12" y1="${y+8}" x2="17" y2="${y+8}" stroke="#333" stroke-width="1.2" />
+                    <line x1="63" y1="${y+8}" x2="68" y2="${y+8}" stroke="#333" stroke-width="1.2" />
+                    ${details}
+                    <title>${item.name}${item.brand ? ' [' + item.brand + ']' : ''}</title>
+                </g>
+            `;
+        } else {
+            const y = 34 - i * dy;
+            layersSvg += `
+                <g class="folded-item-group" data-id="${item.id}">
+                    <rect x="12" y="${y}" width="56" height="10" rx="3" fill="${color}" stroke="#333" stroke-width="1.5" />
+                    <line x1="12" y1="${y+5}" x2="16" y2="${y+5}" stroke="#333" stroke-width="1.2" />
+                    <line x1="64" y1="${y+5}" x2="68" y2="${y+5}" stroke="#333" stroke-width="1.2" />
+                    <title>${item.name}${item.brand ? ' [' + item.brand + ']' : ''}</title>
+                </g>
+            `;
+        }
+    }
+    
+    return `
+    <svg viewBox="0 0 80 50" width="100%" height="100%" style="overflow: visible;">
+        ${layersSvg}
     </svg>
     `;
 }

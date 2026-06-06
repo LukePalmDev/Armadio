@@ -778,6 +778,15 @@ body {
 .door-right-right .door-handle { left: 8px; }
 
 /* Door Open states */
+.wardrobe-door.open {
+    pointer-events: none;
+}
+
+.wardrobe-door.open .door-handle,
+.wardrobe-door.open .door-label-vert {
+    pointer-events: auto;
+}
+
 .door-left-left.open {
     transform: rotateY(-145deg);
     background-color: var(--surface-light);
@@ -1140,16 +1149,20 @@ body {
    ========================================================================== */
 
 .visual-hanger {
-    width: 18px;
-    height: 28px;
+    width: 24px;
+    height: 52px;
     position: relative;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    margin-right: -14px;
+    z-index: 1;
 }
 
 .visual-hanger:hover {
-    transform: translateY(-4px) scale(1.1);
-    z-index: 10;
+    transform: translateY(-6px) scale(1.25);
+    margin-right: 4px;
+    margin-left: 4px;
+    z-index: 100;
 }
 
 .cloth-tooltip {
@@ -1171,6 +1184,17 @@ body {
 
 .visual-hanger:hover .cloth-tooltip {
     display: block;
+}
+
+/* Folded Stack SVG Item Interaction */
+.folded-item-group {
+    cursor: pointer;
+}
+
+.folded-item-group:hover rect {
+    stroke: var(--primary);
+    stroke-width: 2px;
+    filter: brightness(1.05);
 }
 
 /* Folded clothes on shelves style */
