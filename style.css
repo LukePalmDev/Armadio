@@ -671,7 +671,7 @@ body {
     justify-content: flex-start;
     align-items: center;
     gap: 0;
-    padding-top: 30px;
+    padding-top: 24px; /* Align first row hooks with the bar at top: 22px */
     overflow: visible; /* Prevents clipping of the 2nd row */
 }
 
@@ -680,7 +680,7 @@ body {
     justify-content: center;
     align-items: flex-start;
     width: 100%;
-    margin-top: -85px; /* Overlap rows vertically so they fit inside the rail node height */
+    margin-top: 6px; /* No overlap, distinct rows */
 }
 
 .rail-row:first-child {
@@ -1218,12 +1218,12 @@ body {
    ========================================================================== */
 
 .visual-hanger {
-    width: 49px;
-    height: 132px;
+    width: 36px;
+    height: 98px;
     position: relative;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-    margin-right: -29px;
+    margin-right: -21px;
     z-index: 1;
 }
 
