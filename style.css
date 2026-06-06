@@ -1149,12 +1149,12 @@ body {
    ========================================================================== */
 
 .visual-hanger {
-    width: 60px;
-    height: 120px;
+    width: 66px;
+    height: 132px;
     position: relative;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-    margin-right: -42px;
+    margin-right: -46px;
     z-index: 1;
 }
 
@@ -1174,7 +1174,7 @@ body {
 .cloth-tooltip {
     display: none;
     position: absolute;
-    bottom: 100%;
+    top: 105%; /* Position below the coat to prevent top-edge clipping */
     left: 50%;
     transform: translateX(-50%);
     background-color: var(--border-color);
