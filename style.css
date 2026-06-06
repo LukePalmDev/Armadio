@@ -681,14 +681,11 @@ body {
     align-items: flex-start;
     width: 100%;
     margin-top: 6px; /* No overlap, distinct rows */
+    gap: 4px; /* Space them out horizontally without overlapping */
 }
 
 .rail-row:first-child {
     margin-top: 0;
-}
-
-.rail-row .visual-hanger:last-child {
-    margin-right: 0 !important;
 }
 
 /* Specific alignments for shelves */
@@ -1223,7 +1220,6 @@ body {
     position: relative;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-    margin-right: -21px;
     z-index: 1;
 }
 
