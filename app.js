@@ -44,62 +44,95 @@ let selectedSection = null;
 let clothes = [];
 let editingItemId = null;
 
-// 4. CORE DATA METHODS
-function loadData() {
-    const stored = localStorage.getItem('armadio_clothes');
-    if (stored) {
-        try {
-            clothes = JSON.parse(stored);
-            
-            // Migration for legacy section IDs
-            let migrated = false;
-            clothes.forEach(item => {
-                if (item.section) {
-                    if (item.section === 'col1-shelf' || item.section.startsWith('col4-shelf')) {
-                        item.section = 'sec2-top-shelf';
-                        migrated = true;
-                    } else if (item.section.startsWith('col1-drawer')) {
-                        item.section = 'sec2-drawer3-col1';
-                        migrated = true;
-                    } else if (item.section === 'col2-top-rail') {
-                        item.section = 'sec1-top-rail';
-                        migrated = true;
-                    } else if (item.section === 'col2-bottom-rail') {
-                        item.section = 'sec1-bottom-rail';
-                        migrated = true;
-                    } else if (item.section === 'col3-rail') {
-                        item.section = 'sec2-middle-rail';
-                        migrated = true;
-                    } else if (item.section === 'sec2-drawer1') {
-                        item.section = 'sec2-drawer2-col1';
-                        migrated = true;
-                    } else if (item.section === 'sec2-drawer2') {
-                        item.section = 'sec2-drawer2-col1';
-                        migrated = true;
-                    } else if (item.section === 'sec2-drawer3') {
-                        item.section = 'sec2-drawer3-col1';
-                        migrated = true;
-                    }
-                }
-            });
-            
-            if (migrated) {
-                localStorage.setItem('armadio_clothes', JSON.stringify(clothes));
+// Migration for legacy section IDs
+function runMigrations() {
+    let migrated = false;
+    clothes.forEach(item => {
+        if (item.section) {
+            if (item.section === 'col1-shelf' || item.section.startsWith('col4-shelf')) {
+                item.section = 'sec2-top-shelf';
+                migrated = true;
+            } else if (item.section.startsWith('col1-drawer')) {
+                item.section = 'sec2-drawer3-col1';
+                migrated = true;
+            } else if (item.section === 'col2-top-rail') {
+                item.section = 'sec1-top-rail';
+                migrated = true;
+            } else if (item.section === 'col2-bottom-rail') {
+                item.section = 'sec1-bottom-rail';
+                migrated = true;
+            } else if (item.section === 'col3-rail') {
+                item.section = 'sec2-middle-rail';
+                migrated = true;
+            } else if (item.section === 'sec2-drawer1') {
+                item.section = 'sec2-drawer2-col1';
+                migrated = true;
+            } else if (item.section === 'sec2-drawer2') {
+                item.section = 'sec2-drawer2-col1';
+                migrated = true;
+            } else if (item.section === 'sec2-drawer3') {
+                item.section = 'sec2-drawer3-col1';
+                migrated = true;
             }
-        } catch (e) {
-            console.error("Errore nel caricamento del database", e);
-            clothes = [];
         }
-    } else {
-        // Seeding initial data
-        clothes = getSeedData();
-        saveData();
+    });
+    return migrated;
+}
+
+// 4. CORE DATA METHODS
+async function loadData() {
+    let serverLoaded = false;
+    try {
+        const res = await fetch('/api/load');
+        if (res.ok) {
+            const data = await res.json();
+            if (data && Array.isArray(data)) {
+                clothes = data;
+                serverLoaded = true;
+                console.log("Dati caricati dal server backend");
+            }
+        }
+    } catch (err) {
+        console.warn("Impossibile caricare da server, uso localStorage...", err);
+    }
+
+    if (!serverLoaded) {
+        const stored = localStorage.getItem('armadio_clothes');
+        if (stored) {
+            try {
+                clothes = JSON.parse(stored);
+                console.log("Dati caricati da localStorage");
+            } catch (e) {
+                console.error("Errore parsing localStorage", e);
+                clothes = [];
+            }
+        } else {
+            clothes = getSeedData();
+            await saveData();
+        }
+    }
+
+    const migrated = runMigrations();
+    if (migrated) {
+        await saveData();
     }
 }
 
-function saveData() {
+async function saveData() {
     localStorage.setItem('armadio_clothes', JSON.stringify(clothes));
     updateStats();
+    try {
+        await fetch('/api/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(clothes)
+        });
+        console.log("Dati sincronizzati/salvati sul server backend (db.json)");
+    } catch (e) {
+        console.error("Errore nel salvataggio remoto", e);
+    }
 }
 
 // 5. RULERS ENGINE (CAD COORDINATES)
@@ -419,16 +452,16 @@ function renderSectionInventory() {
     });
 }
 
-function deleteClothing(itemId) {
+async function deleteClothing(itemId) {
     if (confirm("Sei sicuro di voler rimuovere questo capo dall'archivio?")) {
         clothes = clothes.filter(item => item.id !== itemId);
-        saveData();
+        await saveData();
         renderSectionInventory();
         renderClothesInWardrobe();
     }
 }
 
-function moveClothing(itemId, direction) {
+async function moveClothing(itemId, direction) {
     const itemIndex = clothes.findIndex(c => c.id === itemId);
     if (itemIndex === -1) return;
     
@@ -460,7 +493,7 @@ function moveClothing(itemId, direction) {
         return;
     }
     
-    saveData();
+    await saveData();
     renderSectionInventory();
     renderClothesInWardrobe();
 }
@@ -475,12 +508,23 @@ function initForm() {
     const customColorRadio = document.getElementById('radio-custom-color');
     
     if (customColorInput && customColorRadio) {
+        const updateCustomSwatchBackground = () => {
+            const swatchLabel = customColorInput.closest('.color-swatch-label');
+            if (swatchLabel) {
+                swatchLabel.style.backgroundImage = 'none';
+                swatchLabel.style.backgroundColor = customColorInput.value;
+            }
+        };
+
         customColorInput.addEventListener('input', () => {
             customColorRadio.value = customColorInput.value;
             customColorRadio.checked = true;
+            updateCustomSwatchBackground();
         });
         customColorInput.addEventListener('click', () => {
+            customColorRadio.value = customColorInput.value;
             customColorRadio.checked = true;
+            updateCustomSwatchBackground();
         });
     }
 
@@ -490,7 +534,7 @@ function initForm() {
         cancelBtn.addEventListener('click', cancelEditClothing);
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         if (!selectedSection) {
@@ -546,12 +590,26 @@ function initForm() {
             clothes.push(newItem);
         }
 
-        saveData();
+        await saveData();
 
-        // Reset form inputs except color
+        // Reset form inputs
         nameInput.value = '';
         brandInput.value = '';
         notesText.value = '';
+
+        // Reset color swatches to default (first radio)
+        const firstRadio = form.querySelector('input[name="cloth-color"]');
+        if (firstRadio) firstRadio.checked = true;
+        
+        // Reset custom color swatch background
+        if (customColorInput) {
+            customColorInput.value = '#000000';
+            const swatchLabel = customColorInput.closest('.color-swatch-label');
+            if (swatchLabel) {
+                swatchLabel.style.backgroundColor = '';
+                swatchLabel.style.backgroundImage = 'linear-gradient(45deg, #ef4444, #3b82f6, #22c55e)';
+            }
+        }
 
         // Refresh views
         renderSectionInventory();
@@ -592,6 +650,12 @@ function startEditClothing(itemId) {
         customColorInput.value = item.color;
         customColorRadio.value = item.color;
         customColorRadio.checked = true;
+        
+        const swatchLabel = customColorInput.closest('.color-swatch-label');
+        if (swatchLabel) {
+            swatchLabel.style.backgroundImage = 'none';
+            swatchLabel.style.backgroundColor = item.color;
+        }
     }
     
     // Update Form UI
@@ -611,6 +675,21 @@ function cancelEditClothing() {
         document.getElementById('cloth-name').value = '';
         document.getElementById('cloth-brand').value = '';
         document.getElementById('cloth-notes').value = '';
+        
+        // Reset color swatches to default (first radio)
+        const firstRadio = form.querySelector('input[name="cloth-color"]');
+        if (firstRadio) firstRadio.checked = true;
+        
+        // Reset custom color swatch background
+        const customColorInput = document.getElementById('cloth-color-custom');
+        if (customColorInput) {
+            customColorInput.value = '#000000';
+            const swatchLabel = customColorInput.closest('.color-swatch-label');
+            if (swatchLabel) {
+                swatchLabel.style.backgroundColor = '';
+                swatchLabel.style.backgroundImage = 'linear-gradient(45deg, #ef4444, #3b82f6, #22c55e)';
+            }
+        }
     }
     
     const formTitle = document.getElementById('form-title');
@@ -683,13 +762,13 @@ function initCompartmentClicks() {
 }
 
 // 13. BOOTSTRAP INITIALIZATION
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
     // 1. Draw CAD Rulers
     renderRulers();
     window.addEventListener('resize', renderRulers);
 
     // 2. Load DB
-    loadData();
+    await loadData();
 
     // 3. Init Navigation tabs
     initNavigation();
