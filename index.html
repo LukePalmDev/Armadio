@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Armasio — Archivio Guardaroba Retro OS</title>
+    <meta name="description" content="Un archivio minimalista e interattivo per la gestione del guardaroba nelle case di Milano, Reggio e Sardegna.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- CAD Blueprint Rulers -->
+    <div class="ruler ruler-top" id="ruler-top"></div>
+    <div class="ruler ruler-left" id="ruler-left"></div>
+
+    <div class="app-container">
+        <!-- Main Window (Retro OS Style) -->
+        <main class="window-container" id="main-window">
+            <header class="window-header">
+                <div class="window-title">
+                    <span class="icon">💾</span> WARDROBE_ARCHIVE.EXE - v1.0.0
+                </div>
+                <div class="window-controls">
+                    <button class="win-btn minimize-btn" aria-label="Minimize" onclick="alert('App minimizzata nel vassoio di sistema.')"></button>
+                    <button class="win-btn maximize-btn" aria-label="Maximize"></button>
+                    <button class="win-btn close-btn" aria-label="Close" onclick="window.close()"></button>
+                </div>
+            </header>
+
+            <!-- Menu Ribbon / Tabs -->
+            <nav class="menu-ribbon" aria-label="Seleziona la Casa">
+                <div class="menu-tabs">
+                    <button class="menu-tab active" data-house="Milano" id="tab-milano">
+                        <span class="tab-dot"></span> MILANO
+                    </button>
+                    <button class="menu-tab" data-house="Reggio" id="tab-reggio">
+                        <span class="tab-dot"></span> REGGIO
+                    </button>
+                    <button class="menu-tab" data-house="Sardegna" id="tab-sardegna">
+                        <span class="tab-dot"></span> SARDEGNA
+                    </button>
+                </div>
+                <div class="status-indicator">
+                    STATUS: <span id="current-house-status" class="blink-amber">MILANO_ONLINE</span>
+                </div>
+            </nav>
+
+            <!-- Dashboard Content Grid -->
+            <div class="window-content">
+                <!-- Left Panel: Interactive Wardrobe -->
+                <section class="wardrobe-section">
+                    <div class="wardrobe-toolbar">
+                        <h1 class="section-title">INTERFACCIA ARMADIO</h1>
+                        <div class="toolbar-controls">
+                            <button id="btn-toggle-doors" class="retro-btn">APRI TUTTO</button>
+                        </div>
+                    </div>
+                    
+                    <div class="wardrobe-outer-wrapper">
+                        <!-- Wardrobe Container with 3D Perspective -->
+                        <div class="wardrobe-container" id="wardrobe">
+                            
+                            <!-- Left Compartment: Columns 1 & 2 -->
+                            <div class="wardrobe-compartment compartment-left" id="compartment-1-2">
+                                <!-- Interior columns (visible when doors open) -->
+                                <div class="interior-grid">
+                                    <!-- Column 1 (Far Left): Top Shelf, Bottom 3 Drawers -->
+                                    <div class="column-interior col-1" id="col-1">
+                                        <!-- Upper Shelf -->
+                                        <div class="compartment-node shelf-node" data-section="col1-shelf" id="sec-col1-shelf">
+                                            <span class="node-label">RIPLANO SUP.</span>
+                                            <div class="clothes-container shelf-items" id="container-col1-shelf"></div>
+                                        </div>
+                                        
+                                        <!-- Drawers Container -->
+                                        <div class="drawers-container">
+                                            <div class="compartment-node drawer-node" data-section="col1-drawer1" id="sec-col1-drawer1">
+                                                <div class="drawer-face">
+                                                    <span class="drawer-handle"></span>
+                                                    <span class="node-label">CASSETTONE 1</span>
+                                                </div>
+                                                <div class="clothes-container drawer-items" id="container-col1-drawer1"></div>
+                                            </div>
+                                            <div class="compartment-node drawer-node" data-section="col1-drawer2" id="sec-col1-drawer2">
+                                                <div class="drawer-face">
+                                                    <span class="drawer-handle"></span>
+                                                    <span class="node-label">CASSETTONE 2</span>
+                                                </div>
+                                                <div class="clothes-container drawer-items" id="container-col1-drawer2"></div>
+                                            </div>
+                                            <div class="compartment-node drawer-node" data-section="col1-drawer3" id="sec-col1-drawer3">
+                                                <div class="drawer-face">
+                                                    <span class="drawer-handle"></span>
+                                                    <span class="node-label">CASSETTONE 3</span>
+                                                </div>
+                                                <div class="clothes-container drawer-items" id="container-col1-drawer3"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Column 2 (Left Center): Divided Top/Bottom Hanging Rail -->
+                                    <div class="column-interior col-2" id="col-2">
+                                        <!-- Top Hanging Rail -->
+                                        <div class="compartment-node rail-node" data-section="col2-top-rail" id="sec-col2-top-rail">
+                                            <span class="node-label">APP. SUP.</span>
+                                            <div class="hanging-bar"></div>
+                                            <div class="clothes-container rail-items" id="container-col2-top-rail"></div>
+                                        </div>
+                                        
+                                        <!-- Bottom Hanging Rail -->
+                                        <div class="compartment-node rail-node" data-section="col2-bottom-rail" id="sec-col2-bottom-rail">
+                                            <span class="node-label">APP. INF.</span>
+                                            <div class="hanging-bar"></div>
+                                            <div class="clothes-container rail-items" id="container-col2-bottom-rail"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Left Double Doors -->
+                                <div class="wardrobe-door door-left-left" id="door-l1" data-door="l1">
+                                    <div class="door-inner">
+                                        <span class="door-handle handle-right"></span>
+                                    </div>
+                                </div>
+                                <div class="wardrobe-door door-left-right" id="door-l2" data-door="l2">
+                                    <div class="door-inner">
+                                        <span class="door-handle handle-left"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Compartment: Columns 3 & 4 -->
+                            <div class="wardrobe-compartment compartment-right" id="compartment-3-4">
+                                <!-- Interior columns -->
+                                <div class="interior-grid">
+                                    <!-- Column 3 (Right Center): Hanging Rail -->
+                                    <div class="column-interior col-3" id="col-3">
+                                        <div class="compartment-node rail-node full-height-rail" data-section="col3-rail" id="sec-col3-rail">
+                                            <span class="node-label">APPENDIABITI CENTR.</span>
+                                            <div class="hanging-bar"></div>
+                                            <div class="clothes-container rail-items" id="container-col3-rail"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Column 4 (Far Right): 4 Shelves -->
+                                    <div class="column-interior col-4" id="col-4">
+                                        <div class="compartment-node shelf-node" data-section="col4-shelf1" id="sec-col4-shelf1">
+                                            <span class="node-label">RIPLANO 1</span>
+                                            <div class="clothes-container shelf-items" id="container-col4-shelf1"></div>
+                                        </div>
+                                        <div class="compartment-node shelf-node" data-section="col4-shelf2" id="sec-col4-shelf2">
+                                            <span class="node-label">RIPLANO 2</span>
+                                            <div class="clothes-container shelf-items" id="container-col4-shelf2"></div>
+                                        </div>
+                                        <div class="compartment-node shelf-node" data-section="col4-shelf3" id="sec-col4-shelf3">
+                                            <span class="node-label">RIPLANO 3</span>
+                                            <div class="clothes-container shelf-items" id="container-col4-shelf3"></div>
+                                        </div>
+                                        <div class="compartment-node shelf-node" data-section="col4-shelf4" id="sec-col4-shelf4">
+                                            <span class="node-label">RIPLANO 4</span>
+                                            <div class="clothes-container shelf-items" id="container-col4-shelf4"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Right Double Doors -->
+                                <div class="wardrobe-door door-right-left" id="door-r1" data-door="r1">
+                                    <div class="door-inner">
+                                        <span class="door-handle handle-right"></span>
+                                    </div>
+                                </div>
+                                <div class="wardrobe-door door-right-right" id="door-r2" data-door="r2">
+                                    <div class="door-inner">
+                                        <span class="door-handle handle-left"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="help-text">
+                        * Clicca sulle ante dell'armadio per aprirle/chiuderle. Clicca sui vani interni per ispezionarli o aggiungere abiti.
+                    </div>
+                </section>
+
+                <!-- Right Panel: Inspector & Inventory (CAD Style) -->
+                <section class="inspector-section" id="inspector-panel">
+                    <!-- Default State: No Section Selected -->
+                    <div id="inspector-default" class="inspector-state active">
+                        <div class="inspector-header">
+                            <h2>DETTAGLIO SEZIONE</h2>
+                        </div>
+                        <div class="inspector-body empty-inspector">
+                            <div class="dither-pattern-box"></div>
+                            <p class="instruction">Seleziona una sezione dell'armadio aperta per visualizzarne il contenuto e registrare nuovi capi d'abbigliamento.</p>
+                            <div class="stats-box">
+                                <h3>RIASSUNTO CASA: <span id="summary-house-name">MILANO</span></h3>
+                                <ul class="retro-list">
+                                    <li>Capi totali: <strong id="stat-total-items">0</strong></li>
+                                    <li>Appendiabiti: <strong id="stat-hanging-items">0</strong></li>
+                                    <li>Ripiani: <strong id="stat-shelf-items">0</strong></li>
+                                    <li>Cassettoni: <strong id="stat-drawer-items">0</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active State: Section Selected -->
+                    <div id="inspector-active" class="inspector-state">
+                        <div class="inspector-header">
+                            <button id="btn-back-to-default" class="win-btn-small" aria-label="Torna al riassunto">&larr;</button>
+                            <h2 id="inspector-section-title">SEZIONE SELEZIONATA</h2>
+                        </div>
+                        
+                        <div class="inspector-body">
+                            <div class="section-meta">
+                                <div>CASA: <strong id="inspect-house-name">MILANO</strong></div>
+                                <div>ZONA: <strong id="inspect-section-name">CASSETTONE 1</strong></div>
+                            </div>
+
+                            <!-- Inventory List -->
+                            <div class="inventory-container">
+                                <h3>INVENTARIO CAPI (<span id="inventory-count">0</span>)</h3>
+                                <div class="inventory-scroll" id="inventory-list">
+                                    <!-- Items will be injected here -->
+                                </div>
+                            </div>
+
+                            <!-- Add Clothing Form -->
+                            <form id="add-clothing-form" class="retro-form">
+                                <h3>+ AGGIUNGI CAPO</h3>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="cloth-name">Descrizione/Nome *</label>
+                                        <input type="text" id="cloth-name" required placeholder="E.g. Camicia di Lino">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="cloth-type">Tipo</label>
+                                            <select id="cloth-type">
+                                                <option value="tshirt">T-Shirt / Polo</option>
+                                                <option value="shirt">Camicia</option>
+                                                <option value="sweater">Maglione / Felpa</option>
+                                                <option value="jacket">Giacca / Cappotto</option>
+                                                <option value="pants">Pantalone / Jeans</option>
+                                                <option value="shorts">Pantaloncino</option>
+                                                <option value="shoes">Scarpe</option>
+                                                <option value="hat">Cappello / Berretto</option>
+                                                <option value="other">Altro</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="cloth-brand">Marca</label>
+                                            <input type="text" id="cloth-brand" placeholder="E.g. Ralph Lauren">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Colore</label>
+                                            <div class="color-picker-grid">
+                                                <label class="color-swatch-label" style="background-color: #ffffff; border: 1px solid #333;"><input type="radio" name="cloth-color" value="#ffffff" checked></label>
+                                                <label class="color-swatch-label" style="background-color: #333333;"><input type="radio" name="cloth-color" value="#333333"></label>
+                                                <label class="color-swatch-label" style="background-color: #8c8c8c;"><input type="radio" name="cloth-color" value="#8c8c8c"></label>
+                                                <label class="color-swatch-label" style="background-color: #3b82f6;"><input type="radio" name="cloth-color" value="#3b82f6"></label>
+                                                <label class="color-swatch-label" style="background-color: #ef4444;"><input type="radio" name="cloth-color" value="#ef4444"></label>
+                                                <label class="color-swatch-label" style="background-color: #22c55e;"><input type="radio" name="cloth-color" value="#22c55e"></label>
+                                                <label class="color-swatch-label" style="background-color: #eab308;"><input type="radio" name="cloth-color" value="#eab308"></label>
+                                                <label class="color-swatch-label" style="background-color: #ec4899;"><input type="radio" name="cloth-color" value="#ec4899"></label>
+                                                <label class="color-swatch-label" style="background-color: #a855f7;"><input type="radio" name="cloth-color" value="#a855f7"></label>
+                                                <label class="color-swatch-label" style="background-color: #ff9f00;"><input type="radio" name="cloth-color" value="#ff9f00"></label>
+                                                <label class="color-swatch-label swatch-custom" title="Seleziona colore personalizzato">
+                                                    <input type="color" id="cloth-color-custom" value="#000000">
+                                                    <input type="radio" name="cloth-color" id="radio-custom-color" value="custom">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cloth-notes">Note aggiuntive</label>
+                                        <textarea id="cloth-notes" rows="2" placeholder="Taglia, stagionalità, tessuto, ecc."></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" class="retro-btn btn-block">REGISTRA CAPO</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Bottom Status Info Bar -->
+            <footer class="window-footer">
+                <div class="footer-segment">SYS_OK: WARDROBE_CONNECTED</div>
+                <div class="footer-segment text-right" id="db-size-indicator">ITEMS: 0</div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Script Entrypoint -->
+    <script src="app.js"></script>
+</body>
+</html>

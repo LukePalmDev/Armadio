@@ -1,0 +1,1109 @@
+/* ==========================================================================
+   WARDROBE ARCHIVE - RETRO OS & TERMINAL AESTHETICS SYSTEM
+   ========================================================================== */
+
+:root {
+    /* Color Tokens from Styleguide */
+    --primary: #FFB300;       /* Amber */
+    --primary-hover: #FFA000;
+    --primary-glow: rgba(255, 179, 0, 0.4);
+    --surface: #F2F2F2;       /* Light Retro Grey */
+    --surface-dark: #D9D9D9;  /* Darker border/surface grey */
+    --surface-light: #F9F9F9;
+    --bg-grid: rgba(51, 51, 51, 0.05);
+    --border-color: #333333;  /* Solid retro dark grey/black */
+    --text-main: #333333;
+    --text-muted: #666666;
+    
+    /* UI Scale & Elevation */
+    --border-width: 1.5px;
+    --shadow-offset: 4px;
+    --shadow-offset-hover: 6px;
+    --shadow-main: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
+    --shadow-hover: var(--shadow-offset-hover) var(--shadow-offset-hover) 0px var(--border-color);
+    --shadow-active: 1px 1px 0px var(--border-color);
+    
+    /* Layout */
+    --ruler-size: 24px;
+}
+
+/* Reset and Global Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #FFFFFF;
+    color: var(--text-main);
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+    padding-top: var(--ruler-size);
+    padding-left: var(--ruler-size);
+    
+    /* Graph paper grid */
+    background-image: 
+        linear-gradient(var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: var(--ruler-size) var(--ruler-size);
+}
+
+/* ==========================================================================
+   CAD BLUEPRINT RULERS
+   ========================================================================== */
+
+.ruler {
+    position: fixed;
+    background-color: #FFFFFF;
+    z-index: 100;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    border: var(--border-width) solid var(--border-color);
+}
+
+.ruler-top {
+    top: 0;
+    left: var(--ruler-size);
+    right: 0;
+    height: var(--ruler-size);
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    /* CSS generated tick marks */
+    background-image: 
+        repeating-linear-gradient(90deg, var(--border-color) 0, var(--border-color) 1.5px, transparent 1.5px, transparent 20px),
+        repeating-linear-gradient(90deg, var(--border-color) 0, var(--border-color) 2px, transparent 2px, transparent 100px);
+    background-size: 100% 8px, 100% 14px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+}
+
+.ruler-left {
+    top: var(--ruler-size);
+    left: 0;
+    bottom: 0;
+    width: var(--ruler-size);
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    background-image: 
+        repeating-linear-gradient(180deg, var(--border-color) 0, var(--border-color) 1.5px, transparent 1.5px, transparent 20px),
+        repeating-linear-gradient(180deg, var(--border-color) 0, var(--border-color) 2px, transparent 2px, transparent 100px);
+    background-size: 8px 100%, 14px 100%;
+    background-repeat: no-repeat;
+    background-position: 100% 0;
+}
+
+/* ==========================================================================
+   RETRO OS WINDOW CONTAINER
+   ========================================================================== */
+
+.app-container {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.window-container {
+    width: 100%;
+    max-width: 1200px;
+    height: 100%;
+    max-height: 800px;
+    background-color: var(--surface);
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: var(--shadow-main);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.window-container:focus-within {
+    box-shadow: var(--shadow-hover);
+}
+
+/* Window Title Bar */
+.window-header {
+    background-color: var(--border-color);
+    color: #FFFFFF;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    user-select: none;
+}
+
+.window-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.window-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.win-btn {
+    width: 14px;
+    height: 14px;
+    border: var(--border-width) solid #FFFFFF;
+    background-color: transparent;
+    cursor: pointer;
+    position: relative;
+}
+
+.win-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.win-btn.minimize-btn::before {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
+    height: 2px;
+    background-color: #FFFFFF;
+}
+
+.win-btn.maximize-btn::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    border: 1.5px solid #FFFFFF;
+}
+
+.win-btn.close-btn {
+    background-color: #ef4444;
+    border-color: #ef4444;
+}
+
+.win-btn.close-btn::before,
+.win-btn.close-btn::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 1.5px;
+    background-color: #FFFFFF;
+    top: 5px;
+    left: 1.5px;
+}
+.win-btn.close-btn::before { transform: rotate(45deg); }
+.win-btn.close-btn::after { transform: rotate(-45deg); }
+
+/* ==========================================================================
+   MENU RIBBON / TABS
+   ========================================================================== */
+
+.menu-ribbon {
+    background-color: var(--surface-light);
+    border-bottom: var(--border-width) solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 16px;
+    height: 44px;
+}
+
+.menu-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.menu-tab {
+    background-color: var(--surface-dark);
+    border: var(--border-width) solid var(--border-color);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    padding: 8px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateY(1.5px);
+    transition: all 0.15s ease;
+}
+
+.menu-tab:hover {
+    background-color: #E6E6E6;
+}
+
+.menu-tab.active {
+    background-color: var(--primary);
+    transform: translateY(0);
+    padding-top: 10px;
+    box-shadow: 2px -2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.tab-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    display: inline-block;
+}
+
+.menu-tab.active .tab-dot {
+    background-color: #FFFFFF;
+    box-shadow: 0 0 4px #FFFFFF;
+}
+
+.status-indicator {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding-bottom: 12px;
+}
+
+.blink-amber {
+    color: var(--primary);
+    animation: blink 1.5s infinite step-end;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* ==========================================================================
+   MAIN CONTENT CONTAINER
+   ========================================================================== */
+
+.window-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    overflow: hidden;
+    background-color: #FFFFFF;
+}
+
+/* ==========================================================================
+   WARDROBE STYLING (LEFT PANEL)
+   ========================================================================== */
+
+.wardrobe-section {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-right: var(--border-width) solid var(--border-color);
+    overflow-y: auto;
+    background-color: var(--surface-light);
+}
+
+.wardrobe-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--surface-dark);
+    padding-bottom: 10px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-family: 'Space Mono', monospace;
+}
+
+/* Retro Buttons */
+.retro-btn {
+    background-color: var(--surface);
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 2px 2px 0px var(--border-color);
+    padding: 6px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.retro-btn:hover {
+    background-color: var(--primary);
+    box-shadow: 3px 3px 0px var(--border-color);
+    outline: none;
+}
+
+.retro-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px var(--border-color);
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 13px;
+    margin-top: 15px;
+}
+
+/* Wardrobe Container and 3D System */
+.wardrobe-outer-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.wardrobe-container {
+    width: 100%;
+    max-width: 580px;
+    height: 460px;
+    border: calc(var(--border-width) * 1.5) solid var(--border-color);
+    background-color: #FFFFFF;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.05);
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Left and Right halves */
+    gap: 0;
+    position: relative;
+    perspective: 1200px; /* Crucial for 3D door swing */
+}
+
+/* Wardrobe Compartments (Left/Right Sections) */
+.wardrobe-compartment {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    transform-style: preserve-3d;
+}
+
+.compartment-left {
+    border-right: calc(var(--border-width) / 2) solid var(--border-color);
+}
+
+.compartment-right {
+    border-left: calc(var(--border-width) / 2) solid var(--border-color);
+}
+
+/* Inside Grid (revealed when doors are open) */
+.interior-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns inside each half */
+    z-index: 1;
+}
+
+.column-interior {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.col-1 {
+    border-right: var(--border-width) dashed var(--surface-dark);
+}
+.col-3 {
+    border-right: var(--border-width) dashed var(--surface-dark);
+}
+
+/* Nodes representing clickable compartments */
+.compartment-node {
+    border: calc(var(--border-width) / 2) solid var(--border-color);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #FFFFFF;
+    transition: all 0.2s ease;
+}
+
+.compartment-node::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.compartment-node:hover {
+    background-color: var(--surface-light);
+}
+
+.compartment-node.selected {
+    background-color: rgba(255, 179, 0, 0.08);
+}
+
+.compartment-node.selected::before {
+    border: var(--border-width) solid var(--primary);
+    box-shadow: inset 0 0 6px var(--primary-glow);
+    z-index: 10;
+}
+
+.node-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: var(--text-muted);
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 5;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 1px 3px;
+    border: 0.5px solid var(--surface-dark);
+    pointer-events: none;
+}
+
+/* Column 1 Elements */
+.shelf-node {
+    flex: 1;
+    height: 100%;
+}
+
+.drawers-container {
+    height: 60%;
+    display: flex;
+    flex-direction: column;
+}
+
+.drawer-node {
+    flex: 1;
+    border-top: calc(var(--border-width) / 2) solid var(--border-color);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--surface-light);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.drawer-face {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    border-bottom: 2px solid var(--surface-dark);
+}
+
+.drawer-handle {
+    width: 28px;
+    height: 6px;
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--surface-dark);
+    border-radius: 2px;
+}
+
+.drawer-node.pulled-out {
+    transform: translateY(2px) translateZ(15px);
+    background-color: #FFFFFF;
+    box-shadow: inset 0 8px 10px rgba(0,0,0,0.08);
+}
+
+.drawer-node.pulled-out .drawer-face {
+    border-bottom: 2px solid var(--primary);
+}
+
+/* Hanging Rails (Columns 2 & 3) */
+.rail-node {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.full-height-rail {
+    height: 100%;
+}
+
+.hanging-bar {
+    width: 100%;
+    height: 4px;
+    background-color: var(--surface-dark);
+    border-bottom: 1.5px solid var(--border-color);
+    position: absolute;
+    top: 22px;
+    left: 0;
+    z-index: 2;
+}
+
+/* Clothes visualization lists */
+.clothes-container {
+    width: 100%;
+    height: 100%;
+    padding: 30px 10px 10px 10px;
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    overflow: hidden;
+}
+
+/* Specific alignments for shelves */
+.shelf-items {
+    align-items: flex-end;
+    padding-top: 20px;
+}
+
+.drawer-items {
+    display: none; /* Hide items inside drawer, shown in list */
+}
+
+/* ==========================================================================
+   WARDROBE DOORS (3D TRANSFORMS)
+   ========================================================================== */
+
+.wardrobe-door {
+    position: absolute;
+    top: 0;
+    width: 50%; /* Each door covers exactly one column (1/2 of compartment) */
+    height: 100%;
+    background-color: var(--surface);
+    border: var(--border-width) solid var(--border-color);
+    z-index: 10;
+    transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.4s ease;
+    cursor: pointer;
+    backface-visibility: hidden; /* Hide back when open */
+    transform-style: preserve-3d;
+}
+
+.wardrobe-door:hover {
+    background-color: #EBEBEB;
+}
+
+.door-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    /* Framed panel aesthetic */
+    border: 4px double var(--border-color);
+}
+
+.door-handle {
+    width: 6px;
+    height: 40px;
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--surface-dark);
+    position: absolute;
+}
+
+/* Placement and hinge mechanics */
+
+/* Left Half, Left Door (Covers Col 1) */
+.door-left-left {
+    left: 0;
+    transform-origin: left center;
+}
+.door-left-left .door-handle { right: 8px; }
+
+/* Left Half, Right Door (Covers Col 2) */
+.door-left-right {
+    right: 0;
+    transform-origin: right center;
+    border-left: calc(var(--border-width) / 2) solid var(--border-color);
+}
+.door-left-right .door-handle { left: 8px; }
+
+/* Right Half, Left Door (Covers Col 3) */
+.door-right-left {
+    left: 0;
+    transform-origin: left center;
+    border-right: calc(var(--border-width) / 2) solid var(--border-color);
+}
+.door-right-left .door-handle { right: 8px; }
+
+/* Right Half, Right Door (Covers Col 4) */
+.door-right-right {
+    right: 0;
+    transform-origin: right center;
+}
+.door-right-right .door-handle { left: 8px; }
+
+/* Door Open states */
+.door-left-left.open {
+    transform: rotateY(-145deg);
+    background-color: var(--surface-light);
+    box-shadow: 8px 0 15px rgba(0,0,0,0.1);
+    z-index: 20;
+}
+.door-left-right.open {
+    transform: rotateY(145deg);
+    background-color: var(--surface-light);
+    box-shadow: -8px 0 15px rgba(0,0,0,0.1);
+    z-index: 20;
+}
+.door-right-left.open {
+    transform: rotateY(-145deg);
+    background-color: var(--surface-light);
+    box-shadow: 8px 0 15px rgba(0,0,0,0.1);
+    z-index: 20;
+}
+.door-right-right.open {
+    transform: rotateY(145deg);
+    background-color: var(--surface-light);
+    box-shadow: -8px 0 15px rgba(0,0,0,0.1);
+    z-index: 20;
+}
+
+/* Help description below wardrobe */
+.help-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 15px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   INSPECTOR PANEL (RIGHT PANEL)
+   ========================================================================== */
+
+.inspector-section {
+    background-color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.inspector-state {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+
+.inspector-state.active {
+    display: flex;
+}
+
+.inspector-header {
+    background-color: var(--surface);
+    border-bottom: var(--border-width) solid var(--border-color);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.inspector-header h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.win-btn-small {
+    background: var(--surface-dark);
+    border: var(--border-width) solid var(--border-color);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 1px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.win-btn-small:hover {
+    background-color: var(--primary);
+}
+
+.inspector-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.empty-inspector {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.instruction {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 15px 0;
+    line-height: 1.5;
+}
+
+/* Retro Dither box */
+.dither-pattern-box {
+    width: 60px;
+    height: 60px;
+    border: var(--border-width) solid var(--border-color);
+    background-image: 
+        radial-gradient(var(--border-color) 25%, transparent 25%), 
+        radial-gradient(var(--border-color) 25%, transparent 25%);
+    background-size: 4px 4px;
+    background-position: 0 0, 2px 2px;
+    opacity: 0.25;
+    margin-bottom: 15px;
+}
+
+.stats-box {
+    width: 100%;
+    border: var(--border-width) dashed var(--border-color);
+    padding: 15px;
+    background-color: var(--surface-light);
+    text-align: left;
+}
+
+.stats-box h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+}
+
+.retro-list {
+    list-style: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.retro-list li {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Active Inspector Styles */
+.section-meta {
+    border: var(--border-width) solid var(--border-color);
+    background-color: var(--surface-light);
+    padding: 10px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Inventory List */
+.inventory-container {
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 2px 2px 0px var(--border-color);
+    flex: 1;
+    min-height: 180px;
+    max-height: 250px;
+    display: flex;
+    flex-direction: column;
+    background-color: #FFFFFF;
+}
+
+.inventory-container h3 {
+    background-color: var(--border-color);
+    color: #FFFFFF;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 8px;
+}
+
+.inventory-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.empty-inventory-msg {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+    padding: 20px 0;
+    font-style: italic;
+}
+
+/* Clothing Card Item */
+.clothing-item-card {
+    border: var(--border-width) solid var(--border-color);
+    padding: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--surface-light);
+    font-size: 12px;
+}
+
+.clothing-item-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.clothing-color-badge {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    display: inline-block;
+}
+
+.clothing-text-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.cloth-title {
+    font-weight: bold;
+}
+
+.cloth-meta-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+}
+
+.btn-delete-cloth {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete-cloth:hover {
+    color: #b91c1c;
+    background-color: rgba(239, 68, 68, 0.08);
+}
+
+/* Retro Form */
+.retro-form {
+    border-top: 1.5px dashed var(--surface-dark);
+    padding-top: 10px;
+}
+
+.retro-form h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    border: var(--border-width) solid var(--border-color);
+    padding: 6px 8px;
+    font-family: inherit;
+    font-size: 12px;
+    background-color: var(--surface-light);
+    outline: none;
+    border-radius: 0;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--primary);
+    background-color: #FFFFFF;
+    box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+/* Custom Grid Color Picker */
+.color-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+}
+
+.color-swatch-label {
+    height: 20px;
+    border: var(--border-width) solid var(--border-color);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.color-swatch-label input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.color-swatch-label:has(input[type="radio"]:checked) {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+}
+
+.swatch-custom {
+    background-image: linear-gradient(45deg, #ef4444, #3b82f6, #22c55e);
+}
+
+.swatch-custom input[type="color"] {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   CLOTHES VISUAL ICONS (SVG & DRAWINGS)
+   ========================================================================== */
+
+.visual-hanger {
+    width: 18px;
+    height: 28px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.visual-hanger:hover {
+    transform: translateY(-4px) scale(1.1);
+    z-index: 10;
+}
+
+.cloth-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--border-color);
+    color: #FFFFFF;
+    padding: 4px 8px;
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    white-space: nowrap;
+    border: 1px solid var(--primary);
+    pointer-events: none;
+    z-index: 100;
+}
+
+.visual-hanger:hover .cloth-tooltip {
+    display: block;
+}
+
+/* Folded clothes on shelves style */
+.visual-folded {
+    width: 28px;
+    height: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.15);
+    margin-bottom: 2px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.visual-folded:hover {
+    transform: scale(1.15) translateY(-2px);
+    z-index: 10;
+}
+
+.visual-folded:hover .cloth-tooltip {
+    display: block;
+}
+
+/* ==========================================================================
+   APP WINDOW FOOTER
+   ========================================================================== */
+
+.window-footer {
+    background-color: var(--surface);
+    border-top: var(--border-width) solid var(--border-color);
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.footer-segment {
+    display: flex;
+    align-items: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* ==========================================================================
+   CUSTOM SCROLLBAR
+   ========================================================================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--surface);
+    border-left: 1px solid var(--surface-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--surface-dark);
+    border: 2px solid var(--surface);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
