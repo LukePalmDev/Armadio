@@ -1200,12 +1200,12 @@ body {
    ========================================================================== */
 
 .visual-hanger {
-    width: 66px;
+    width: 49px;
     height: 132px;
     position: relative;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-    margin-right: -46px;
+    margin-right: -29px;
     z-index: 1;
 }
 

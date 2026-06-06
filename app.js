@@ -796,37 +796,29 @@ function renderDrawerColumns() {
 function getHangerSvg(type, color) {
     const hook = `
         <!-- Hanger Hook -->
-        <path d="M20,4 C17,4 15,7 18,11 C20,13 20,16 20,18" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M92,5 C92,-5 82,-15 92,-20 C102,-15 98,-5 98,5" fill="none" stroke="#333" stroke-width="3.2" stroke-linecap="round" />
     `;
 
-    // Exact jacket shape from user screenshot
     const content = `
-        <!-- Main Coat Body -->
-        <path d="M 10,22 L 28,22 L 32,28 L 32,75 L 10,75 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-        
-        <!-- Hanger Frame (visible inside the collar) -->
-        <path d="M 14,24 L 20,18 L 26,24 M 14,24 L 26,24" fill="none" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-        
-        <!-- Collar back stand -->
-        <path d="M 17,20 C 18,16 22,16 23,20" fill="none" stroke="#333" stroke-width="1.2" />
-        
-        <!-- Left Collar Flap / Lapel -->
-        <path d="M 20,18 L 13,21 L 18,25 Z" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-        <!-- Right Collar Flap / Lapel -->
-        <path d="M 20,18 L 27,16 L 24,24 Z" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-        
-        <!-- Front Sleeve (hanging in front, center-right) -->
-        <path d="M 18,25 L 18,68 L 25,68 L 25,25 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-        
-        <!-- Pocket flap details on the left of the sleeve -->
-        <path d="M 18,59 L 13,59 L 11,62 L 18,62" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-        
-        <!-- Double line at the bottom hem of the coat -->
-        <line x1="10" y1="72" x2="32" y2="72" stroke="#333" stroke-width="1" />
+        <g fill="none" stroke="#333" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- bordo esterno -->
+            <path d="M92 5 L67 34 L55 124 L45 252 L38 431 L157 431 L157 331 L152 219 L145 75 L111 29 L92 5 Z" fill="${color}" />
+            <!-- collo e spalla superiore -->
+            <path d="M67 34 L92 25 L111 29" />
+            <path d="M81 20 L96 10" />
+            <!-- apertura / rever interno -->
+            <path d="M72 39 L93 30 L93 76" />
+            <path d="M93 76 L121 89 L121 406 L57 406 L57 142 L72 39" fill="${color}" />
+            <!-- pannello frontale interno -->
+            <path d="M82 54 L96 40 L125 56 L136 333 L124 403" fill="${color}" />
+            <!-- tasca -->
+            <path d="M69 326 L101 321 L111 329 L70 332 Z" fill="${color}" />
+            <path d="M70 332 L70 351 L124 358" />
+        </g>
     `;
 
     return `
-    <svg viewBox="0 0 40 80" width="30" height="60" style="filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.15));">
+    <svg viewBox="0 -25 180 460" width="30" height="60" style="filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.15));">
         ${content}
         ${hook}
     </svg>
