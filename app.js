@@ -634,7 +634,6 @@ function renderDrawerColumns() {
     });
 }
 
-// 14. DYNAMIC HANGER SVG GENERATOR (Line-art 3/4 style)
 function getHangerSvg(type, color) {
     const hook = `
         <!-- Hanger Hook -->
@@ -643,73 +642,31 @@ function getHangerSvg(type, color) {
         <path d="M8,22 L20,18 L32,22" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
     `;
 
-    let content = '';
+    // Visual representation based on the user screenshot for all hanging items
+    const content = `
+        <!-- Back of Coat (shows at the bottom split) -->
+        <path d="M 12,22 L 28,22 L 32,28 L 32,75 L 23,75 L 23,72 L 12,72 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+        
+        <!-- Main Body Front Panel -->
+        <path d="M 20,22 L 28,22 L 30,28 L 30,72 L 21,72 L 21,28 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+        
+        <!-- Left Sleeve (hanging in front) -->
+        <path d="M 12,28 C 12,25 15,25 17,28 L 22,29 L 22,68 C 22,70 12,70 12,68 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+        
+        <!-- Collar & Lapel details -->
+        <!-- Collar back -->
+        <path d="M 16,22 C 18,17 22,17 24,22" fill="none" stroke="#333" stroke-width="1.5" />
+        <!-- Right Lapel (large triangle fold) -->
+        <path d="M 20,18 L 27,14 L 25,28 L 20,38 L 20,18" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+        <!-- Left Lapel (smaller fold) -->
+        <path d="M 20,18 L 16,16 L 16,24 L 20,28" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
 
-    if (type === 'shirt') {
-        content = `
-            <!-- Camicia Profile -->
-            <path d="M 12,21 Q 8,40 8,72 L 26,72 Q 28,45 28,21 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <path d="M 10,21 C 12,18 24,18 26,21 L 22,25 C 20,23 14,23 12,25 Z" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-            <path d="M 24,23 C 27,30 29,42 27,55 L 21,54 C 23,42 21,30 18,22" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-            <path d="M 15,22 L 15,72" fill="none" stroke="#333" stroke-width="1" />
-            <circle cx="15" cy="30" r="1" fill="#333" />
-            <circle cx="15" cy="40" r="1" fill="#333" />
-            <circle cx="15" cy="50" r="1" fill="#333" />
-            <circle cx="15" cy="65" r="1" fill="#333" />
-        `;
-    } else if (type === 'jacket') {
-        content = `
-            <!-- Giacca Profile -->
-            <path d="M 12,21 Q 8,40 8,72 L 26,72 Q 28,45 28,21 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <path d="M 12,21 L 16,28 L 19,21" fill="none" stroke="#333" stroke-width="1.2" />
-            <path d="M 15,21 C 15,28 15,68 15,72" fill="none" stroke="#333" stroke-width="1.2" />
-            <path d="M 23,22 C 26,30 28,42 26,55 L 20,54 C 22,42 20,30 17,22" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-            <path d="M 10,48 L 14,48" fill="none" stroke="#333" stroke-width="1.5" />
-            <path d="M 18,48 L 24,48" fill="none" stroke="#333" stroke-width="1.5" />
-        `;
-    } else if (type === 'sweater') {
-        content = `
-            <!-- Maglione Profile -->
-            <path d="M 12,21 Q 8,40 8,72 L 26,72 Q 28,45 28,21 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <path d="M 12,21 C 14,19 22,19 24,21" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
-            <path d="M 12,21 C 14,19 22,19 24,21" fill="none" stroke="#fff" stroke-width="0.8" stroke-dasharray="1,1" />
-            <path d="M 23,22 C 26,30 28,42 26,55 L 20,54 C 22,42 20,30 17,22" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-            <path d="M 20,54 L 26,55" fill="none" stroke="#333" stroke-width="2.5" />
-            <path d="M 8,72 L 26,72" fill="none" stroke="#333" stroke-width="2.5" />
-        `;
-    } else if (type === 'hoodie') {
-        content = `
-            <!-- Felpa Profile -->
-            <path d="M 12,22 Q 8,40 8,72 L 26,72 Q 28,45 28,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <path d="M 13,22 C 10,12 24,10 26,22 C 28,24 22,27 13,22" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-            <path d="M 17,24 C 17,32 15,35 15,38" fill="none" stroke="#333" stroke-width="1" stroke-linecap="round" />
-            <path d="M 22,23 C 25,31 27,43 25,56 L 19,55 C 21,43 19,31 16,23" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-            <path d="M 8,72 L 26,72" fill="none" stroke="#333" stroke-width="2.5" />
-            <path d="M 19,55 L 25,56" fill="none" stroke="#333" stroke-width="2.5" />
-        `;
-    } else if (type === 'pants') {
-        content = `
-            <!-- Pantalone Lungo Profile -->
-            <path d="M 6,22 L 34,22" fill="none" stroke="#333" stroke-width="1.5" />
-            <path d="M 10,22 L 10,72 Q 10,74 12,74 L 18,74 Q 20,74 20,72 L 20,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <path d="M 20,22 L 20,72 Q 20,74 22,74 L 28,74 Q 30,74 30,72 L 30,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <path d="M 15,24 L 15,70" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
-            <path d="M 25,24 L 25,70" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
-        `;
-    } else if (type === 'shorts') {
-        content = `
-            <!-- Pantalone Corto Profile -->
-            <path d="M 6,22 L 34,22" fill="none" stroke="#333" stroke-width="1.5" />
-            <path d="M 10,22 L 10,48 Q 10,50 12,50 L 18,50 Q 20,50 20,48 L 20,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <path d="M 20,22 L 20,48 Q 20,50 22,50 L 28,50 Q 30,50 30,48 L 30,22 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-            <path d="M 15,24 L 15,46" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
-            <path d="M 25,24 L 25,46" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="2,2" />
-        `;
-    } else {
-        content = `
-            <path d="M 12,21 Q 8,40 8,72 L 26,72 Q 28,45 28,21 Z" fill="${color}" stroke="#333" stroke-width="1.5" />
-        `;
-    }
+        <!-- Split vent line at bottom back -->
+        <path d="M 26,75 L 26,62" fill="none" stroke="#333" stroke-width="1.5" />
+        
+        <!-- Pocket slit near sleeve bottom -->
+        <path d="M 23,55 L 27,61" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
+    `;
 
     return `
     <svg viewBox="0 0 40 80" width="30" height="60" style="filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.15));">
