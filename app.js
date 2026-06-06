@@ -58,7 +58,7 @@ function loadData() {
                         item.section = 'sec2-top-shelf';
                         migrated = true;
                     } else if (item.section.startsWith('col1-drawer')) {
-                        item.section = 'sec2-drawer1';
+                        item.section = 'sec2-drawer3-col1';
                         migrated = true;
                     } else if (item.section === 'col2-top-rail') {
                         item.section = 'sec1-top-rail';
@@ -68,6 +68,15 @@ function loadData() {
                         migrated = true;
                     } else if (item.section === 'col3-rail') {
                         item.section = 'sec2-middle-rail';
+                        migrated = true;
+                    } else if (item.section === 'sec2-drawer1') {
+                        item.section = 'sec2-drawer2-col1';
+                        migrated = true;
+                    } else if (item.section === 'sec2-drawer2') {
+                        item.section = 'sec2-drawer2-col1';
+                        migrated = true;
+                    } else if (item.section === 'sec2-drawer3') {
+                        item.section = 'sec2-drawer3-col1';
                         migrated = true;
                     }
                 }
@@ -268,34 +277,25 @@ function renderClothesInWardrobe() {
                 selectSection(item.section);
             });
             container.appendChild(foldedDiv);
-        } else if (item.section.includes('drawer')) {
-            // Drawers hide actual clothing visuals, but we add visual highlight to active/occupied drawers
-            // Let's add a minor dither marker or indicator that there are clothes inside the drawer node
-            const drawerNode = document.getElementById(`sec-${item.section}`);
-            if (drawerNode) {
-                let badge = drawerNode.querySelector('.drawer-clothes-badge');
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'drawer-clothes-badge';
-                    badge.style.position = 'absolute';
-                    badge.style.top = '4px';
-                    badge.style.right = '4px';
-                    badge.style.width = '6px';
-                    badge.style.height = '6px';
-                    badge.style.backgroundColor = 'var(--primary)';
-                    badge.style.borderRadius = '50%';
-                    badge.style.border = '0.5px solid var(--border-color)';
-                    drawerNode.appendChild(badge);
-                }
-            }
         }
     });
 
-    // If selected section is a drawer, keep it pulled out
+    // Draw the horizontal shirt stacks in the open drawers
+    renderDrawerColumns();
+
+    // If selected section is a drawer sub-container, keep its parent drawer pulled out
     if (selectedSection && selectedSection.includes('drawer')) {
-        const activeDrawer = document.getElementById(`sec-${selectedSection}`);
+        const parts = selectedSection.split('-');
+        const drawerId = `sec-${parts[0]}-${parts[1]}`;
+        const activeDrawer = document.getElementById(drawerId);
         if (activeDrawer) {
             activeDrawer.classList.add('pulled-out');
+        }
+        
+        // Highlight active sub-container column
+        const activeCol = document.getElementById(`sec-${selectedSection}`);
+        if (activeCol) {
+            activeCol.classList.add('selected');
         }
     }
 }
@@ -553,12 +553,108 @@ window.addEventListener('DOMContentLoaded', () => {
     // 7. Update visual stats
     updateStats();
 
-    // 8. Draw hangers and clothes inside the wardrobe layout
+    // 8. Init drawers engine
+    initDrawers();
+
+    // 9. Draw hangers and clothes inside the wardrobe layout
     renderClothesInWardrobe();
     
     // Back button in active inspector
     document.getElementById('btn-back-to-default').addEventListener('click', resetInspector);
 });
+
+// 13.5. DRAWERS SUB-CONTAINERS ENGINE
+function initDrawers() {
+    const drawers = document.querySelectorAll('.drawer-node');
+    drawers.forEach(drawer => {
+        drawer.addEventListener('click', (e) => {
+            if (drawer.classList.contains('pulled-out')) return;
+            
+            e.stopPropagation();
+            
+            // Close other drawers
+            drawers.forEach(d => d.classList.remove('pulled-out'));
+            // Open this drawer
+            drawer.classList.add('pulled-out');
+            
+            // Ensure Section 2 doors are open so user can see the drawer interior!
+            const doorR1 = document.getElementById('door-r1');
+            const doorR2 = document.getElementById('door-r2');
+            if (doorR1) doorR1.classList.add('open');
+            if (doorR2) doorR2.classList.add('open');
+            updateToggleAllButtonText();
+            
+            // Automatically select first column if available
+            const firstCol = drawer.querySelector('.drawer-col-container');
+            if (firstCol) {
+                const sectionId = firstCol.getAttribute('data-section');
+                selectSection(sectionId);
+            } else {
+                // Empty drawer 1
+                resetInspector();
+            }
+        });
+    });
+
+    // Sub-compartments click listeners
+    const colNodes = document.querySelectorAll('.drawer-col-container');
+    colNodes.forEach(col => {
+        col.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent drawer node click trigger
+            const sectionId = col.getAttribute('data-section');
+            selectSection(sectionId);
+        });
+    });
+}
+
+function renderDrawerColumns() {
+    const drawerSections = [
+        'sec2-drawer2-col1',
+        'sec2-drawer2-col2',
+        'sec2-drawer3-col1',
+        'sec2-drawer3-col2',
+        'sec2-drawer3-col3'
+    ];
+    
+    drawerSections.forEach(sectionId => {
+        const el = document.getElementById(`sec-${sectionId}`);
+        if (!el) return;
+        
+        el.innerHTML = '';
+        
+        // Remove old selected highlight (will be reapplied at end of render loop for active selection)
+        el.classList.remove('selected');
+        
+        const items = clothes.filter(c => c.house === currentHouse && c.section === sectionId);
+        
+        if (items.length === 0) {
+            el.innerHTML = `
+                <div class="empty-drawer-stack" title="Vuoto. Clicca per ispezionare ed aggiungere capi.">
+                    <span>+</span>
+                </div>
+            `;
+            return;
+        }
+        
+        const stack = document.createElement('div');
+        stack.className = 'drawer-folded-stack';
+        
+        items.forEach(item => {
+            const folded = document.createElement('div');
+            folded.className = 'drawer-folded-item';
+            folded.style.backgroundColor = item.color;
+            folded.innerHTML = `
+                <div class="cloth-tooltip">
+                    <strong>${item.name}</strong><br>
+                    ${item.brand ? `[${item.brand}]` : ''}
+                </div>
+            `;
+            stack.appendChild(folded);
+        });
+        
+        el.appendChild(stack);
+    });
+}
 
 // 14. DYNAMIC HANGER SVG GENERATOR (Line-art style)
 function getHangerSvg(type, color) {

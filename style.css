@@ -528,13 +528,118 @@ body {
 }
 
 .drawer-node.pulled-out {
-    transform: translateY(2px) translateZ(15px);
+    transform: translateY(2px) translateZ(25px);
     background-color: #FFFFFF;
-    box-shadow: inset 0 8px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12), inset 0 2px 4px rgba(0,0,0,0.06);
 }
 
 .drawer-node.pulled-out .drawer-face {
-    border-bottom: 2px solid var(--primary);
+    display: none;
+}
+
+.drawer-node.pulled-out .drawer-interior {
+    display: flex !important;
+}
+
+/* Drawer Interior & Column Layouts */
+.drawer-interior {
+    width: 100%;
+    height: 100%;
+    display: none;
+    background-color: #FFFFFF;
+}
+
+.drawer-empty-interior {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: var(--text-muted);
+    background-color: var(--surface);
+    border: 1px dashed var(--border-color);
+}
+
+.drawer-col-container {
+    flex: 1;
+    height: 100%;
+    border-right: 1px dashed var(--surface-dark);
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* stack shirts from bottom */
+    padding: 2px;
+    transition: background-color 0.2s ease;
+}
+
+.drawer-col-container:hover {
+    background-color: rgba(255, 179, 0, 0.08);
+}
+
+.drawer-col-container.selected {
+    background-color: rgba(255, 179, 0, 0.12);
+    box-shadow: inset 0 0 4px var(--primary-glow);
+}
+
+.drawer-col-container.selected::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: var(--border-width) solid var(--primary);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.drawer-col-placeholder {
+    flex: 1;
+    height: 100%;
+    background-color: var(--surface);
+    opacity: 0.4;
+    background-image: 
+        repeating-linear-gradient(45deg, var(--border-color) 0, var(--border-color) 1px, transparent 0, transparent 8px);
+}
+
+.empty-drawer-stack {
+    width: 80%;
+    height: 80%;
+    border: 1px dashed var(--surface-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 10px;
+    background-color: var(--surface-light);
+}
+
+/* Stacks of folded clothes inside the drawer */
+.drawer-folded-stack {
+    display: flex;
+    flex-direction: column-reverse; /* stack upwards from bottom */
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    gap: 1.5px;
+    padding-bottom: 2px;
+}
+
+.drawer-folded-item {
+    width: 90%;
+    height: 5px;
+    border: 0.8px solid var(--border-color);
+    border-radius: 1px;
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.drawer-folded-item:hover {
+    transform: scale(1.15) translateY(-1px);
+    z-index: 10;
 }
 
 /* Hanging Rails (Columns 2 & 3) */

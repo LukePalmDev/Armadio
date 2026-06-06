@@ -117,26 +117,41 @@
 
                                     <!-- Bottom 3 Horizontal Drawers (25% height) stacked vertically -->
                                     <div class="drawers-stack" style="height: 25%; display: flex; flex-direction: column; width: 100%;">
-                                        <div class="compartment-node drawer-node" data-section="sec2-drawer1" id="sec-sec2-drawer1" style="flex: 1; width: 100%;">
+                                        <!-- Drawer 1 (Top) - Empty -->
+                                        <div class="drawer-node" id="sec-sec2-drawer1" style="flex: 1; width: 100%;">
                                             <div class="drawer-face">
                                                 <span class="drawer-handle"></span>
-                                                <span class="node-label">CASS. 1</span>
+                                                <span class="node-label">CASS. 1 (VUOTO)</span>
                                             </div>
-                                            <div class="clothes-container drawer-items" id="container-sec2-drawer1"></div>
+                                            <div class="drawer-interior">
+                                                <div class="drawer-empty-interior">CASSETTO VUOTO</div>
+                                            </div>
                                         </div>
-                                        <div class="compartment-node drawer-node" data-section="sec2-drawer2" id="sec-sec2-drawer2" style="flex: 1; width: 100%;">
+                                        
+                                        <!-- Drawer 2 (Middle) - 2 Columns (Left & Center) -->
+                                        <div class="drawer-node" id="sec-sec2-drawer2" style="flex: 1; width: 100%;">
                                             <div class="drawer-face">
                                                 <span class="drawer-handle"></span>
                                                 <span class="node-label">CASS. 2</span>
                                             </div>
-                                            <div class="clothes-container drawer-items" id="container-sec2-drawer2"></div>
+                                            <div class="drawer-interior" style="display: none; width: 100%; height: 100%;">
+                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer2-col1" id="sec-sec2-drawer2-col1" style="flex: 1; height: 100%;"></div>
+                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer2-col2" id="sec-sec2-drawer2-col2" style="flex: 1; height: 100%;"></div>
+                                                <div class="drawer-col-placeholder" style="flex: 1; height: 100%;"></div>
+                                            </div>
                                         </div>
-                                        <div class="compartment-node drawer-node" data-section="sec2-drawer3" id="sec-sec2-drawer3" style="flex: 1; width: 100%;">
+                                        
+                                        <!-- Drawer 3 (Bottom) - 3 Columns -->
+                                        <div class="drawer-node" id="sec-sec2-drawer3" style="flex: 1; width: 100%;">
                                             <div class="drawer-face">
                                                 <span class="drawer-handle"></span>
                                                 <span class="node-label">CASS. 3</span>
                                             </div>
-                                            <div class="clothes-container drawer-items" id="container-sec2-drawer3"></div>
+                                            <div class="drawer-interior" style="display: none; width: 100%; height: 100%;">
+                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer3-col1" id="sec-sec2-drawer3-col1" style="flex: 1; height: 100%;"></div>
+                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer3-col2" id="sec-sec2-drawer3-col2" style="flex: 1; height: 100%;"></div>
+                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer3-col3" id="sec-sec2-drawer3-col3" style="flex: 1; height: 100%;"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
