@@ -4,45 +4,37 @@
 
 // 1. HUMAN-READABLE LABELS FOR SECTIONS
 const SECTION_NAMES = {
-    'col1-shelf': 'Ripiano Superiore (Colonna 1)',
-    'col1-drawer1': 'Cassettone 1 (Colonna 1 Inferiore)',
-    'col1-drawer2': 'Cassettone 2 (Colonna 1 Inferiore)',
-    'col1-drawer3': 'Cassettone 3 (Colonna 1 Inferiore)',
-    'col2-top-rail': 'Appendiabiti Superiore (Colonna 2)',
-    'col2-bottom-rail': 'Appendiabiti Inferiore (Colonna 2)',
-    'col3-rail': 'Appendiabiti Centrale (Colonna 3)',
-    'col4-shelf1': 'Ripiano 1 (Colonna 4)',
-    'col4-shelf2': 'Ripiano 2 (Colonna 4)',
-    'col4-shelf3': 'Ripiano 3 (Colonna 4)',
-    'col4-shelf4': 'Ripiano 4 (Colonna 4)'
+    'sec1-top-rail': 'Appendiabiti Superiore (Sezione 1)',
+    'sec1-bottom-rail': 'Appendiabiti Inferiore (Sezione 1)',
+    'sec2-top-shelf': 'Ripiano Superiore (Sezione 2)',
+    'sec2-middle-rail': 'Appendiabiti Centrale (Sezione 2)',
+    'sec2-drawer1': 'Cassetto Sinistro (Sezione 2)',
+    'sec2-drawer2': 'Cassetto Centrale (Sezione 2)',
+    'sec2-drawer3': 'Cassetto Destro (Sezione 2)'
 };
 
 // 2. DEFAULT SEED DATA (To ensure the app starts with a populated wardrobe)
 function getSeedData() {
     return [
         // Milano Clothes
-        { id: 'm1', house: 'Milano', section: 'col2-top-rail', name: 'Camicia di Lino Celeste', type: 'shirt', color: '#87ceeb', brand: 'Ralph Lauren', notes: 'Taglia M' },
-        { id: 'm2', house: 'Milano', section: 'col2-top-rail', name: 'T-Shirt Bianca Slim Fit', type: 'tshirt', color: '#ffffff', brand: 'Uniqlo', notes: 'Cotone organico' },
-        { id: 'm3', house: 'Milano', section: 'col2-bottom-rail', name: 'Giacca Vintage Beige', type: 'jacket', color: '#f5f5dc', brand: 'Baracuta', notes: 'Primaverile' },
-        { id: 'm4', house: 'Milano', section: 'col3-rail', name: 'Cappotto di Lana Nero', type: 'jacket', color: '#333333', brand: 'Zara', notes: 'Invernale pesante' },
-        { id: 'm5', house: 'Milano', section: 'col3-rail', name: 'Camicia di Jeans Lavaggio Scuro', type: 'shirt', color: '#3b82f6', brand: 'Levi\'s', notes: 'Molto resistente' },
-        { id: 'm6', house: 'Milano', section: 'col1-shelf', name: 'Maglione in Cashmere Grigio', type: 'sweater', color: '#8c8c8c', brand: 'Falconeri', notes: 'Lavare a mano' },
-        { id: 'm7', house: 'Milano', section: 'col4-shelf1', name: 'Polo in Piquet Blu', type: 'tshirt', color: '#1e3a8a', brand: 'Lacoste', notes: 'Estiva' },
-        { id: 'm8', house: 'Milano', section: 'col4-shelf2', name: 'Jeans 501 Regular Fit', type: 'pants', color: '#4b5563', brand: 'Levi\'s', notes: 'W32 L32' },
-        { id: 'm9', house: 'Milano', section: 'col1-drawer1', name: 'Boxer in Cotone Grigio x5', type: 'other', color: '#8c8c8c', brand: 'Calvin Klein', notes: 'Intimo' },
-        { id: 'm10', house: 'Milano', section: 'col1-drawer2', name: 'Cintura in Cuoio Marrone', type: 'other', color: '#ff9f00', brand: 'Timberland', notes: 'Accessorio' },
+        { id: 'm1', house: 'Milano', section: 'sec1-top-rail', name: 'Camicia di Lino Celeste', type: 'shirt', color: '#87ceeb', brand: 'Ralph Lauren', notes: 'Taglia M' },
+        { id: 'm2', house: 'Milano', section: 'sec1-top-rail', name: 'T-Shirt Bianca Slim Fit', type: 'tshirt', color: '#ffffff', brand: 'Uniqlo', notes: 'Cotone organico' },
+        { id: 'm3', house: 'Milano', section: 'sec1-bottom-rail', name: 'Giacca Vintage Beige', type: 'jacket', color: '#f5f5dc', brand: 'Baracuta', notes: 'Primaverile' },
+        { id: 'm4', house: 'Milano', section: 'sec2-middle-rail', name: 'Cappotto di Lana Nero', type: 'jacket', color: '#333333', brand: 'Zara', notes: 'Invernale pesante' },
+        { id: 'm5', house: 'Milano', section: 'sec2-middle-rail', name: 'Camicia di Jeans Lavaggio Scuro', type: 'shirt', color: '#3b82f6', brand: 'Levi\'s', notes: 'Molto resistente' },
+        { id: 'm6', house: 'Milano', section: 'sec2-top-shelf', name: 'Maglione in Cashmere Grigio', type: 'sweater', color: '#8c8c8c', brand: 'Falconeri', notes: 'Lavare a mano' },
+        { id: 'm7', house: 'Milano', section: 'sec2-drawer1', name: 'Boxer in Cotone Grigio x5', type: 'other', color: '#8c8c8c', brand: 'Calvin Klein', notes: 'Intimo' },
+        { id: 'm8', house: 'Milano', section: 'sec2-drawer2', name: 'Cintura in Cuoio Marrone', type: 'other', color: '#ff9f00', brand: 'Timberland', notes: 'Accessorio' },
 
         // Reggio Clothes
-        { id: 'r1', house: 'Reggio', section: 'col2-top-rail', name: 'Camicia di Lino Bianca', type: 'shirt', color: '#ffffff', brand: 'Boggi', notes: 'Perfetta per il caldo' },
-        { id: 'r2', house: 'Reggio', section: 'col3-rail', name: 'Giacca Bomber Verde Militare', type: 'jacket', color: '#22c55e', brand: 'Alpha Industries', notes: 'Autunnale' },
-        { id: 'r3', house: 'Reggio', section: 'col1-shelf', name: 'Felpa con Cappuccio Grigia', type: 'sweater', color: '#8c8c8c', brand: 'Nike', notes: 'Tempo libero' },
-        { id: 'r4', house: 'Reggio', section: 'col4-shelf3', name: 'Chino Tortora', type: 'pants', color: '#f5f5dc', brand: 'Mason\'s', notes: 'Estivi leggeri' },
+        { id: 'r1', house: 'Reggio', section: 'sec1-top-rail', name: 'Camicia di Lino Bianca', type: 'shirt', color: '#ffffff', brand: 'Boggi', notes: 'Perfetta per il caldo' },
+        { id: 'r2', house: 'Reggio', section: 'sec2-middle-rail', name: 'Giacca Bomber Verde Militare', type: 'jacket', color: '#22c55e', brand: 'Alpha Industries', notes: 'Autunnale' },
+        { id: 'r3', house: 'Reggio', section: 'sec2-top-shelf', name: 'Felpa con Cappuccio Grigia', type: 'sweater', color: '#8c8c8c', brand: 'Nike', notes: 'Tempo libero' },
 
         // Sardegna Clothes
-        { id: 's1', house: 'Sardegna', section: 'col2-top-rail', name: 'T-shirt Gialla Limone', type: 'tshirt', color: '#eab308', brand: 'Patagonia', notes: 'Vacanza mare' },
-        { id: 's2', house: 'Sardegna', section: 'col2-bottom-rail', name: 'Costume da Bagno Rosso', type: 'shorts', color: '#ef4444', brand: 'Sundek', notes: 'Con velcro' },
-        { id: 's3', house: 'Sardegna', section: 'col4-shelf1', name: 'Cappello di Paglia Fedora', type: 'hat', color: '#ff9f00', brand: 'Panama', notes: 'Protezione solare' },
-        { id: 's4', house: 'Sardegna', section: 'col4-shelf2', name: 'Scarpe Espadrillas Blu', type: 'shoes', color: '#3b82f6', brand: 'Toms', notes: 'Comode' }
+        { id: 's1', house: 'Sardegna', section: 'sec1-top-rail', name: 'T-shirt Gialla Limone', type: 'tshirt', color: '#eab308', brand: 'Patagonia', notes: 'Vacanza mare' },
+        { id: 's2', house: 'Sardegna', section: 'sec1-bottom-rail', name: 'Costume da Bagno Rosso', type: 'shorts', color: '#ef4444', brand: 'Sundek', notes: 'Con velcro' },
+        { id: 's3', house: 'Sardegna', section: 'sec2-top-shelf', name: 'Cappello di Paglia Fedora', type: 'hat', color: '#ff9f00', brand: 'Panama', notes: 'Protezione solare' }
     ];
 }
 
@@ -57,6 +49,33 @@ function loadData() {
     if (stored) {
         try {
             clothes = JSON.parse(stored);
+            
+            // Migration for legacy section IDs
+            let migrated = false;
+            clothes.forEach(item => {
+                if (item.section) {
+                    if (item.section === 'col1-shelf' || item.section.startsWith('col4-shelf')) {
+                        item.section = 'sec2-top-shelf';
+                        migrated = true;
+                    } else if (item.section.startsWith('col1-drawer')) {
+                        item.section = 'sec2-drawer1';
+                        migrated = true;
+                    } else if (item.section === 'col2-top-rail') {
+                        item.section = 'sec1-top-rail';
+                        migrated = true;
+                    } else if (item.section === 'col2-bottom-rail') {
+                        item.section = 'sec1-bottom-rail';
+                        migrated = true;
+                    } else if (item.section === 'col3-rail') {
+                        item.section = 'sec2-middle-rail';
+                        migrated = true;
+                    }
+                }
+            });
+            
+            if (migrated) {
+                localStorage.setItem('armadio_clothes', JSON.stringify(clothes));
+            }
         } catch (e) {
             console.error("Errore nel caricamento del database", e);
             clothes = [];
@@ -109,39 +128,66 @@ function renderRulers() {
 
 // 6. DOOR LOGIC
 function initDoors() {
-    const doors = document.querySelectorAll('.wardrobe-door');
+    const doorL1 = document.getElementById('door-l1');
+    const doorL2 = document.getElementById('door-l2');
+    const doorR1 = document.getElementById('door-r1');
+    const doorR2 = document.getElementById('door-r2');
     const toggleAllBtn = document.getElementById('btn-toggle-doors');
 
-    doors.forEach(door => {
-        door.addEventListener('click', (e) => {
-            // Stop propagation so clicking the handle/door doesn't trigger parent clicks
-            e.stopPropagation();
-            door.classList.toggle('open');
-            updateToggleAllButtonText();
-            
-            // If we closed the doors containing our selected compartment, reset inspector
-            const doorId = door.getAttribute('data-door');
-            checkClosedSection(doorId);
-        });
-    });
-
-    toggleAllBtn.addEventListener('click', () => {
-        const closedDoors = Array.from(doors).filter(d => !d.classList.contains('open'));
-        if (closedDoors.length > 0) {
-            // If any door is closed, open all
-            doors.forEach(d => d.classList.add('open'));
+    const toggleLeftPair = () => {
+        const isOpen = doorL1.classList.contains('open') || doorL2.classList.contains('open');
+        if (isOpen) {
+            doorL1.classList.remove('open');
+            doorL2.classList.remove('open');
+            if (selectedSection && selectedSection.startsWith('sec1')) {
+                resetInspector();
+            }
         } else {
-            // Close all
-            doors.forEach(d => d.classList.remove('open'));
-            resetInspector();
+            doorL1.classList.add('open');
+            doorL2.classList.add('open');
         }
         updateToggleAllButtonText();
-    });
+    };
+
+    const toggleRightPair = () => {
+        const isOpen = doorR1.classList.contains('open') || doorR2.classList.contains('open');
+        if (isOpen) {
+            doorR1.classList.remove('open');
+            doorR2.classList.remove('open');
+            if (selectedSection && selectedSection.startsWith('sec2')) {
+                resetInspector();
+            }
+        } else {
+            doorR1.classList.add('open');
+            doorR2.classList.add('open');
+        }
+        updateToggleAllButtonText();
+    };
+
+    if (doorL1) doorL1.addEventListener('click', (e) => { e.stopPropagation(); toggleLeftPair(); });
+    if (doorL2) doorL2.addEventListener('click', (e) => { e.stopPropagation(); toggleLeftPair(); });
+    if (doorR1) doorR1.addEventListener('click', (e) => { e.stopPropagation(); toggleRightPair(); });
+    if (doorR2) doorR2.addEventListener('click', (e) => { e.stopPropagation(); toggleRightPair(); });
+
+    if (toggleAllBtn) {
+        toggleAllBtn.addEventListener('click', () => {
+            const doors = [doorL1, doorL2, doorR1, doorR2];
+            const closedDoors = doors.filter(d => d && !d.classList.contains('open'));
+            if (closedDoors.length > 0) {
+                doors.forEach(d => d && d.classList.add('open'));
+            } else {
+                doors.forEach(d => d && d.classList.remove('open'));
+                resetInspector();
+            }
+            updateToggleAllButtonText();
+        });
+    }
 }
 
 function updateToggleAllButtonText() {
     const doors = document.querySelectorAll('.wardrobe-door');
     const toggleAllBtn = document.getElementById('btn-toggle-doors');
+    if (!toggleAllBtn) return;
     const allOpen = Array.from(doors).every(d => d.classList.contains('open'));
     
     if (allOpen) {
@@ -158,31 +204,14 @@ function ensureDoorsOpenForSection(sectionId) {
     const doorR1 = document.getElementById('door-r1');
     const doorR2 = document.getElementById('door-r2');
 
-    if (sectionId.startsWith('col1')) {
-        doorL1.classList.add('open');
-    } else if (sectionId.startsWith('col2')) {
-        doorL2.classList.add('open');
-    } else if (sectionId.startsWith('col3')) {
-        doorR1.classList.add('open');
-    } else if (sectionId.startsWith('col4')) {
-        doorR2.classList.add('open');
+    if (sectionId.startsWith('sec1')) {
+        if (doorL1) doorL1.classList.add('open');
+        if (doorL2) doorL2.classList.add('open');
+    } else if (sectionId.startsWith('sec2')) {
+        if (doorR1) doorR1.classList.add('open');
+        if (doorR2) doorR2.classList.add('open');
     }
     updateToggleAllButtonText();
-}
-
-function checkClosedSection(doorId) {
-    if (!selectedSection) return;
-    
-    // Check if the door closed covers the selected section
-    const coversSection = 
-        (doorId === 'l1' && selectedSection.startsWith('col1')) ||
-        (doorId === 'l2' && selectedSection.startsWith('col2')) ||
-        (doorId === 'r1' && selectedSection.startsWith('col3')) ||
-        (doorId === 'r2' && selectedSection.startsWith('col4'));
-
-    if (coversSection) {
-        resetInspector();
-    }
 }
 
 // 7. COMPARTMENT VISUAL RENDER (DRAW CLOTHES IN ARMADIO)

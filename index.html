@@ -60,63 +60,25 @@
                         </div>
                     </div>
                     
-                    <div class="wardrobe-outer-wrapper">
                         <!-- Wardrobe Container with 3D Perspective -->
                         <div class="wardrobe-container" id="wardrobe">
                             
-                            <!-- Left Compartment: Columns 1 & 2 -->
+                            <!-- Left Compartment: Columns 1 & 2 (Section 1) -->
                             <div class="wardrobe-compartment compartment-left" id="compartment-1-2">
                                 <!-- Interior columns (visible when doors open) -->
-                                <div class="interior-grid">
-                                    <!-- Column 1 (Far Left): Top Shelf, Bottom 3 Drawers -->
-                                    <div class="column-interior col-1" id="col-1">
-                                        <!-- Upper Shelf -->
-                                        <div class="compartment-node shelf-node" data-section="col1-shelf" id="sec-col1-shelf">
-                                            <span class="node-label">RIPLANO SUP.</span>
-                                            <div class="clothes-container shelf-items" id="container-col1-shelf"></div>
-                                        </div>
-                                        
-                                        <!-- Drawers Container -->
-                                        <div class="drawers-container">
-                                            <div class="compartment-node drawer-node" data-section="col1-drawer1" id="sec-col1-drawer1">
-                                                <div class="drawer-face">
-                                                    <span class="drawer-handle"></span>
-                                                    <span class="node-label">CASSETTONE 1</span>
-                                                </div>
-                                                <div class="clothes-container drawer-items" id="container-col1-drawer1"></div>
-                                            </div>
-                                            <div class="compartment-node drawer-node" data-section="col1-drawer2" id="sec-col1-drawer2">
-                                                <div class="drawer-face">
-                                                    <span class="drawer-handle"></span>
-                                                    <span class="node-label">CASSETTONE 2</span>
-                                                </div>
-                                                <div class="clothes-container drawer-items" id="container-col1-drawer2"></div>
-                                            </div>
-                                            <div class="compartment-node drawer-node" data-section="col1-drawer3" id="sec-col1-drawer3">
-                                                <div class="drawer-face">
-                                                    <span class="drawer-handle"></span>
-                                                    <span class="node-label">CASSETTONE 3</span>
-                                                </div>
-                                                <div class="clothes-container drawer-items" id="container-col1-drawer3"></div>
-                                            </div>
-                                        </div>
+                                <div class="interior-vertical">
+                                    <!-- Top Hanging Rail -->
+                                    <div class="compartment-node rail-node" data-section="sec1-top-rail" id="sec-sec1-top-rail">
+                                        <span class="node-label">APPENDIABITI SUP. (SEZ. 1)</span>
+                                        <div class="hanging-bar"></div>
+                                        <div class="clothes-container rail-items" id="container-sec1-top-rail"></div>
                                     </div>
                                     
-                                    <!-- Column 2 (Left Center): Divided Top/Bottom Hanging Rail -->
-                                    <div class="column-interior col-2" id="col-2">
-                                        <!-- Top Hanging Rail -->
-                                        <div class="compartment-node rail-node" data-section="col2-top-rail" id="sec-col2-top-rail">
-                                            <span class="node-label">APP. SUP.</span>
-                                            <div class="hanging-bar"></div>
-                                            <div class="clothes-container rail-items" id="container-col2-top-rail"></div>
-                                        </div>
-                                        
-                                        <!-- Bottom Hanging Rail -->
-                                        <div class="compartment-node rail-node" data-section="col2-bottom-rail" id="sec-col2-bottom-rail">
-                                            <span class="node-label">APP. INF.</span>
-                                            <div class="hanging-bar"></div>
-                                            <div class="clothes-container rail-items" id="container-col2-bottom-rail"></div>
-                                        </div>
+                                    <!-- Bottom Hanging Rail -->
+                                    <div class="compartment-node rail-node" data-section="sec1-bottom-rail" id="sec-sec1-bottom-rail">
+                                        <span class="node-label">APPENDIABITI INF. (SEZ. 1)</span>
+                                        <div class="hanging-bar"></div>
+                                        <div class="clothes-container rail-items" id="container-sec1-bottom-rail"></div>
                                     </div>
                                 </div>
                                 
@@ -124,45 +86,56 @@
                                 <div class="wardrobe-door door-left-left" id="door-l1" data-door="l1">
                                     <div class="door-inner">
                                         <span class="door-handle handle-right"></span>
+                                        <span class="door-label-vert">COL. 1</span>
                                     </div>
                                 </div>
                                 <div class="wardrobe-door door-left-right" id="door-l2" data-door="l2">
                                     <div class="door-inner">
                                         <span class="door-handle handle-left"></span>
+                                        <span class="door-label-vert">COL. 2</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Right Compartment: Columns 3 & 4 -->
+                            <!-- Right Compartment: Columns 3 & 4 (Section 2) -->
                             <div class="wardrobe-compartment compartment-right" id="compartment-3-4">
                                 <!-- Interior columns -->
-                                <div class="interior-grid">
-                                    <!-- Column 3 (Right Center): Hanging Rail -->
-                                    <div class="column-interior col-3" id="col-3">
-                                        <div class="compartment-node rail-node full-height-rail" data-section="col3-rail" id="sec-col3-rail">
-                                            <span class="node-label">APPENDIABITI CENTR.</span>
-                                            <div class="hanging-bar"></div>
-                                            <div class="clothes-container rail-items" id="container-col3-rail"></div>
-                                        </div>
+                                <div class="interior-vertical">
+                                    <!-- Top Shelf (25% height) -->
+                                    <div class="compartment-node shelf-node" data-section="sec2-top-shelf" id="sec-sec2-top-shelf" style="height: 25%;">
+                                        <span class="node-label">RIPIANO SUP. (SEZ. 2)</span>
+                                        <div class="clothes-container shelf-items" id="container-sec2-top-shelf"></div>
                                     </div>
-                                    
-                                    <!-- Column 4 (Far Right): 4 Shelves -->
-                                    <div class="column-interior col-4" id="col-4">
-                                        <div class="compartment-node shelf-node" data-section="col4-shelf1" id="sec-col4-shelf1">
-                                            <span class="node-label">RIPLANO 1</span>
-                                            <div class="clothes-container shelf-items" id="container-col4-shelf1"></div>
+
+                                    <!-- Middle Hanging Rail (50% height) -->
+                                    <div class="compartment-node rail-node" data-section="sec2-middle-rail" id="sec-sec2-middle-rail" style="height: 50%;">
+                                        <span class="node-label">APPENDIABITI CENTR. (SEZ. 2)</span>
+                                        <div class="hanging-bar"></div>
+                                        <div class="clothes-container rail-items" id="container-sec2-middle-rail"></div>
+                                    </div>
+
+                                    <!-- Bottom 3 Horizontal Drawers (25% height) -->
+                                    <div class="drawers-row" style="height: 25%; display: flex; width: 100%;">
+                                        <div class="compartment-node drawer-node" data-section="sec2-drawer1" id="sec-sec2-drawer1" style="flex: 1; height: 100%;">
+                                            <div class="drawer-face">
+                                                <span class="drawer-handle"></span>
+                                                <span class="node-label">CASS. 1</span>
+                                            </div>
+                                            <div class="clothes-container drawer-items" id="container-sec2-drawer1"></div>
                                         </div>
-                                        <div class="compartment-node shelf-node" data-section="col4-shelf2" id="sec-col4-shelf2">
-                                            <span class="node-label">RIPLANO 2</span>
-                                            <div class="clothes-container shelf-items" id="container-col4-shelf2"></div>
+                                        <div class="compartment-node drawer-node" data-section="sec2-drawer2" id="sec-sec2-drawer2" style="flex: 1; height: 100%;">
+                                            <div class="drawer-face">
+                                                <span class="drawer-handle"></span>
+                                                <span class="node-label">CASS. 2</span>
+                                            </div>
+                                            <div class="clothes-container drawer-items" id="container-sec2-drawer2"></div>
                                         </div>
-                                        <div class="compartment-node shelf-node" data-section="col4-shelf3" id="sec-col4-shelf3">
-                                            <span class="node-label">RIPLANO 3</span>
-                                            <div class="clothes-container shelf-items" id="container-col4-shelf3"></div>
-                                        </div>
-                                        <div class="compartment-node shelf-node" data-section="col4-shelf4" id="sec-col4-shelf4">
-                                            <span class="node-label">RIPLANO 4</span>
-                                            <div class="clothes-container shelf-items" id="container-col4-shelf4"></div>
+                                        <div class="compartment-node drawer-node" data-section="sec2-drawer3" id="sec-sec2-drawer3" style="flex: 1; height: 100%;">
+                                            <div class="drawer-face">
+                                                <span class="drawer-handle"></span>
+                                                <span class="node-label">CASS. 3</span>
+                                            </div>
+                                            <div class="clothes-container drawer-items" id="container-sec2-drawer3"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -171,11 +144,13 @@
                                 <div class="wardrobe-door door-right-left" id="door-r1" data-door="r1">
                                     <div class="door-inner">
                                         <span class="door-handle handle-right"></span>
+                                        <span class="door-label-vert">COL. 3</span>
                                     </div>
                                 </div>
                                 <div class="wardrobe-door door-right-right" id="door-r2" data-door="r2">
                                     <div class="door-inner">
                                         <span class="door-handle handle-left"></span>
+                                        <span class="door-label-vert">COL. 4</span>
                                     </div>
                                 </div>
                             </div>
