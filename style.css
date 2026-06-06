@@ -1149,20 +1149,26 @@ body {
    ========================================================================== */
 
 .visual-hanger {
-    width: 24px;
-    height: 52px;
+    width: 60px;
+    height: 120px;
     position: relative;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-    margin-right: -14px;
+    margin-right: -42px;
     z-index: 1;
 }
 
 .visual-hanger:hover {
-    transform: translateY(-6px) scale(1.25);
-    margin-right: 4px;
-    margin-left: 4px;
+    transform: translateY(-8px) scale(1.2);
+    margin-right: 8px;
+    margin-left: 8px;
     z-index: 100;
+}
+
+.visual-hanger svg {
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
 .cloth-tooltip {
