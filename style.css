@@ -466,15 +466,17 @@ body {
     height: 100%;
 }
 
-.drawers-row {
+.drawers-stack {
     border-top: calc(var(--border-width) / 2) solid var(--border-color);
+    display: flex;
+    flex-direction: column;
 }
-.drawers-row .drawer-node {
+.drawers-stack .drawer-node {
     border: none;
-    border-right: calc(var(--border-width) / 2) solid var(--border-color);
+    border-bottom: calc(var(--border-width) / 2) solid var(--border-color);
 }
-.drawers-row .drawer-node:last-child {
-    border-right: none;
+.drawers-stack .drawer-node:last-child {
+    border-bottom: none;
 }
 
 .drawer-node {
