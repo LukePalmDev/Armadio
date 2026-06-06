@@ -680,7 +680,7 @@ body {
     justify-content: center;
     align-items: flex-start;
     width: 100%;
-    margin-top: -30px; /* Overlap rows to save vertical space */
+    margin-top: -85px; /* Overlap rows vertically so they fit inside the rail node height */
 }
 
 .rail-row:first-child {
