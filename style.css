@@ -466,7 +466,26 @@ body {
     height: 100%;
 }
 
+/* Specific Section Proportions & Heights (overriding generic flex: 1) */
+#sec-sec1-top-rail,
+#sec-sec1-bottom-rail {
+    height: 50%;
+    flex: none;
+}
+
+#sec-sec2-top-shelf {
+    height: 25%;
+    flex: none;
+}
+
+#sec-sec2-middle-rail {
+    height: 50%;
+    flex: none;
+}
+
 .drawers-stack {
+    height: 25%;
+    flex: none;
     border-top: calc(var(--border-width) / 2) solid var(--border-color);
     display: flex;
     flex-direction: column;
