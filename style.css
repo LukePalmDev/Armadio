@@ -356,8 +356,9 @@ body {
 
 .wardrobe-container {
     width: 100%;
-    max-width: 580px;
-    height: 460px;
+    max-width: 850px;
+    height: calc(100vh - 180px);
+    max-height: 680px;
     border: calc(var(--border-width) * 1.5) solid var(--border-color);
     background-color: #FFFFFF;
     box-shadow: 6px 6px 0px rgba(0,0,0,0.05);
