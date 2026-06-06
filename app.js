@@ -270,30 +270,40 @@ function renderClothesInWardrobe() {
     // Filter clothes of current house
     const houseClothes = clothes.filter(item => item.house === currentHouse);
 
-    houseClothes.forEach(item => {
-        const container = document.getElementById(`container-${item.section}`);
+    // 1. Render hanging rails (grouped by section and chunked by max 15 items)
+    const railSections = ['sec1-top-rail', 'sec1-bottom-rail', 'sec2-middle-rail'];
+    railSections.forEach(sectionId => {
+        const container = document.getElementById(`container-${sectionId}`);
         if (!container) return;
-
-        // Visual representation style
-        const isHanging = item.section.includes('rail');
         
-        if (isHanging) {
-            // Render dynamic hanger based on type
-            const shirtDiv = document.createElement('div');
-            shirtDiv.className = 'visual-hanger';
-            shirtDiv.innerHTML = `
-                ${getHangerSvg(item.type, item.color)}
-                <div class="cloth-tooltip">
-                    <strong>${item.name}</strong><br>
-                    ${item.brand ? `[${item.brand}]` : ''}
-                </div>
-            `;
-            // Add click hook to open section inspector when clicking visual clothes
-            shirtDiv.addEventListener('click', (e) => {
-                e.stopPropagation();
-                selectSection(item.section);
+        container.innerHTML = ''; // Clear container
+        
+        const sectionClothes = houseClothes.filter(item => item.section === sectionId);
+        
+        // Chunk into rows of max 15 items
+        for (let i = 0; i < sectionClothes.length; i += 15) {
+            const chunk = sectionClothes.slice(i, i + 15);
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'rail-row';
+            
+            chunk.forEach(item => {
+                const shirtDiv = document.createElement('div');
+                shirtDiv.className = 'visual-hanger';
+                shirtDiv.innerHTML = `
+                    ${getHangerSvg(item.type, item.color)}
+                    <div class="cloth-tooltip">
+                        <strong>${item.name}</strong><br>
+                        ${item.brand ? `[${item.brand}]` : ''}
+                    </div>
+                `;
+                shirtDiv.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectSection(item.section);
+                });
+                rowDiv.appendChild(shirtDiv);
             });
-            container.appendChild(shirtDiv);
+            
+            container.appendChild(rowDiv);
         }
     });
 

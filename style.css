@@ -356,9 +356,9 @@ body {
 
 .wardrobe-container {
     width: 100%;
-    max-width: 850px;
-    height: calc(100vh - 180px);
-    max-height: 680px;
+    max-width: 760px;
+    height: calc(100vh - 220px);
+    max-height: 520px;
     border: calc(var(--border-width) * 1.5) solid var(--border-color);
     background-color: #FFFFFF;
     box-shadow: 6px 6px 0px rgba(0,0,0,0.05);
@@ -663,6 +663,31 @@ body {
     align-items: flex-start;
     flex-wrap: wrap;
     overflow: hidden;
+}
+
+.rail-node .clothes-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0;
+    padding-top: 30px;
+}
+
+.rail-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: -12px;
+}
+
+.rail-row:first-child {
+    margin-top: 0;
+}
+
+.rail-row .visual-hanger:last-child {
+    margin-right: 0 !important;
 }
 
 /* Specific alignments for shelves */

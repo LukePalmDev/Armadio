@@ -328,5 +328,45 @@
         "color": "#000000",
         "brand": "Datch",
         "notes": ""
+    },
+    {
+        "id": "cloth_1780768619515_30",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giaccone",
+        "type": "jacket",
+        "color": "#000000",
+        "brand": "Datch",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780768729298_935",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Piumino",
+        "type": "jacket",
+        "color": "#000000",
+        "brand": "YES-ZEE",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780769043209_720",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca da Sci",
+        "type": "jacket",
+        "color": "#3b82f6",
+        "brand": "Decathlon",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780769098423_110",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca Russa",
+        "type": "jacket",
+        "color": "#cffafe",
+        "brand": "ONLY&SONS",
+        "notes": ""
     }
 ]
