@@ -797,34 +797,32 @@ function getHangerSvg(type, color) {
     const hook = `
         <!-- Hanger Hook -->
         <path d="M20,4 C17,4 15,7 18,11 C20,13 20,16 20,18" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
-        <!-- Hanger shoulders -->
-        <path d="M8,22 L20,18 L32,22" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
     `;
 
-    // Visual representation based on the user screenshot for all hanging items
+    // Exact jacket shape from user screenshot
     const content = `
-        <!-- Back of Coat (shows at the bottom split) -->
-        <path d="M 12,22 L 28,22 L 32,28 L 32,75 L 23,75 L 23,72 L 12,72 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+        <!-- Main Coat Body -->
+        <path d="M 10,22 L 28,22 L 32,28 L 32,75 L 10,75 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
         
-        <!-- Main Body Front Panel -->
-        <path d="M 20,22 L 28,22 L 30,28 L 30,72 L 21,72 L 21,28 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+        <!-- Hanger Frame (visible inside the collar) -->
+        <path d="M 14,24 L 20,18 L 26,24 M 14,24 L 26,24" fill="none" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
         
-        <!-- Left Sleeve (hanging in front) -->
-        <path d="M 12,28 C 12,25 15,25 17,28 L 22,29 L 22,68 C 22,70 12,70 12,68 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+        <!-- Collar back stand -->
+        <path d="M 17,20 C 18,16 22,16 23,20" fill="none" stroke="#333" stroke-width="1.2" />
         
-        <!-- Collar & Lapel details -->
-        <!-- Collar back -->
-        <path d="M 16,22 C 18,17 22,17 24,22" fill="none" stroke="#333" stroke-width="1.5" />
-        <!-- Right Lapel (large triangle fold) -->
-        <path d="M 20,18 L 27,14 L 25,28 L 20,38 L 20,18" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-        <!-- Left Lapel (smaller fold) -->
-        <path d="M 20,18 L 16,16 L 16,24 L 20,28" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-
-        <!-- Split vent line at bottom back -->
-        <path d="M 26,75 L 26,62" fill="none" stroke="#333" stroke-width="1.5" />
+        <!-- Left Collar Flap / Lapel -->
+        <path d="M 20,18 L 13,21 L 18,25 Z" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+        <!-- Right Collar Flap / Lapel -->
+        <path d="M 20,18 L 27,16 L 24,24 Z" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
         
-        <!-- Pocket slit near sleeve bottom -->
-        <path d="M 23,55 L 27,61" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" />
+        <!-- Front Sleeve (hanging in front, center-right) -->
+        <path d="M 18,25 L 18,68 L 25,68 L 25,25 Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+        
+        <!-- Pocket flap details on the left of the sleeve -->
+        <path d="M 18,59 L 13,59 L 11,62 L 18,62" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
+        
+        <!-- Double line at the bottom hem of the coat -->
+        <line x1="10" y1="72" x2="32" y2="72" stroke="#333" stroke-width="1" />
     `;
 
     return `
@@ -835,7 +833,7 @@ function getHangerSvg(type, color) {
     `;
 }
 
-// 15. DYNAMIC FOLDED STACK SVG GENERATOR (Line-art folded style)
+// 15. DYNAMIC FOLDED STACK SVG GENERATOR (Exact replica of T-shirt stack screenshot)
 function getFoldedStackSvg(items) {
     if (!items || items.length === 0) return '';
     
@@ -843,84 +841,45 @@ function getFoldedStackSvg(items) {
     const displayItems = items.slice(-maxLayers);
     const K = displayItems.length;
     
-    const dy = K > 1 ? Math.min(6, 24 / (K - 1)) : 6;
-    const yTop = 44 - 16 - (K - 1) * dy;
+    const dy = 7; // Spacing between layers
     
     let layersSvg = '';
+    
+    // Draw the floor line first
+    const floorLine = `<line x1="6" y1="44" x2="74" y2="44" stroke="#333" stroke-width="1.5" stroke-linecap="round" />`;
     
     for (let i = 0; i < K; i++) {
         const item = displayItems[i];
         const color = item.color || '#fff';
         const isTop = (i === K - 1);
         
+        const y_bottom = 44 - i * dy;
+        const y_top = y_bottom - 8;
+        
+        let details = '';
         if (isTop) {
-            const y = yTop;
-            let details = '';
-            
-            if (item.type === 'shirt') {
-                details = `
-                    <path d="M 30,${y} L 35,${y+6} L 40,${y+2} L 30,${y}" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-                    <path d="M 50,${y} L 45,${y+6} L 40,${y+2} L 50,${y}" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-                    <path d="M 40,${y+2} L 40,${y+16}" fill="none" stroke="#333" stroke-width="1.2" />
-                    <circle cx="40" cy="${y+6}" r="0.8" fill="#333" />
-                    <circle cx="40" cy="${y+11}" r="0.8" fill="#333" />
-                `;
-            } else if (item.type === 'sweater') {
-                details = `
-                    <path d="M 30,${y} C 33,${y+5} 47,${y+5} 50,${y}" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" />
-                    <path d="M 30,${y} C 33,${y+5} 47,${y+5} 50,${y}" fill="none" stroke="#fff" stroke-width="0.8" stroke-dasharray="1,1" />
-                    <path d="M 24,${y+8} L 24,${y+14}" fill="none" stroke="#333" stroke-width="0.5" stroke-dasharray="1,1" />
-                    <path d="M 56,${y+8} L 56,${y+14}" fill="none" stroke="#333" stroke-width="0.5" stroke-dasharray="1,1" />
-                `;
-            } else if (item.type === 'hoodie') {
-                details = `
-                    <path d="M 28,${y} C 25,${y+4} 55,${y+4} 52,${y}" fill="${color}" stroke="#333" stroke-width="1.2" stroke-linejoin="round" />
-                    <path d="M 37,${y+4} L 37,${y+10}" fill="none" stroke="#333" stroke-width="1" stroke-linecap="round" />
-                    <path d="M 43,${y+4} L 43,${y+10}" fill="none" stroke="#333" stroke-width="1" stroke-linecap="round" />
-                    <path d="M 22,${y+13} L 58,${y+13}" fill="none" stroke="#333" stroke-width="0.8" stroke-dasharray="1,1" />
-                `;
-            } else if (item.type === 'jacket') {
-                details = `
-                    <path d="M 28,${y} L 34,${y+4} L 40,${y}" fill="none" stroke="#333" stroke-width="1.2" />
-                    <path d="M 52,${y} L 46,${y+4} L 40,${y}" fill="none" stroke="#333" stroke-width="1.2" />
-                    <path d="M 40,${y+4} L 40,${y+16}" fill="none" stroke="#333" stroke-width="1.2" />
-                `;
-            } else {
-                details = `
-                    <path d="M 12,${y+4} L 68,${y+4}" fill="none" stroke="#333" stroke-width="1.2" />
-                    <line x1="20" y1="${y}" x2="20" y2="${y+4}" stroke="#333" stroke-width="1" />
-                    <line x1="30" y1="${y}" x2="30" y2="${y+4}" stroke="#333" stroke-width="1" />
-                    <line x1="50" y1="${y}" x2="50" y2="${y+4}" stroke="#333" stroke-width="1" />
-                    <line x1="60" y1="${y}" x2="60" y2="${y+4}" stroke="#333" stroke-width="1" />
-                    <path d="M 12,${y+6} Q 20,${y+6} 22,${y+4}" fill="none" stroke="#333" stroke-width="1" />
-                    <path d="M 68,${y+6} Q 60,${y+6} 58,${y+4}" fill="none" stroke="#333" stroke-width="1" />
-                `;
-            }
-            
-            layersSvg += `
-                <g class="folded-item-group" data-id="${item.id}">
-                    <rect x="12" y="${y}" width="56" height="16" rx="3" fill="${color}" stroke="#333" stroke-width="1.5" />
-                    <line x1="12" y1="${y+8}" x2="17" y2="${y+8}" stroke="#333" stroke-width="1.2" />
-                    <line x1="63" y1="${y+8}" x2="68" y2="${y+8}" stroke="#333" stroke-width="1.2" />
-                    ${details}
-                    <title>${item.name}${item.brand ? ' [' + item.brand + ']' : ''}</title>
-                </g>
-            `;
-        } else {
-            const y = 34 - i * dy;
-            layersSvg += `
-                <g class="folded-item-group" data-id="${item.id}">
-                    <rect x="12" y="${y}" width="56" height="10" rx="3" fill="${color}" stroke="#333" stroke-width="1.5" />
-                    <line x1="12" y1="${y+5}" x2="16" y2="${y+5}" stroke="#333" stroke-width="1.2" />
-                    <line x1="64" y1="${y+5}" x2="68" y2="${y+5}" stroke="#333" stroke-width="1.2" />
-                    <title>${item.name}${item.brand ? ' [' + item.brand + ']' : ''}</title>
-                </g>
+            const y = y_top;
+            details = `
+                <!-- Collar outline from user T-shirt screenshot -->
+                <path d="M 33,${y} Q 36,${y-3} 39,${y} Q 36,${y+2} 33,${y} Z" fill="${color}" stroke="#333" stroke-width="1.2" />
+                <path d="M 47,${y} Q 44,${y-3} 41,${y} Q 44,${y+2} 47,${y} Z" fill="${color}" stroke="#333" stroke-width="1.2" />
+                <path d="M 39,${y} L 40,${y+2} L 41,${y}" fill="none" stroke="#333" stroke-width="1.2" />
             `;
         }
+        
+        // Soft rounded capsule representing the folded garment layer
+        layersSvg += `
+            <g class="folded-item-group" data-id="${item.id}">
+                <path d="M 12,${y_top} L 68,${y_top} Q 71,${y_top} 71,${y_top+4} Q 71,${y_bottom} 68,${y_bottom} L 12,${y_bottom} Q 9,${y_bottom} 9,${y_top+4} Q 9,${y_top} 12,${y_top} Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
+                ${details}
+                <title>${item.name}${item.brand ? ' [' + item.brand + ']' : ''}</title>
+            </g>
+        `;
     }
     
     return `
     <svg viewBox="0 0 80 50" width="100%" height="100%" style="overflow: visible;">
+        ${floorLine}
         ${layersSvg}
     </svg>
     `;
