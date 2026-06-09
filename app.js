@@ -17,6 +17,12 @@ const SECTION_NAMES = {
     'sec2-drawer3-col3':  'Cassetto 3 — Col. C',
 };
 
+// Escape user-provided strings before injecting into innerHTML/SVG
+function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 // STATE
 let currentHouse  = 'Milano';
 let selectedSection = null;
@@ -180,19 +186,20 @@ function renderClothesInWardrobe() {
 
     const hc = clothes.filter(c => c.house === currentHouse);
 
-    // Rails
+    // Rails — 8 hangers per row fit the compartment width without squeezing
+    const PER_ROW = 8;
     ['sec1-top-rail', 'sec1-bottom-rail', 'sec2-middle-rail'].forEach(sid => {
         const container = document.getElementById(`container-${sid}`);
         if (!container) return;
         const items = hc.filter(c => c.section === sid);
-        for (let i = 0; i < items.length; i += 15) {
+        for (let i = 0; i < items.length; i += PER_ROW) {
             const row = document.createElement('div');
             row.className = 'rail-row';
-            items.slice(i, i + 15).forEach(item => {
+            items.slice(i, i + PER_ROW).forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'visual-hanger';
                 div.innerHTML = `${getHangerSvg(item.type, item.color)}
-                    <div class="cloth-tooltip"><strong>${item.name}</strong>${item.brand ? '<br>' + item.brand : ''}</div>`;
+                    <div class="cloth-tooltip"><strong>${esc(item.name)}</strong>${item.brand ? '<br>' + esc(item.brand) : ''}</div>`;
                 div.addEventListener('click', e => { e.stopPropagation(); selectSection(item.section); });
                 row.appendChild(div);
             });
@@ -265,10 +272,10 @@ function renderSectionInventory() {
         card.className = 'clothing-item-card';
         card.innerHTML = `
             <div class="clothing-item-info">
-                <span class="clothing-color-badge" style="background:${item.color}"></span>
+                <span class="clothing-color-badge" style="background:${esc(item.color)}"></span>
                 <div class="clothing-text-details">
-                    <span class="cloth-title">${item.name}</span>
-                    <span class="cloth-meta-label">${item.brand ? item.brand.toUpperCase() : 'GENERICO'}${item.notes ? ' · ' + item.notes : ''}</span>
+                    <span class="cloth-title">${esc(item.name)}</span>
+                    <span class="cloth-meta-label">${item.brand ? esc(item.brand.toUpperCase()) : 'GENERICO'}${item.notes ? ' · ' + esc(item.notes) : ''}</span>
                 </div>
             </div>
             <div class="card-actions">
@@ -325,8 +332,13 @@ function initDrawers() {
             document.getElementById('door-r2')?.classList.add('open');
             updateToggleBtn();
             const firstCol = drawer.querySelector('.drawer-col-container');
-            if (firstCol) selectSection(firstCol.dataset.section);
-            else resetInspector();
+            if (firstCol) {
+                selectSection(firstCol.dataset.section);
+            } else {
+                // Empty drawer: reset the inspector but keep the drawer visibly open
+                resetInspector();
+                drawer.classList.add('pulled-out');
+            }
         });
     });
 
@@ -475,19 +487,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 /* ==========================================================================
    SVG GENERATORS — CLOTHING SILHOUETTES
-   All use viewBox="0 -25 180 460", displayed at width="32" height="90"
-   Inspired by the hanging jacket silhouette style.
+   All use viewBox="0 0 180 420", displayed at 38x89 px.
+   Wide bodies (~75% of viewBox) so garments stay recognizable at small size.
    ========================================================================== */
 
 const INK = '#1A1816';
 
 function svgWrap(content) {
-    return `<svg viewBox="0 -25 180 460" width="32" height="90" style="display:block;overflow:visible;">
+    return `<svg viewBox="0 0 180 420" width="38" height="89" style="display:block;overflow:visible;">
         ${content}
     </svg>`;
 }
 
-const HOOK = `<path d="M92,5 C92,-5 81,-16 92,-21 C103,-16 99,-5 92,5" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
+const HOOK = `<path d="M90,42 C90,30 78,20 90,12 C102,20 98,30 90,42" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`;
+const STROKE = `stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"`;
+const THIN = `stroke="${INK}" stroke-width="2" stroke-linecap="round" fill="none"`;
 
 function getHangerSvg(type, color) {
     switch (type) {
@@ -502,110 +516,131 @@ function getHangerSvg(type, color) {
     }
 }
 
-// GIACCA — coat with lapels and front panel
+// GIACCA — broad shoulders, V lapels, front opening, pocket flaps
 function getJacketSvg(color) {
-    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
     return svgWrap(`
         ${HOOK}
-        <g fill="${color}" ${stroke}>
-            <path d="M92,5 L66,34 L54,124 L44,430 L136,430 L136,220 L130,76 L112,29 Z"/>
-            <path d="M66,34 L92,24 L112,29" fill="none"/>
-            <path d="M72,40 L92,30 L92,80 L120,93 L120,408 L57,408 L57,145 L72,40 Z" fill="${color}"/>
-            <path d="M68,327 L102,322 L112,330 L68,333 Z" fill="${color}"/>
-            <line x1="68" y1="333" x2="68" y2="352" stroke-width="1.8"/>
-            <line x1="68" y1="352" x2="112" y2="359" stroke-width="1.8"/>
+        <g fill="${color}" ${STROKE}>
+            <path d="M90,46 L36,66 L26,400 L154,400 L144,66 Z"/>
+            <path d="M90,50 L70,100 L82,92 L90,118 L98,92 L110,100 Z"/>
+        </g>
+        <g ${THIN}>
+            <line x1="90" y1="118" x2="90" y2="396"/>
+            <line x1="52" y1="72" x2="44" y2="392"/>
+            <line x1="128" y1="72" x2="136" y2="392"/>
+            <line x1="44" y1="308" x2="66" y2="312"/>
+            <line x1="136" y1="308" x2="114" y2="312"/>
         </g>
     `);
 }
 
-// CAMICIA — shirt with collar points and button placket
+// CAMICIA — collar points, button placket, shorter than a coat
 function getShirtSvg(color) {
-    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
     return svgWrap(`
         ${HOOK}
-        <g fill="${color}" ${stroke}>
-            <path d="M92,8 L60,31 L48,110 L46,430 L134,430 L132,110 L120,31 Z"/>
-            <path d="M92,8 L60,31 L76,54 L91,39 Z"/>
-            <path d="M92,8 L120,31 L104,54 L91,39 Z"/>
-            <path d="M76,54 L91,39 L104,54" fill="none"/>
-            <line x1="91" y1="54" x2="91" y2="430" stroke-width="1.2"/>
-            <circle cx="91" cy="100" r="4" fill="${INK}" stroke="none"/>
-            <circle cx="91" cy="185" r="4" fill="${INK}" stroke="none"/>
-            <circle cx="91" cy="270" r="4" fill="${INK}" stroke="none"/>
+        <g fill="${color}" ${STROKE}>
+            <path d="M90,44 L40,62 L32,330 L148,330 L140,62 Z"/>
+            <path d="M90,44 L66,56 L84,82 L90,60 Z"/>
+            <path d="M90,44 L114,56 L96,82 L90,60 Z"/>
         </g>
+        <g ${THIN}>
+            <line x1="90" y1="82" x2="90" y2="326"/>
+            <line x1="54" y1="66" x2="48" y2="322"/>
+            <line x1="126" y1="66" x2="132" y2="322"/>
+        </g>
+        <circle cx="90" cy="116" r="4" fill="${INK}"/>
+        <circle cx="90" cy="168" r="4" fill="${INK}"/>
+        <circle cx="90" cy="220" r="4" fill="${INK}"/>
+        <circle cx="90" cy="272" r="4" fill="${INK}"/>
     `);
 }
 
-// FELPA — hoodie with visible hood arch and kangaroo pocket
+// FELPA — hood dome, drawstrings, kangaroo pocket, ribbed hem
 function getHoodieSvg(color) {
-    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
     return svgWrap(`
         ${HOOK}
-        <g fill="${color}" ${stroke}>
-            <path d="M52,38 Q92,-8 132,38 Q130,22 92,22 Q54,22 52,38 Z"/>
-            <path d="M52,38 L42,430 L142,430 L132,38 Z"/>
-            <ellipse cx="92" cy="38" rx="22" ry="14" fill="${color}" stroke-width="2"/>
-            <path d="M65,292 L65,366 L119,366 L119,292" fill="none" stroke-width="1.8"/>
-            <line x1="65" y1="292" x2="119" y2="292" stroke-width="1.8"/>
+        <g fill="${color}" ${STROKE}>
+            <path d="M60,64 Q58,24 90,20 Q122,24 120,64 Q90,78 60,64 Z"/>
+            <path d="M60,64 L32,80 L28,344 L152,344 L148,80 L120,64 Q90,78 60,64 Z"/>
+            <path d="M64,252 L116,252 L124,314 L56,314 Z"/>
+        </g>
+        <g ${THIN}>
+            <path d="M84,72 L81,100"/>
+            <path d="M96,72 L99,100"/>
+            <line x1="28" y1="330" x2="152" y2="330"/>
+            <line x1="48" y1="332" x2="48" y2="342"/>
+            <line x1="69" y1="332" x2="69" y2="342"/>
+            <line x1="90" y1="332" x2="90" y2="342"/>
+            <line x1="111" y1="332" x2="111" y2="342"/>
+            <line x1="132" y1="332" x2="132" y2="342"/>
         </g>
     `);
 }
 
-// MAGLIONE — sweater with round crew neck and ribbed hem
+// MAGLIONE — crew neckband, side seams, ribbed hem
 function getSweaterSvg(color) {
-    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
     return svgWrap(`
         ${HOOK}
-        <g fill="${color}" ${stroke}>
-            <path d="M92,12 L60,32 L50,115 L47,385 L133,385 L130,115 L122,32 Z"/>
-            <ellipse cx="92" cy="28" rx="22" ry="15" fill="${color}" stroke-width="2.2"/>
-            <line x1="47" y1="390" x2="133" y2="390" stroke-width="1.8"/>
-            <line x1="47" y1="400" x2="133" y2="400" stroke-width="1.8"/>
-            <line x1="47" y1="410" x2="133" y2="410" stroke-width="1.8"/>
-            <line x1="47" y1="428" x2="133" y2="428" stroke-width="2.2"/>
+        <g fill="${color}" ${STROKE}>
+            <path d="M64,56 Q90,42 116,56 L150,74 L154,332 L26,332 L30,74 Z"/>
+        </g>
+        <g ${THIN}>
+            <path d="M68,64 Q90,52 112,64"/>
+            <line x1="48" y1="80" x2="40" y2="324"/>
+            <line x1="132" y1="80" x2="140" y2="324"/>
+            <line x1="26" y1="318" x2="154" y2="318"/>
+            <line x1="46" y1="320" x2="46" y2="330"/>
+            <line x1="68" y1="320" x2="68" y2="330"/>
+            <line x1="90" y1="320" x2="90" y2="330"/>
+            <line x1="112" y1="320" x2="112" y2="330"/>
+            <line x1="134" y1="320" x2="134" y2="330"/>
         </g>
     `);
 }
 
-// T-SHIRT / POLO — short body, round neck, short sleeves visible
+// T-SHIRT — classic tee with protruding short sleeves
 function getTshirtSvg(color) {
-    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
     return svgWrap(`
         ${HOOK}
-        <g fill="${color}" ${stroke}>
-            <path d="M92,12 L58,30 L38,90 L48,105 L55,80 L52,280 L132,280 L129,80 L136,105 L146,90 L122,30 Z"/>
-            <ellipse cx="92" cy="26" rx="20" ry="13" fill="${color}" stroke-width="2"/>
+        <g fill="${color}" ${STROKE}>
+            <path d="M64,48 Q90,66 116,48 L150,60 L160,118 L130,130 L127,102 L127,282 L53,282 L53,102 L50,130 L20,118 L30,60 Z"/>
+        </g>
+        <g ${THIN}>
+            <path d="M68,52 Q90,72 112,52"/>
         </g>
     `);
 }
 
-// PANTALONE LUNGO — long trousers hanging by waistband
+// PANTALONE LUNGO — waistband with belt loops, two legs, crotch notch
 function getPantsSvg(color) {
-    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
     return svgWrap(`
         ${HOOK}
-        <g fill="${color}" ${stroke}>
-            <rect x="30" y="5" width="120" height="26" rx="2"/>
-            <rect x="50" y="2" width="8"  height="13" rx="1" stroke-width="1.5"/>
-            <rect x="86" y="2" width="8"  height="13" rx="1" stroke-width="1.5"/>
-            <rect x="122" y="2" width="8" height="13" rx="1" stroke-width="1.5"/>
-            <path d="M30,31 L24,430 L82,430 C80,210 86,95 90,90 C94,95 100,210 98,430 L156,430 L150,31 Z"/>
-            <path d="M90,60 Q87,85 86,105" fill="none" stroke-width="1.5"/>
+        <g fill="${color}" ${STROKE}>
+            <path d="M40,46 L140,46 L140,68 L40,68 Z"/>
+            <path d="M40,68 L34,412 L82,412 L87,150 Q90,140 93,150 L98,412 L146,412 L140,68 Z"/>
         </g>
+        <g ${THIN}>
+            <line x1="50" y1="46" x2="50" y2="58"/>
+            <line x1="90" y1="46" x2="90" y2="58"/>
+            <line x1="130" y1="46" x2="130" y2="58"/>
+            <line x1="61" y1="84" x2="58" y2="404"/>
+            <line x1="119" y1="84" x2="122" y2="404"/>
+        </g>
+        <circle cx="90" cy="63" r="3.5" fill="${INK}"/>
     `);
 }
 
-// PANTALONE CORTO — shorts hanging by waistband
+// PANTALONE CORTO — waistband with drawstring, short legs
 function getShortsSvg(color) {
-    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
     return svgWrap(`
         ${HOOK}
-        <g fill="${color}" ${stroke}>
-            <rect x="30" y="5" width="120" height="26" rx="2"/>
-            <rect x="50" y="2" width="8"  height="13" rx="1" stroke-width="1.5"/>
-            <rect x="86" y="2" width="8"  height="13" rx="1" stroke-width="1.5"/>
-            <rect x="122" y="2" width="8" height="13" rx="1" stroke-width="1.5"/>
-            <path d="M30,31 L28,222 L82,222 C80,140 86,90 90,85 C94,90 100,140 98,222 L152,222 L150,31 Z"/>
+        <g fill="${color}" ${STROKE}>
+            <path d="M36,46 L144,46 L144,68 L36,68 Z"/>
+            <path d="M36,68 L30,208 L84,208 L88,136 Q90,130 92,136 L96,208 L150,208 L144,68 Z"/>
+        </g>
+        <g ${THIN}>
+            <path d="M82,68 Q86,86 78,96"/>
+            <path d="M98,68 Q94,86 102,96"/>
         </g>
     `);
 }
@@ -643,7 +678,7 @@ function getFoldedStackSvg(items) {
             <path d="M12,${yTop} L68,${yTop} Q71,${yTop} 71,${yTop+4} Q71,${yBottom} 68,${yBottom} L12,${yBottom} Q9,${yBottom} 9,${yTop+4} Q9,${yTop} 12,${yTop} Z"
                   fill="${color}" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/>
             ${detail}
-            <title>${item.name}${item.brand ? ' [' + item.brand + ']' : ''}</title>
+            <title>${esc(item.name)}${item.brand ? ' [' + esc(item.brand) + ']' : ''}</title>
         </g>`;
     }
 

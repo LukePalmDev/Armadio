@@ -1,47 +1,91 @@
-# Armadio 💾
+# Armadio
 
-**Armadio** è un'applicazione web in stile **Retro OS & Terminal Aesthetics** ideata per archiviare, gestire e organizzare il proprio guardaroba, diviso per diverse abitazioni: **Milano**, **Reggio** e **Sardegna**.
+**Armadio** è un'applicazione web minimale, ispirata al design **Braun / Dieter Rams**, per archiviare e organizzare il proprio guardaroba diviso per abitazioni: **Milano**, **Reggio** e **Sardegna**.
 
-Il design del sito è ispirato alla seguente guida estetica retro:
-![Inspiration Styleguide](wardrobe_inspiration.jpg)
+L'interfaccia mostra un armadio interattivo disegnato in stile tecnico: ante apribili con animazioni 3D, appendiabiti con silhouette stilizzate dei capi appesi (giacche, camicie, felpe, maglioni, pantaloni), ripiani e cassetti con pile di capi piegati.
 
-## Caratteristiche Principali
+## Come Eseguire
 
-- **Mini Menu di Navigazione**: Cambia rapidamente visualizzazione tra le tre case ("Milano", "Reggio", "Sardegna"). Ogni casa possiede il proprio database indipendente (salvato nel `localStorage` del browser).
-- **Interfaccia Armadio Interattiva**:
-  - Un armadio a 4 colonne disegnato con sottilissime linee di contorno (stile blueprint/disegno tecnico CAD).
-  - Due coppie di ante a doppia finestra (sinistra per le colonne 1 e 2, destra per le colonne 3 e 4) apribili con transizioni CSS 3D fluide ed realistiche.
-  - Apertura automatica delle ante alla selezione di un vano interno.
-  - Visualizzazione in tempo reale del contenuto: appendiabiti con grucce colorate interattive e ripiani con pile di vestiti piegati.
-- **Struttura dei Vani**:
-  - **Colonna 1 (Sinistra Esterna)**: Ripiano superiore grande e 3 cassettoni nella parte inferiore (con animazione di scorrimento all'apertura).
-  - **Colonna 2 (Sinistra Interna)**: Divisa a metà con due appendiabiti (classico appendiabiti sopra e sotto).
-  - **Colonna 3 (Destra Interna)**: Zona appendiabiti centrale (tutta altezza).
-  - **Colonna 4 (Destra Esterna)**: 4 ripiani spaziosi per capi piegati.
-- **Pannello Ispettore CAD**:
-  - Seleziona un vano per visualizzarne l'inventario in dettaglio.
-  - Aggiungi nuovi capi con nome, marca, note e selezione colore (inclusa palette retro e selettore colore personalizzato).
-  - Elimina capi con un click.
-  - Statistiche in tempo reale per tipologia di capo per ogni casa.
-- **Aesthetic Retro**:
-  - Coordinate millimetriche/righelli (ruler) dinamici ai bordi superiore e sinistro della finestra (stile CAD/blueprint).
-  - Finestra stile sistema operativo classico con barre del titolo scure, pulsanti di controllo e ombre 3D solide (`4px 4px 0px #333`).
-  - Dither pattern pixel-art per texture e sfondi retro.
-
-## Come Eseguire Localmente
-
-L'applicazione è sviluppata interamente in vanilla **HTML5**, **CSS3** e **JavaScript** (ES6), senza dipendenze esterne.
-
-Puoi avviarla utilizzando il server locale integrato in Python:
+L'app è scritta in vanilla **HTML5**, **CSS3** e **JavaScript** (ES6), senza dipendenze.
 
 ```bash
-python3 -m http.server 8000
+python3 server.py
 ```
 
-Dopodiché, apri il browser all'indirizzo:
-[http://localhost:8000](http://localhost:8000)
+Poi apri il browser su [http://localhost:8000](http://localhost:8000).
 
-## Repository GitHub
+> ⚠️ Usa `server.py` e non `python3 -m http.server`: il server integrato espone le API `/api/load` e `/api/save` che leggono e scrivono il database. Senza di esse l'app funziona comunque, ma salva solo nel `localStorage` del browser.
 
-La repository è pubblicata su GitHub all'indirizzo:
+## Il Database: `wardrobe.json`
+
+Tutto il guardaroba vive in **un unico file JSON** nella root del progetto: [`wardrobe.json`](wardrobe.json). Il software e i dati sono completamente separati: puoi clonare il repo, sostituire o modificare a mano `wardrobe.json` e avere subito il tuo guardaroba.
+
+Il file è una lista di capi. Ogni capo è un oggetto con questi campi:
+
+| Campo     | Obbligatorio | Descrizione                                                       |
+|-----------|--------------|-------------------------------------------------------------------|
+| `id`      | sì           | Identificativo unico (qualsiasi stringa, basta che sia unica)     |
+| `house`   | sì           | `Milano`, `Reggio` o `Sardegna`                                   |
+| `section` | sì           | Sezione dell'armadio (vedi tabella sotto)                          |
+| `name`    | sì           | Nome o descrizione del capo                                        |
+| `type`    | no           | Tipo di capo: determina la silhouette disegnata (vedi sotto)      |
+| `color`   | no           | Colore esadecimale, es. `#3b82f6`                                  |
+| `brand`   | no           | Marca                                                              |
+| `notes`   | no           | Note libere (taglia, stagione, tessuto…)                           |
+
+Esempio:
+
+```json
+{
+    "id": "m1",
+    "house": "Milano",
+    "section": "sec1-top-rail",
+    "name": "Giacca Vintage Beige",
+    "type": "jacket",
+    "color": "#f5f5dc",
+    "brand": "Baracuta",
+    "notes": "Primaverile"
+}
+```
+
+### Valori di `type`
+
+| Valore    | Capo             | Silhouette                                  |
+|-----------|------------------|---------------------------------------------|
+| `jacket`  | Giacca           | Revers a V, apertura frontale, tasche       |
+| `shirt`   | Camicia          | Colletto a punte, bottoni                   |
+| `hoodie`  | Felpa            | Cappuccio, lacci, tasca a marsupio          |
+| `sweater` | Maglione         | Girocollo, orlo a costine                   |
+| `tshirt`  | T-shirt / Polo   | Maniche corte sporgenti                     |
+| `pants`   | Pantalone lungo  | Cintura con passanti, due gambe lunghe      |
+| `shorts`  | Pantalone corto  | Cintura con coulisse, gambe corte           |
+
+I capi appesi (sulle aste) usano la silhouette del proprio tipo; i capi su ripiani e nei cassetti vengono disegnati come pila di capi piegati, indipendentemente dal tipo.
+
+### Valori di `section`
+
+| ID                                       | Zona                                |
+|------------------------------------------|--------------------------------------|
+| `sec1-top-rail`                          | Appendiabiti superiore (anta sx)     |
+| `sec1-bottom-rail`                       | Appendiabiti inferiore (anta sx)     |
+| `sec2-top-shelf`                         | Ripiano (anta dx)                    |
+| `sec2-middle-rail`                       | Appendiabiti centrale (anta dx)      |
+| `sec2-drawer2-col1` / `sec2-drawer2-col2`| Cassetto 2, colonne A e B            |
+| `sec2-drawer3-col1` … `sec2-drawer3-col3`| Cassetto 3, colonne A, B e C         |
+
+## Persistenza e Sicurezza dei Dati
+
+- Ogni modifica fatta dall'interfaccia viene salvata **sia** nel `localStorage` del browser **sia** in `wardrobe.json` tramite il server.
+- Ad ogni salvataggio il server crea automaticamente `wardrobe.backup.json` con la versione precedente: se qualcosa va storto, basta rinominarlo.
+- Il server valida ogni salvataggio: payload non validi vengono rifiutati senza toccare il file.
+- La scrittura è atomica: il file non può rimanere corrotto a metà.
+
+## Usare Armadio con il Proprio Guardaroba
+
+1. Fai un fork o clona il repo.
+2. Modifica `wardrobe.json` con i tuoi capi (a mano o tramite l'interfaccia).
+3. `python3 server.py` e via.
+
+## Repository
+
 [https://github.com/LukePalmDev/Armadio](https://github.com/LukePalmDev/Armadio)
