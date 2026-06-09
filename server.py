@@ -12,7 +12,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/api/load':
-            db_path = os.path.join(DIRECTORY, 'db.json')
+            db_path = os.path.join(DIRECTORY, 'wardrobe.json')
             if os.path.exists(db_path):
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -33,7 +33,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             
             try:
                 data = json.loads(post_data.decode('utf-8'))
-                db_path = os.path.join(DIRECTORY, 'db.json')
+                db_path = os.path.join(DIRECTORY, 'wardrobe.json')
                 with open(db_path, 'w', encoding='utf-8') as f:
                     json.dump(data, f, ensure_ascii=False, indent=4)
                 

@@ -1,0 +1,322 @@
+[
+    {
+        "id": "m3",
+        "house": "Milano",
+        "section": "sec1-bottom-rail",
+        "name": "Giacca Vintage Beige",
+        "type": "jacket",
+        "color": "#f5f5dc",
+        "brand": "Baracuta",
+        "notes": "Primaverile"
+    },
+    {
+        "id": "m4",
+        "house": "Milano",
+        "section": "sec2-middle-rail",
+        "name": "Cappotto di Lana Nero",
+        "type": "jacket",
+        "color": "#333333",
+        "brand": "Zara",
+        "notes": "Invernale pesante"
+    },
+    {
+        "id": "m5",
+        "house": "Milano",
+        "section": "sec2-middle-rail",
+        "name": "Camicia di Jeans Lavaggio Scuro",
+        "type": "shirt",
+        "color": "#3b82f6",
+        "brand": "Levi's",
+        "notes": "Molto resistente"
+    },
+    {
+        "id": "m6",
+        "house": "Milano",
+        "section": "sec2-top-shelf",
+        "name": "Maglione in Cashmere Grigio",
+        "type": "sweater",
+        "color": "#8c8c8c",
+        "brand": "Falconeri",
+        "notes": "Lavare a mano"
+    },
+    {
+        "id": "m7",
+        "house": "Milano",
+        "section": "sec2-top-shelf",
+        "name": "Polo in Piquet Blu",
+        "type": "tshirt",
+        "color": "#1e3a8a",
+        "brand": "Lacoste",
+        "notes": "Estiva"
+    },
+    {
+        "id": "m8",
+        "house": "Milano",
+        "section": "sec2-top-shelf",
+        "name": "Jeans 501 Regular Fit",
+        "type": "pants",
+        "color": "#4b5563",
+        "brand": "Levi's",
+        "notes": "W32 L32"
+    },
+    {
+        "id": "m9",
+        "house": "Milano",
+        "section": "sec2-drawer2-col1",
+        "name": "Boxer in Cotone Grigio x5",
+        "type": "tshirt",
+        "color": "#8c8c8c",
+        "brand": "Calvin Klein",
+        "notes": "Intimo"
+    },
+    {
+        "id": "m10",
+        "house": "Milano",
+        "section": "sec2-drawer2-col2",
+        "name": "T-shirt Bianca Slim Fit",
+        "type": "tshirt",
+        "color": "#ffffff",
+        "brand": "Uniqlo",
+        "notes": "Cotone organico"
+    },
+    {
+        "id": "cloth_1780758638369_26",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Piumino",
+        "type": "jacket",
+        "color": "#22c55e",
+        "brand": "Save the Duck",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780758654086_776",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Piumino Polimi",
+        "type": "jacket",
+        "color": "#3b82f6",
+        "brand": "Adidas",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780758690675_530",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca Vento",
+        "type": "jacket",
+        "color": "#1e3a8a",
+        "brand": "North Sails",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780758903330_327",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Piumino",
+        "type": "jacket",
+        "color": "#3730a3",
+        "brand": "Hackett",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780759154256_9",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Piumino",
+        "type": "jacket",
+        "color": "#ffffff",
+        "brand": "Michael Kors",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780759243461_447",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca di Pelle",
+        "type": "jacket",
+        "color": "#000000",
+        "brand": "Fantasy",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780759298631_762",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca di Pelle Scamosciata",
+        "type": "jacket",
+        "color": "#d97706",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780759335036_447",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca di Pelle",
+        "type": "jacket",
+        "color": "#b45309",
+        "brand": "Napapijri",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780759346927_337",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca Aviatore",
+        "type": "jacket",
+        "color": "#4a0404",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780759403492_233",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "College",
+        "type": "jacket",
+        "color": "#000000",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780768123789_603",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca",
+        "type": "jacket",
+        "color": "#000000",
+        "brand": "Datch",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780768619515_30",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giaccone",
+        "type": "jacket",
+        "color": "#000000",
+        "brand": "Datch",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780768729298_935",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Piumino",
+        "type": "jacket",
+        "color": "#000000",
+        "brand": "YES-ZEE",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780769043209_720",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca da Sci",
+        "type": "jacket",
+        "color": "#3b82f6",
+        "brand": "Decathlon",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780769098423_110",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Giacca Russa",
+        "type": "jacket",
+        "color": "#cffafe",
+        "brand": "ONLY&SONS",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780769604681_625",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Cappotto",
+        "type": "jacket",
+        "color": "#eab308",
+        "brand": "PRIMARK",
+        "notes": ""
+    },
+    {
+        "id": "r1",
+        "house": "Reggio",
+        "section": "sec1-top-rail",
+        "name": "Camicia di Lino Bianca",
+        "type": "shirt",
+        "color": "#ffffff",
+        "brand": "Boggi",
+        "notes": "Perfetta per il caldo"
+    },
+    {
+        "id": "r2",
+        "house": "Reggio",
+        "section": "sec2-middle-rail",
+        "name": "Giacca Bomber Verde Militare",
+        "type": "jacket",
+        "color": "#22c55e",
+        "brand": "Alpha Industries",
+        "notes": "Autunnale"
+    },
+    {
+        "id": "r3",
+        "house": "Reggio",
+        "section": "sec1-bottom-rail",
+        "name": "Felpa con Cappuccio Grigia",
+        "type": "hoodie",
+        "color": "#8c8c8c",
+        "brand": "Nike",
+        "notes": "Tempo libero"
+    },
+    {
+        "id": "r4",
+        "house": "Reggio",
+        "section": "sec2-middle-rail",
+        "name": "Chino Tortora",
+        "type": "pants",
+        "color": "#f5f5dc",
+        "brand": "Mason's",
+        "notes": "Estivi leggeri"
+    },
+    {
+        "id": "s1",
+        "house": "Sardegna",
+        "section": "sec1-top-rail",
+        "name": "T-shirt Gialla Limone",
+        "type": "tshirt",
+        "color": "#eab308",
+        "brand": "Patagonia",
+        "notes": "Vacanza mare"
+    },
+    {
+        "id": "s2",
+        "house": "Sardegna",
+        "section": "sec1-bottom-rail",
+        "name": "Costume da Bagno Rosso",
+        "type": "shorts",
+        "color": "#ef4444",
+        "brand": "Sundek",
+        "notes": "Con velcro"
+    },
+    {
+        "id": "s3",
+        "house": "Sardegna",
+        "section": "sec2-top-shelf",
+        "name": "Cappello di Paglia Fedora",
+        "type": "tshirt",
+        "color": "#ff9f00",
+        "brand": "Panama",
+        "notes": "Protezione solare"
+    },
+    {
+        "id": "s4",
+        "house": "Sardegna",
+        "section": "sec2-top-shelf",
+        "name": "Felpa Leggera Blu",
+        "type": "hoodie",
+        "color": "#3b82f6",
+        "brand": "Patagonia",
+        "notes": "Sera in spiaggia"
+    }
+]

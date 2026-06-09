@@ -1,121 +1,67 @@
 /* ==========================================================================
-   WARDROBE ARCHIVE - APPLICATION STATE & LOGIC
+   ARMADIO — APPLICATION LOGIC
    ========================================================================== */
 
-// 1. HUMAN-READABLE LABELS FOR SECTIONS
 const SECTION_NAMES = {
-    'sec1-top-rail': 'Appendiabiti Superiore (Sezione 1)',
-    'sec1-bottom-rail': 'Appendiabiti Inferiore (Sezione 1)',
-    'sec2-top-shelf': 'Ripiano Superiore (Sezione 2)',
-    'sec2-middle-rail': 'Appendiabiti Centrale (Sezione 2)',
-    'sec2-drawer1': 'Cassetto Sinistro (Sezione 2)',
-    'sec2-drawer2': 'Cassetto Centrale (Sezione 2)',
-    'sec2-drawer3': 'Cassetto Destro (Sezione 2)'
+    'sec1-top-rail':      'Appendiabiti Superiore',
+    'sec1-bottom-rail':   'Appendiabiti Inferiore',
+    'sec2-top-shelf':     'Ripiano',
+    'sec2-middle-rail':   'Appendiabiti Centrale',
+    'sec2-drawer1':       'Cassetto 1',
+    'sec2-drawer2':       'Cassetto 2',
+    'sec2-drawer3':       'Cassetto 3',
+    'sec2-drawer2-col1':  'Cassetto 2 — Col. A',
+    'sec2-drawer2-col2':  'Cassetto 2 — Col. B',
+    'sec2-drawer3-col1':  'Cassetto 3 — Col. A',
+    'sec2-drawer3-col2':  'Cassetto 3 — Col. B',
+    'sec2-drawer3-col3':  'Cassetto 3 — Col. C',
 };
 
-// 2. DEFAULT SEED DATA (To ensure the app starts with a populated wardrobe)
-function getSeedData() {
-    return [
-        // Milano Clothes
-        { id: 'm1', house: 'Milano', section: 'sec1-top-rail', name: 'Camicia di Lino Celeste', type: 'shirt', color: '#87ceeb', brand: 'Ralph Lauren', notes: 'Taglia M' },
-        { id: 'm2', house: 'Milano', section: 'sec1-top-rail', name: 'Felpa Bianca Slim Fit', type: 'hoodie', color: '#ffffff', brand: 'Uniqlo', notes: 'Cotone organico' },
-        { id: 'm3', house: 'Milano', section: 'sec1-bottom-rail', name: 'Giacca Vintage Beige', type: 'jacket', color: '#f5f5dc', brand: 'Baracuta', notes: 'Primaverile' },
-        { id: 'm4', house: 'Milano', section: 'sec2-middle-rail', name: 'Cappotto di Lana Nero', type: 'jacket', color: '#333333', brand: 'Zara', notes: 'Invernale pesante' },
-        { id: 'm5', house: 'Milano', section: 'sec2-middle-rail', name: 'Camicia di Jeans Lavaggio Scuro', type: 'shirt', color: '#3b82f6', brand: 'Levi\'s', notes: 'Molto resistente' },
-        { id: 'm6', house: 'Milano', section: 'sec2-top-shelf', name: 'Maglione in Cashmere Grigio', type: 'sweater', color: '#8c8c8c', brand: 'Falconeri', notes: 'Lavare a mano' },
-        { id: 'm7', house: 'Milano', section: 'sec2-drawer1', name: 'Calze di Lana x5', type: 'sweater', color: '#8c8c8c', brand: 'Calvin Klein', notes: 'Invernali' },
-        { id: 'm8', house: 'Milano', section: 'sec2-drawer2', name: 'Pantalone Corto Beige', type: 'shorts', color: '#ff9f00', brand: 'Timberland', notes: 'Estivo' },
-
-        // Reggio Clothes
-        { id: 'r1', house: 'Reggio', section: 'sec1-top-rail', name: 'Camicia di Lino Bianca', type: 'shirt', color: '#ffffff', brand: 'Boggi', notes: 'Perfetta per il caldo' },
-        { id: 'r2', house: 'Reggio', section: 'sec2-middle-rail', name: 'Giacca Bomber Verde Militare', type: 'jacket', color: '#22c55e', brand: 'Alpha Industries', notes: 'Autunnale' },
-        { id: 'r3', house: 'Reggio', section: 'sec2-top-shelf', name: 'Felpa con Cappuccio Grigia', type: 'hoodie', color: '#8c8c8c', brand: 'Nike', notes: 'Tempo libero' },
-
-        // Sardegna Clothes
-        { id: 's1', house: 'Sardegna', section: 'sec1-top-rail', name: 'Felpa Gialla Limone', type: 'hoodie', color: '#eab308', brand: 'Patagonia', notes: 'Estiva' },
-        { id: 's2', house: 'Sardegna', section: 'sec1-bottom-rail', name: 'Costume da Bagno Rosso', type: 'shorts', color: '#ef4444', brand: 'Sundek', notes: 'Con velcro' },
-        { id: 's3', house: 'Sardegna', section: 'sec2-top-shelf', name: 'Felpa Grigia Melange', type: 'hoodie', color: '#8c8c8c', brand: 'Nike', notes: 'Tempo libero' }
-    ];
-}
-
-// 3. STATE DECLARATION
-let currentHouse = 'Milano';
+// STATE
+let currentHouse  = 'Milano';
 let selectedSection = null;
 let clothes = [];
 let editingItemId = null;
 
-// Migration for legacy section IDs
+// ─── MIGRATIONS ─────────────────────────────────────────────────────────────
 function runMigrations() {
     let migrated = false;
     clothes.forEach(item => {
-        if (item.section) {
-            if (item.section === 'col1-shelf' || item.section.startsWith('col4-shelf')) {
-                item.section = 'sec2-top-shelf';
-                migrated = true;
-            } else if (item.section.startsWith('col1-drawer')) {
-                item.section = 'sec2-drawer3-col1';
-                migrated = true;
-            } else if (item.section === 'col2-top-rail') {
-                item.section = 'sec1-top-rail';
-                migrated = true;
-            } else if (item.section === 'col2-bottom-rail') {
-                item.section = 'sec1-bottom-rail';
-                migrated = true;
-            } else if (item.section === 'col3-rail') {
-                item.section = 'sec2-middle-rail';
-                migrated = true;
-            } else if (item.section === 'sec2-drawer1') {
-                item.section = 'sec2-drawer2-col1';
-                migrated = true;
-            } else if (item.section === 'sec2-drawer2') {
-                item.section = 'sec2-drawer2-col1';
-                migrated = true;
-            } else if (item.section === 'sec2-drawer3') {
-                item.section = 'sec2-drawer3-col1';
-                migrated = true;
-            }
-        }
+        if (!item.section) return;
+        const map = {
+            'col1-shelf': 'sec2-top-shelf',
+            'col2-top-rail': 'sec1-top-rail',
+            'col2-bottom-rail': 'sec1-bottom-rail',
+            'col3-rail': 'sec2-middle-rail',
+            'sec2-drawer1': 'sec2-drawer2-col1',
+            'sec2-drawer2': 'sec2-drawer2-col1',
+            'sec2-drawer3': 'sec2-drawer3-col1',
+        };
+        if (item.section.startsWith('col4-shelf')) { item.section = 'sec2-top-shelf'; migrated = true; return; }
+        if (item.section.startsWith('col1-drawer')) { item.section = 'sec2-drawer3-col1'; migrated = true; return; }
+        if (map[item.section]) { item.section = map[item.section]; migrated = true; }
     });
     return migrated;
 }
 
-// 4. CORE DATA METHODS
+// ─── DATA PERSISTENCE ────────────────────────────────────────────────────────
 async function loadData() {
-    let serverLoaded = false;
+    let loaded = false;
     try {
         const res = await fetch('/api/load');
         if (res.ok) {
             const data = await res.json();
-            if (data && Array.isArray(data)) {
-                clothes = data;
-                serverLoaded = true;
-                console.log("Dati caricati dal server backend");
-            }
+            if (Array.isArray(data)) { clothes = data; loaded = true; }
         }
-    } catch (err) {
-        console.warn("Impossibile caricare da server, uso localStorage...", err);
-    }
+    } catch (e) { console.warn('Server non raggiungibile, uso localStorage.', e); }
 
-    if (!serverLoaded) {
+    if (!loaded) {
         const stored = localStorage.getItem('armadio_clothes');
-        if (stored) {
-            try {
-                clothes = JSON.parse(stored);
-                console.log("Dati caricati da localStorage");
-            } catch (e) {
-                console.error("Errore parsing localStorage", e);
-                clothes = [];
-            }
-        } else {
-            clothes = getSeedData();
-            await saveData();
-        }
+        if (stored) { try { clothes = JSON.parse(stored); } catch { clothes = []; } }
+        else { clothes = getSeedData(); await saveData(); }
     }
 
-    const migrated = runMigrations();
-    if (migrated) {
-        await saveData();
-    }
+    if (runMigrations()) await saveData();
 }
 
 async function saveData() {
@@ -124,844 +70,582 @@ async function saveData() {
     try {
         await fetch('/api/save', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(clothes)
         });
-        console.log("Dati sincronizzati/salvati sul server backend (db.json)");
-    } catch (e) {
-        console.error("Errore nel salvataggio remoto", e);
-    }
+    } catch (e) { console.error('Errore salvataggio remoto', e); }
 }
 
-// 5. RULERS ENGINE (CAD COORDINATES)
-const rulerTop = document.getElementById('ruler-top');
-const rulerLeft = document.getElementById('ruler-left');
-
-function renderRulers() {
-    if (rulerTop) {
-        rulerTop.innerHTML = '';
-        const width = window.innerWidth;
-        // Major ticks every 100px, minor ticks every 20px (drawn by CSS linear gradients)
-        for (let i = 100; i < width; i += 100) {
-            const marker = document.createElement('span');
-            marker.style.position = 'absolute';
-            marker.style.left = `${i}px`;
-            marker.style.bottom = '1px';
-            marker.style.fontSize = '8px';
-            marker.innerText = i;
-            rulerTop.appendChild(marker);
-        }
-    }
-    if (rulerLeft) {
-        rulerLeft.innerHTML = '';
-        const height = window.innerHeight;
-        for (let i = 100; i < height; i += 100) {
-            const marker = document.createElement('span');
-            marker.style.position = 'absolute';
-            marker.style.top = `${i}px`;
-            marker.style.left = '2px';
-            marker.style.fontSize = '8px';
-            marker.innerText = i;
-            rulerLeft.appendChild(marker);
-        }
-    }
+function getSeedData() {
+    return [
+        { id: 'm1', house: 'Milano',   section: 'sec1-top-rail',    name: 'Piumino',                type: 'jacket',  color: '#22c55e', brand: 'Save the Duck', notes: '' },
+        { id: 'm2', house: 'Milano',   section: 'sec1-bottom-rail',  name: 'Giacca Vintage Beige',   type: 'jacket',  color: '#f5f5dc', brand: 'Baracuta',      notes: 'Primaverile' },
+        { id: 'm3', house: 'Milano',   section: 'sec2-middle-rail',  name: 'Cappotto di Lana Nero',  type: 'jacket',  color: '#333333', brand: 'Zara',          notes: 'Invernale' },
+        { id: 'm4', house: 'Milano',   section: 'sec2-middle-rail',  name: 'Camicia di Jeans',       type: 'shirt',   color: '#3b82f6', brand: "Levi's",        notes: '' },
+        { id: 'm5', house: 'Milano',   section: 'sec2-top-shelf',    name: 'Maglione Cashmere',      type: 'sweater', color: '#8c8c8c', brand: 'Falconeri',     notes: 'Lavare a mano' },
+        { id: 'm6', house: 'Milano',   section: 'sec2-drawer2-col1', name: 'T-shirt Bianca x3',     type: 'tshirt',  color: '#ffffff', brand: 'Uniqlo',        notes: '' },
+        { id: 'r1', house: 'Reggio',   section: 'sec1-top-rail',     name: 'Camicia di Lino Bianca', type: 'shirt',   color: '#ffffff', brand: 'Boggi',         notes: '' },
+        { id: 'r2', house: 'Reggio',   section: 'sec2-middle-rail',  name: 'Bomber Verde Militare',  type: 'jacket',  color: '#22c55e', brand: 'Alpha Industries', notes: '' },
+        { id: 'r3', house: 'Reggio',   section: 'sec1-bottom-rail',  name: 'Felpa Grigia',           type: 'hoodie',  color: '#8c8c8c', brand: 'Nike',          notes: '' },
+        { id: 's1', house: 'Sardegna', section: 'sec1-top-rail',     name: 'T-shirt Gialla',         type: 'tshirt',  color: '#eab308', brand: 'Patagonia',     notes: '' },
+        { id: 's2', house: 'Sardegna', section: 'sec1-bottom-rail',  name: 'Costume Rosso',          type: 'shorts',  color: '#ef4444', brand: 'Sundek',        notes: '' },
+    ];
 }
 
-// 6. DOOR LOGIC
-function initDoors() {
-    const doorL1 = document.getElementById('door-l1');
-    const doorL2 = document.getElementById('door-l2');
-    const doorR1 = document.getElementById('door-r1');
-    const doorR2 = document.getElementById('door-r2');
-    const toggleAllBtn = document.getElementById('btn-toggle-doors');
-
-    const toggleLeftPair = () => {
-        const isOpen = doorL1.classList.contains('open') || doorL2.classList.contains('open');
-        if (isOpen) {
-            doorL1.classList.remove('open');
-            doorL2.classList.remove('open');
-            if (selectedSection && selectedSection.startsWith('sec1')) {
-                resetInspector();
-            }
-        } else {
-            doorL1.classList.add('open');
-            doorL2.classList.add('open');
-        }
-        updateToggleAllButtonText();
-    };
-
-    const toggleRightPair = () => {
-        const isOpen = doorR1.classList.contains('open') || doorR2.classList.contains('open');
-        if (isOpen) {
-            doorR1.classList.remove('open');
-            doorR2.classList.remove('open');
-            if (selectedSection && selectedSection.startsWith('sec2')) {
-                resetInspector();
-            }
-        } else {
-            doorR1.classList.add('open');
-            doorR2.classList.add('open');
-        }
-        updateToggleAllButtonText();
-    };
-
-    if (doorL1) doorL1.addEventListener('click', (e) => { e.stopPropagation(); toggleLeftPair(); });
-    if (doorL2) doorL2.addEventListener('click', (e) => { e.stopPropagation(); toggleLeftPair(); });
-    if (doorR1) doorR1.addEventListener('click', (e) => { e.stopPropagation(); toggleRightPair(); });
-    if (doorR2) doorR2.addEventListener('click', (e) => { e.stopPropagation(); toggleRightPair(); });
-
-    if (toggleAllBtn) {
-        toggleAllBtn.addEventListener('click', () => {
-            const doors = [doorL1, doorL2, doorR1, doorR2];
-            const closedDoors = doors.filter(d => d && !d.classList.contains('open'));
-            if (closedDoors.length > 0) {
-                doors.forEach(d => d && d.classList.add('open'));
-            } else {
-                doors.forEach(d => d && d.classList.remove('open'));
-                resetInspector();
-            }
-            updateToggleAllButtonText();
-        });
-    }
-}
-
-function updateToggleAllButtonText() {
-    const doors = document.querySelectorAll('.wardrobe-door');
-    const toggleAllBtn = document.getElementById('btn-toggle-doors');
-    if (!toggleAllBtn) return;
-    const allOpen = Array.from(doors).every(d => d.classList.contains('open'));
-    
-    if (allOpen) {
-        toggleAllBtn.textContent = "CHIUDI TUTTO";
-    } else {
-        toggleAllBtn.textContent = "APRI TUTTO";
-    }
-}
-
-// Automatically open appropriate doors when clicking a compartment node
-function ensureDoorsOpenForSection(sectionId) {
-    const doorL1 = document.getElementById('door-l1');
-    const doorL2 = document.getElementById('door-l2');
-    const doorR1 = document.getElementById('door-r1');
-    const doorR2 = document.getElementById('door-r2');
-
-    if (sectionId.startsWith('sec1')) {
-        if (doorL1) doorL1.classList.add('open');
-        if (doorL2) doorL2.classList.add('open');
-    } else if (sectionId.startsWith('sec2')) {
-        if (doorR1) doorR1.classList.add('open');
-        if (doorR2) doorR2.classList.add('open');
-    }
-    updateToggleAllButtonText();
-}
-
-// 7. COMPARTMENT VISUAL RENDER (DRAW CLOTHES IN ARMADIO)
-function renderClothesInWardrobe() {
-    // Clear all containers first
-    const containers = document.querySelectorAll('.clothes-container');
-    containers.forEach(c => c.innerHTML = '');
-
-    // Reset pulled drawers
-    const drawers = document.querySelectorAll('.drawer-node');
-    drawers.forEach(d => d.classList.remove('pulled-out'));
-
-    // Filter clothes of current house
-    const houseClothes = clothes.filter(item => item.house === currentHouse);
-
-    // 1. Render hanging rails (grouped by section and chunked by max 15 items)
-    const railSections = ['sec1-top-rail', 'sec1-bottom-rail', 'sec2-middle-rail'];
-    railSections.forEach(sectionId => {
-        const container = document.getElementById(`container-${sectionId}`);
-        if (!container) return;
-        
-        container.innerHTML = ''; // Clear container
-        
-        const sectionClothes = houseClothes.filter(item => item.section === sectionId);
-        
-        // Chunk into rows of max 15 items
-        for (let i = 0; i < sectionClothes.length; i += 15) {
-            const chunk = sectionClothes.slice(i, i + 15);
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'rail-row';
-            
-            chunk.forEach(item => {
-                const shirtDiv = document.createElement('div');
-                shirtDiv.className = 'visual-hanger';
-                shirtDiv.innerHTML = `
-                    ${getHangerSvg(item.type, item.color)}
-                    <div class="cloth-tooltip">
-                        <strong>${item.name}</strong><br>
-                        ${item.brand ? `[${item.brand}]` : ''}
-                    </div>
-                `;
-                shirtDiv.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    selectSection(item.section);
-                });
-                rowDiv.appendChild(shirtDiv);
-            });
-            
-            container.appendChild(rowDiv);
-        }
-    });
-
-    // Render shelves as aggregated folded stacks
-    const shelfNodes = document.querySelectorAll('.shelf-node');
-    shelfNodes.forEach(shelfNode => {
-        const sectionId = shelfNode.getAttribute('data-section');
-        const container = document.getElementById(`container-${sectionId}`);
-        if (!container) return;
-        
-        const items = houseClothes.filter(c => c.section === sectionId);
-        container.innerHTML = getFoldedStackSvg(items);
-    });
-
-    // Draw the horizontal shirt stacks in the open drawers
-    renderDrawerColumns();
-
-    // If selected section is a drawer sub-container, keep its parent drawer pulled out
-    if (selectedSection && selectedSection.includes('drawer')) {
-        const parts = selectedSection.split('-');
-        const drawerId = `sec-${parts[0]}-${parts[1]}`;
-        const activeDrawer = document.getElementById(drawerId);
-        if (activeDrawer) {
-            activeDrawer.classList.add('pulled-out');
-        }
-        
-        // Highlight active sub-container column
-        const activeCol = document.getElementById(`sec-${selectedSection}`);
-        if (activeCol) {
-            activeCol.classList.add('selected');
-        }
-    }
-}
-
-// 8. INSPECTOR ACTIONS & STATE SYNC
-function selectSection(sectionId) {
-    cancelEditClothing();
-    selectedSection = sectionId;
-    
-    // Ensure appropriate doors are open so user doesn't inspect closed elements
-    ensureDoorsOpenForSection(sectionId);
-
-    // Remove selected state from all nodes
-    document.querySelectorAll('.compartment-node').forEach(node => {
-        node.classList.remove('selected');
-    });
-
-    // Highlight the selected node
-    const node = document.getElementById(`sec-${sectionId}`);
-    if (node) {
-        node.classList.add('selected');
-    }
-
-    // Switch inspector states
-    document.getElementById('inspector-default').classList.remove('active');
-    document.getElementById('inspector-active').classList.add('active');
-
-    // Update inspector textual details
-    document.getElementById('inspect-house-name').textContent = currentHouse.toUpperCase();
-    document.getElementById('inspect-section-name').textContent = SECTION_NAMES[sectionId] || sectionId.toUpperCase();
-
-    // Render clothes inventory inside the selected section
-    renderSectionInventory();
-}
-
-function resetInspector() {
-    cancelEditClothing();
-    selectedSection = null;
-    document.querySelectorAll('.compartment-node').forEach(node => {
-        node.classList.remove('selected');
-    });
-    
-    // Clean up drawers pulled class
-    document.querySelectorAll('.drawer-node').forEach(d => d.classList.remove('pulled-out'));
-
-    document.getElementById('inspector-active').classList.remove('active');
-    document.getElementById('inspector-default').classList.add('active');
-    
-    // Re-render wardrobe visual states
-    renderClothesInWardrobe();
-}
-
-function renderSectionInventory() {
-    const listContainer = document.getElementById('inventory-list');
-    if (!listContainer) return;
-
-    listContainer.innerHTML = '';
-
-    const sectionClothes = clothes.filter(
-        item => item.house === currentHouse && item.section === selectedSection
-    );
-
-    document.getElementById('inventory-count').textContent = sectionClothes.length;
-
-    if (sectionClothes.length === 0) {
-        listContainer.innerHTML = `
-            <div class="empty-inventory-msg">Nessun capo registrato in questa sezione. Aggiungi il tuo primo capo qui sotto!</div>
-        `;
-        return;
-    }
-
-    sectionClothes.forEach((item, index) => {
-        const isFirst = (index === 0);
-        const isLast = (index === sectionClothes.length - 1);
-
-        const card = document.createElement('div');
-        card.className = 'clothing-item-card';
-        card.innerHTML = `
-            <div class="clothing-item-info">
-                <span class="clothing-color-badge" style="background-color: ${item.color};"></span>
-                <div class="clothing-text-details">
-                    <span class="cloth-title">${item.name}</span>
-                    <span class="cloth-meta-label">
-                        ${item.brand ? `${item.brand.toUpperCase()}` : 'GENERICO'} 
-                        ${item.notes ? `• ${item.notes}` : ''}
-                    </span>
-                </div>
-            </div>
-            <div class="card-actions">
-                <button class="btn-move-up" title="Sposta su" data-id="${item.id}" ${isFirst ? 'disabled' : ''}>▲</button>
-                <button class="btn-move-down" title="Sposta giù" data-id="${item.id}" ${isLast ? 'disabled' : ''}>▼</button>
-                <button class="btn-edit-cloth" title="Modifica capo" data-id="${item.id}">✏️</button>
-                <button class="btn-delete-cloth" title="Elimina capo" data-id="${item.id}">&times;</button>
-            </div>
-        `;
-
-        // Move Up listener
-        if (!isFirst) {
-            card.querySelector('.btn-move-up').addEventListener('click', (e) => {
-                e.stopPropagation();
-                moveClothing(item.id, 'up');
-            });
-        }
-
-        // Move Down listener
-        if (!isLast) {
-            card.querySelector('.btn-move-down').addEventListener('click', (e) => {
-                e.stopPropagation();
-                moveClothing(item.id, 'down');
-            });
-        }
-
-        // Edit button listener
-        card.querySelector('.btn-edit-cloth').addEventListener('click', (e) => {
-            e.stopPropagation();
-            startEditClothing(item.id);
-        });
-
-        // Delete button listener
-        card.querySelector('.btn-delete-cloth').addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteClothing(item.id);
-        });
-
-        listContainer.appendChild(card);
-    });
-}
-
-async function deleteClothing(itemId) {
-    if (confirm("Sei sicuro di voler rimuovere questo capo dall'archivio?")) {
-        clothes = clothes.filter(item => item.id !== itemId);
-        await saveData();
-        renderSectionInventory();
-        renderClothesInWardrobe();
-    }
-}
-
-async function moveClothing(itemId, direction) {
-    const itemIndex = clothes.findIndex(c => c.id === itemId);
-    if (itemIndex === -1) return;
-    
-    const targetItem = clothes[itemIndex];
-    const sectionId = targetItem.section;
-    const house = targetItem.house;
-    
-    const siblingIndices = [];
-    clothes.forEach((c, idx) => {
-        if (c.house === house && c.section === sectionId) {
-            siblingIndices.push(idx);
-        }
-    });
-    
-    const siblingPos = siblingIndices.indexOf(itemIndex);
-    if (siblingPos === -1) return;
-    
-    if (direction === 'up' && siblingPos > 0) {
-        const prevGlobalIdx = siblingIndices[siblingPos - 1];
-        const temp = clothes[itemIndex];
-        clothes[itemIndex] = clothes[prevGlobalIdx];
-        clothes[prevGlobalIdx] = temp;
-    } else if (direction === 'down' && siblingPos < siblingIndices.length - 1) {
-        const nextGlobalIdx = siblingIndices[siblingPos + 1];
-        const temp = clothes[itemIndex];
-        clothes[itemIndex] = clothes[nextGlobalIdx];
-        clothes[nextGlobalIdx] = temp;
-    } else {
-        return;
-    }
-    
-    await saveData();
-    renderSectionInventory();
-    renderClothesInWardrobe();
-}
-
-// 9. NEW CLOTHING FORM MANAGEMENT
-function initForm() {
-    const form = document.getElementById('add-clothing-form');
-    if (!form) return;
-
-    // Custom color picker support
-    const customColorInput = document.getElementById('cloth-color-custom');
-    const customColorRadio = document.getElementById('radio-custom-color');
-    
-    if (customColorInput && customColorRadio) {
-        const updateCustomSwatchBackground = () => {
-            const swatchLabel = customColorInput.closest('.color-swatch-label');
-            if (swatchLabel) {
-                swatchLabel.style.backgroundImage = 'none';
-                swatchLabel.style.backgroundColor = customColorInput.value;
-            }
-        };
-
-        customColorInput.addEventListener('input', () => {
-            customColorRadio.value = customColorInput.value;
-            customColorRadio.checked = true;
-            updateCustomSwatchBackground();
-        });
-        customColorInput.addEventListener('click', () => {
-            customColorRadio.value = customColorInput.value;
-            customColorRadio.checked = true;
-            updateCustomSwatchBackground();
-        });
-    }
-
-    // Cancel edit button listener
-    const cancelBtn = document.getElementById('btn-cancel-edit');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', cancelEditClothing);
-    }
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        if (!selectedSection) {
-            alert("Errore: Seleziona una sezione dell'armadio prima di registrare un capo.");
-            return;
-        }
-
-        const nameInput = document.getElementById('cloth-name');
-        const typeSelect = document.getElementById('cloth-type');
-        const brandInput = document.getElementById('cloth-brand');
-        const notesText = document.getElementById('cloth-notes');
-
-        // Retrieve color radio select
-        let selectedColor = '#ffffff';
-        const colorRadio = document.querySelector('input[name="cloth-color"]:checked');
-        if (colorRadio) {
-            if (colorRadio.value === 'custom') {
-                selectedColor = customColorInput.value;
-            } else {
-                selectedColor = colorRadio.value;
-            }
-        }
-
-        if (editingItemId) {
-            // Edit Mode
-            const idx = clothes.findIndex(item => item.id === editingItemId);
-            if (idx !== -1) {
-                clothes[idx].name = nameInput.value.trim();
-                clothes[idx].type = typeSelect.value;
-                clothes[idx].color = selectedColor;
-                clothes[idx].brand = brandInput.value.trim();
-                clothes[idx].notes = notesText.value.trim();
-            }
-            
-            editingItemId = null;
-            
-            // Reset Form UI
-            document.getElementById('form-title').textContent = "+ AGGIUNGI CAPO";
-            document.getElementById('btn-submit-cloth').textContent = "REGISTRA CAPO";
-            document.getElementById('btn-cancel-edit').style.display = "none";
-        } else {
-            // Add Mode
-            const newItem = {
-                id: 'cloth_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-                house: currentHouse,
-                section: selectedSection,
-                name: nameInput.value.trim(),
-                type: typeSelect.value,
-                color: selectedColor,
-                brand: brandInput.value.trim(),
-                notes: notesText.value.trim()
-            };
-            clothes.push(newItem);
-        }
-
-        await saveData();
-
-        // Reset form inputs
-        nameInput.value = '';
-        brandInput.value = '';
-        notesText.value = '';
-
-        // Reset color swatches to default (first radio)
-        const firstRadio = form.querySelector('input[name="cloth-color"]');
-        if (firstRadio) firstRadio.checked = true;
-        
-        // Reset custom color swatch background
-        if (customColorInput) {
-            customColorInput.value = '#000000';
-            const swatchLabel = customColorInput.closest('.color-swatch-label');
-            if (swatchLabel) {
-                swatchLabel.style.backgroundColor = '';
-                swatchLabel.style.backgroundImage = 'linear-gradient(45deg, #ef4444, #3b82f6, #22c55e)';
-            }
-        }
-
-        // Refresh views
-        renderSectionInventory();
-        renderClothesInWardrobe();
-    });
-}
-
-// 9.5. EDIT MODALITY LOGIC
-function startEditClothing(itemId) {
-    const item = clothes.find(c => c.id === itemId);
-    if (!item) return;
-    
-    editingItemId = itemId;
-    
-    // Populate form fields
-    document.getElementById('cloth-name').value = item.name;
-    document.getElementById('cloth-type').value = item.type;
-    document.getElementById('cloth-brand').value = item.brand || '';
-    document.getElementById('cloth-notes').value = item.notes || '';
-    
-    // Select the correct color swatch radio
-    const customColorInput = document.getElementById('cloth-color-custom');
-    const customColorRadio = document.getElementById('radio-custom-color');
-    const colorRadios = document.querySelectorAll('input[name="cloth-color"]');
-    
-    colorRadios.forEach(radio => radio.checked = false);
-    
-    let matched = false;
-    for (let radio of colorRadios) {
-        if (radio.value.toLowerCase() === item.color.toLowerCase() && radio.id !== 'radio-custom-color') {
-            radio.checked = true;
-            matched = true;
-            break;
-        }
-    }
-    
-    if (!matched && customColorInput && customColorRadio) {
-        customColorInput.value = item.color;
-        customColorRadio.value = item.color;
-        customColorRadio.checked = true;
-        
-        const swatchLabel = customColorInput.closest('.color-swatch-label');
-        if (swatchLabel) {
-            swatchLabel.style.backgroundImage = 'none';
-            swatchLabel.style.backgroundColor = item.color;
-        }
-    }
-    
-    // Update Form UI
-    document.getElementById('form-title').textContent = "MODIFICA CAPO";
-    document.getElementById('btn-submit-cloth').textContent = "SALVA MODIFICHE";
-    document.getElementById('btn-cancel-edit').style.display = "block";
-    
-    // Smooth scroll form into view
-    document.getElementById('add-clothing-form').scrollIntoView({ behavior: 'smooth' });
-}
-
-function cancelEditClothing() {
-    editingItemId = null;
-    
-    const form = document.getElementById('add-clothing-form');
-    if (form) {
-        document.getElementById('cloth-name').value = '';
-        document.getElementById('cloth-brand').value = '';
-        document.getElementById('cloth-notes').value = '';
-        
-        // Reset color swatches to default (first radio)
-        const firstRadio = form.querySelector('input[name="cloth-color"]');
-        if (firstRadio) firstRadio.checked = true;
-        
-        // Reset custom color swatch background
-        const customColorInput = document.getElementById('cloth-color-custom');
-        if (customColorInput) {
-            customColorInput.value = '#000000';
-            const swatchLabel = customColorInput.closest('.color-swatch-label');
-            if (swatchLabel) {
-                swatchLabel.style.backgroundColor = '';
-                swatchLabel.style.backgroundImage = 'linear-gradient(45deg, #ef4444, #3b82f6, #22c55e)';
-            }
-        }
-    }
-    
-    const formTitle = document.getElementById('form-title');
-    if (formTitle) formTitle.textContent = "+ AGGIUNGI CAPO";
-    
-    const submitBtn = document.getElementById('btn-submit-cloth');
-    if (submitBtn) submitBtn.textContent = "REGISTRA CAPO";
-    
-    const cancelBtn = document.getElementById('btn-cancel-edit');
-    if (cancelBtn) cancelBtn.style.display = "none";
-}
-
-// 10. STATISTICS CALCULATION
+// ─── STATS ────────────────────────────────────────────────────────────────────
 function updateStats() {
-    const houseClothes = clothes.filter(c => c.house === currentHouse);
-    
-    const total = houseClothes.length;
-    const hanging = houseClothes.filter(c => c.section.includes('rail')).length;
-    const shelf = houseClothes.filter(c => c.section.includes('shelf')).length;
-    const drawer = houseClothes.filter(c => c.section.includes('drawer')).length;
-
-    // Update defaults panel stats
-    document.getElementById('stat-total-items').textContent = total;
-    document.getElementById('stat-hanging-items').textContent = hanging;
-    document.getElementById('stat-shelf-items').textContent = shelf;
-    document.getElementById('stat-drawer-items').textContent = drawer;
-    document.getElementById('summary-house-name').textContent = currentHouse.toUpperCase();
-
-    // Footer stats
-    document.getElementById('db-size-indicator').textContent = `DB ITEMS: ${clothes.length}`;
+    const hc = clothes.filter(c => c.house === currentHouse);
+    document.getElementById('stat-total-items').textContent   = hc.length;
+    document.getElementById('stat-hanging-items').textContent = hc.filter(c => c.section.includes('rail')).length;
+    document.getElementById('stat-shelf-items').textContent   = hc.filter(c => c.section.includes('shelf')).length;
+    document.getElementById('stat-drawer-items').textContent  = hc.filter(c => c.section.includes('drawer')).length;
+    document.getElementById('db-size-indicator').textContent  = `${clothes.length} CAPI`;
 }
 
-// 11. HOUSE NAVIGATION TABS
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
 function initNavigation() {
-    const tabs = document.querySelectorAll('.menu-tab');
-    const statusText = document.getElementById('current-house-status');
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Remove active status
-            tabs.forEach(t => t.classList.remove('active'));
-            
-            // Activate this tab
-            tab.classList.add('active');
-            currentHouse = tab.getAttribute('data-house');
-
-            // Update Status Light text
-            statusText.textContent = `${currentHouse.toUpperCase()}_ONLINE`;
-
-            // Reset selected compartment on house swap to avoid confusion
+    const statusLabel = document.getElementById('current-house-status');
+    document.querySelectorAll('.house-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.house-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentHouse = btn.dataset.house;
+            statusLabel.textContent = currentHouse.toUpperCase();
             resetInspector();
-            
-            // Re-render and update stats
             updateStats();
             renderClothesInWardrobe();
         });
     });
 }
 
-// 12. COMPARTMENT CLICK DELEGATION
-function initCompartmentClicks() {
-    const nodes = document.querySelectorAll('.compartment-node');
-    nodes.forEach(node => {
-        node.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const sectionId = node.getAttribute('data-section');
-            selectSection(sectionId);
-        });
+// ─── DOORS ────────────────────────────────────────────────────────────────────
+function initDoors() {
+    const dl1 = document.getElementById('door-l1');
+    const dl2 = document.getElementById('door-l2');
+    const dr1 = document.getElementById('door-r1');
+    const dr2 = document.getElementById('door-r2');
+    const toggleBtn = document.getElementById('btn-toggle-doors');
+
+    const togglePair = (d1, d2, prefix) => {
+        const open = d1.classList.contains('open');
+        if (open) {
+            d1.classList.remove('open'); d2.classList.remove('open');
+            if (selectedSection && selectedSection.startsWith(prefix)) resetInspector();
+        } else {
+            d1.classList.add('open'); d2.classList.add('open');
+        }
+        updateToggleBtn();
+    };
+
+    dl1.addEventListener('click', e => { e.stopPropagation(); togglePair(dl1, dl2, 'sec1'); });
+    dl2.addEventListener('click', e => { e.stopPropagation(); togglePair(dl1, dl2, 'sec1'); });
+    dr1.addEventListener('click', e => { e.stopPropagation(); togglePair(dr1, dr2, 'sec2'); });
+    dr2.addEventListener('click', e => { e.stopPropagation(); togglePair(dr1, dr2, 'sec2'); });
+
+    toggleBtn.addEventListener('click', () => {
+        const doors = [dl1, dl2, dr1, dr2];
+        const anyOpen = doors.some(d => d.classList.contains('open'));
+        if (!anyOpen) {
+            doors.forEach(d => d.classList.add('open'));
+        } else {
+            doors.forEach(d => d.classList.remove('open'));
+            resetInspector();
+        }
+        updateToggleBtn();
     });
 }
 
-// 13. BOOTSTRAP INITIALIZATION
-window.addEventListener('DOMContentLoaded', async () => {
-    // 1. Draw CAD Rulers
-    renderRulers();
-    window.addEventListener('resize', renderRulers);
+function updateToggleBtn() {
+    const btn = document.getElementById('btn-toggle-doors');
+    if (!btn) return;
+    const allOpen = Array.from(document.querySelectorAll('.wardrobe-door')).every(d => d.classList.contains('open'));
+    btn.textContent = allOpen ? 'CHIUDI TUTTO' : 'APRI TUTTO';
+}
 
-    // 2. Load DB
-    await loadData();
+function ensureDoorsOpen(sectionId) {
+    if (sectionId.startsWith('sec1')) {
+        document.getElementById('door-l1')?.classList.add('open');
+        document.getElementById('door-l2')?.classList.add('open');
+    } else {
+        document.getElementById('door-r1')?.classList.add('open');
+        document.getElementById('door-r2')?.classList.add('open');
+    }
+    updateToggleBtn();
+}
 
-    // 3. Init Navigation tabs
-    initNavigation();
+// ─── RENDER WARDROBE ──────────────────────────────────────────────────────────
+function renderClothesInWardrobe() {
+    document.querySelectorAll('.clothes-container').forEach(c => c.innerHTML = '');
+    document.querySelectorAll('.drawer-node').forEach(d => d.classList.remove('pulled-out'));
 
-    // 4. Init interactive wardrobe doors
-    initDoors();
+    const hc = clothes.filter(c => c.house === currentHouse);
 
-    // 5. Init compartment click delegates
-    initCompartmentClicks();
+    // Rails
+    ['sec1-top-rail', 'sec1-bottom-rail', 'sec2-middle-rail'].forEach(sid => {
+        const container = document.getElementById(`container-${sid}`);
+        if (!container) return;
+        const items = hc.filter(c => c.section === sid);
+        for (let i = 0; i < items.length; i += 15) {
+            const row = document.createElement('div');
+            row.className = 'rail-row';
+            items.slice(i, i + 15).forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'visual-hanger';
+                div.innerHTML = `${getHangerSvg(item.type, item.color)}
+                    <div class="cloth-tooltip"><strong>${item.name}</strong>${item.brand ? '<br>' + item.brand : ''}</div>`;
+                div.addEventListener('click', e => { e.stopPropagation(); selectSection(item.section); });
+                row.appendChild(div);
+            });
+            container.appendChild(row);
+        }
+    });
 
-    // 6. Init form color pickers and submit actions
-    initForm();
+    // Shelf
+    document.querySelectorAll('.shelf-node').forEach(node => {
+        const sid = node.dataset.section;
+        const container = document.getElementById(`container-${sid}`);
+        if (container) container.innerHTML = getFoldedStackSvg(hc.filter(c => c.section === sid));
+    });
 
-    // 7. Update visual stats
-    updateStats();
+    // Drawers
+    renderDrawerColumns();
 
-    // 8. Init drawers engine
-    initDrawers();
+    // Re-apply selection
+    if (selectedSection?.includes('drawer')) {
+        const parts = selectedSection.split('-');
+        const drawerId = `sec-${parts[0]}-${parts[1]}`;
+        document.getElementById(drawerId)?.classList.add('pulled-out');
+        document.getElementById(`sec-${selectedSection}`)?.classList.add('selected');
+    }
+}
 
-    // 9. Draw hangers and clothes inside the wardrobe layout
+// ─── SECTION SELECTION ────────────────────────────────────────────────────────
+function selectSection(sectionId) {
+    cancelEditClothing();
+    selectedSection = sectionId;
+    ensureDoorsOpen(sectionId);
+
+    document.querySelectorAll('.compartment-node').forEach(n => n.classList.remove('selected'));
+    document.getElementById(`sec-${sectionId}`)?.classList.add('selected');
+
+    document.getElementById('inspector-default').classList.remove('active');
+    document.getElementById('inspector-active').classList.add('active');
+    document.getElementById('inspect-house-name').textContent  = currentHouse.toUpperCase();
+    document.getElementById('inspect-section-name').textContent = SECTION_NAMES[sectionId] || sectionId;
+
+    renderSectionInventory();
+}
+
+function resetInspector() {
+    cancelEditClothing();
+    selectedSection = null;
+    document.querySelectorAll('.compartment-node').forEach(n => n.classList.remove('selected'));
+    document.querySelectorAll('.drawer-node').forEach(d => d.classList.remove('pulled-out'));
+    document.getElementById('inspector-active').classList.remove('active');
+    document.getElementById('inspector-default').classList.add('active');
     renderClothesInWardrobe();
-    
-    // Back button in active inspector
-    document.getElementById('btn-back-to-default').addEventListener('click', resetInspector);
-});
+}
 
-// 13.5. DRAWERS SUB-CONTAINERS ENGINE
+// ─── INVENTORY ────────────────────────────────────────────────────────────────
+function renderSectionInventory() {
+    const list = document.getElementById('inventory-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    const items = clothes.filter(c => c.house === currentHouse && c.section === selectedSection);
+    document.getElementById('inventory-count').textContent = items.length;
+
+    if (!items.length) {
+        list.innerHTML = '<div class="empty-inventory-msg">Nessun capo. Aggiungine uno qui sotto.</div>';
+        return;
+    }
+
+    items.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'clothing-item-card';
+        card.innerHTML = `
+            <div class="clothing-item-info">
+                <span class="clothing-color-badge" style="background:${item.color}"></span>
+                <div class="clothing-text-details">
+                    <span class="cloth-title">${item.name}</span>
+                    <span class="cloth-meta-label">${item.brand ? item.brand.toUpperCase() : 'GENERICO'}${item.notes ? ' · ' + item.notes : ''}</span>
+                </div>
+            </div>
+            <div class="card-actions">
+                <button class="btn-move-up"    title="Su"       data-id="${item.id}" ${i === 0 ? 'disabled' : ''}>▲</button>
+                <button class="btn-move-down"  title="Giù"      data-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}>▼</button>
+                <button class="btn-edit-cloth"  title="Modifica" data-id="${item.id}">✏️</button>
+                <button class="btn-delete-cloth" title="Elimina" data-id="${item.id}">×</button>
+            </div>`;
+
+        if (i > 0) card.querySelector('.btn-move-up').addEventListener('click', e => { e.stopPropagation(); moveClothing(item.id, 'up'); });
+        if (i < items.length - 1) card.querySelector('.btn-move-down').addEventListener('click', e => { e.stopPropagation(); moveClothing(item.id, 'down'); });
+        card.querySelector('.btn-edit-cloth').addEventListener('click', e => { e.stopPropagation(); startEditClothing(item.id); });
+        card.querySelector('.btn-delete-cloth').addEventListener('click', e => { e.stopPropagation(); deleteClothing(item.id); });
+
+        list.appendChild(card);
+    });
+}
+
+async function deleteClothing(id) {
+    if (!confirm('Rimuovere questo capo dall\'archivio?')) return;
+    clothes = clothes.filter(c => c.id !== id);
+    await saveData();
+    renderSectionInventory();
+    renderClothesInWardrobe();
+}
+
+async function moveClothing(id, dir) {
+    const idx = clothes.findIndex(c => c.id === id);
+    if (idx < 0) return;
+    const { house, section } = clothes[idx];
+    const siblings = clothes.map((c, i) => ({ c, i })).filter(({ c }) => c.house === house && c.section === section);
+    const pos = siblings.findIndex(s => s.i === idx);
+    if (dir === 'up' && pos > 0) {
+        const prev = siblings[pos - 1].i;
+        [clothes[idx], clothes[prev]] = [clothes[prev], clothes[idx]];
+    } else if (dir === 'down' && pos < siblings.length - 1) {
+        const next = siblings[pos + 1].i;
+        [clothes[idx], clothes[next]] = [clothes[next], clothes[idx]];
+    } else return;
+    await saveData();
+    renderSectionInventory();
+    renderClothesInWardrobe();
+}
+
+// ─── DRAWERS ENGINE ───────────────────────────────────────────────────────────
 function initDrawers() {
-    const drawers = document.querySelectorAll('.drawer-node');
-    drawers.forEach(drawer => {
-        drawer.addEventListener('click', (e) => {
+    document.querySelectorAll('.drawer-node').forEach(drawer => {
+        drawer.addEventListener('click', e => {
             if (drawer.classList.contains('pulled-out')) return;
-            
             e.stopPropagation();
-            
-            // Close other drawers
-            drawers.forEach(d => d.classList.remove('pulled-out'));
-            // Open this drawer
+            document.querySelectorAll('.drawer-node').forEach(d => d.classList.remove('pulled-out'));
             drawer.classList.add('pulled-out');
-            
-            // Ensure Section 2 doors are open so user can see the drawer interior!
-            const doorR1 = document.getElementById('door-r1');
-            const doorR2 = document.getElementById('door-r2');
-            if (doorR1) doorR1.classList.add('open');
-            if (doorR2) doorR2.classList.add('open');
-            updateToggleAllButtonText();
-            
-            // Automatically select first column if available
+            document.getElementById('door-r1')?.classList.add('open');
+            document.getElementById('door-r2')?.classList.add('open');
+            updateToggleBtn();
             const firstCol = drawer.querySelector('.drawer-col-container');
-            if (firstCol) {
-                const sectionId = firstCol.getAttribute('data-section');
-                selectSection(sectionId);
-            } else {
-                // Empty drawer 1
-                resetInspector();
-            }
+            if (firstCol) selectSection(firstCol.dataset.section);
+            else resetInspector();
         });
     });
 
-    // Sub-compartments click listeners
-    const colNodes = document.querySelectorAll('.drawer-col-container');
-    colNodes.forEach(col => {
-        col.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent drawer node click trigger
-            const sectionId = col.getAttribute('data-section');
-            selectSection(sectionId);
-        });
+    document.querySelectorAll('.drawer-col-container').forEach(col => {
+        col.addEventListener('click', e => { e.stopPropagation(); selectSection(col.dataset.section); });
     });
 }
 
 function renderDrawerColumns() {
-    const drawerSections = [
-        'sec2-drawer2-col1',
-        'sec2-drawer2-col2',
-        'sec2-drawer3-col1',
-        'sec2-drawer3-col2',
-        'sec2-drawer3-col3'
-    ];
-    
-    drawerSections.forEach(sectionId => {
-        const el = document.getElementById(`sec-${sectionId}`);
+    const sections = ['sec2-drawer2-col1','sec2-drawer2-col2','sec2-drawer3-col1','sec2-drawer3-col2','sec2-drawer3-col3'];
+    sections.forEach(sid => {
+        const el = document.getElementById(`sec-${sid}`);
         if (!el) return;
-        
-        el.innerHTML = '';
-        
-        // Remove old selected highlight (will be reapplied at end of render loop for active selection)
         el.classList.remove('selected');
-        
-        const items = clothes.filter(c => c.house === currentHouse && c.section === sectionId);
-        
-        if (items.length === 0) {
-            el.innerHTML = `
-                <div class="empty-drawer-stack" title="Vuoto. Clicca per ispezionare ed aggiungere capi.">
-                    <span>+</span>
-                </div>
-            `;
-            return;
+        el.innerHTML = '';
+        const items = clothes.filter(c => c.house === currentHouse && c.section === sid);
+        if (!items.length) {
+            el.innerHTML = '<div class="empty-drawer-stack"><span>+</span></div>';
+        } else {
+            el.innerHTML = getFoldedStackSvg(items);
         }
-        
-        el.innerHTML = getFoldedStackSvg(items);
     });
 }
 
-function getHangerSvg(type, color) {
-    const hook = `
-        <!-- Hanger Hook -->
-        <path d="M92,5 C92,-5 82,-15 92,-20 C102,-15 98,-5 98,5" fill="none" stroke="#333" stroke-width="3.2" stroke-linecap="round" />
-    `;
+// ─── FORM ────────────────────────────────────────────────────────────────────
+function initForm() {
+    const form = document.getElementById('add-clothing-form');
+    if (!form) return;
 
-    const content = `
-        <g fill="none" stroke="#333" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <!-- bordo esterno -->
-            <path d="M92 5 L67 34 L55 124 L45 252 L38 431 L157 431 L157 331 L152 219 L145 75 L111 29 L92 5 Z" fill="${color}" />
-            <!-- collo e spalla superiore -->
-            <path d="M67 34 L92 25 L111 29" />
-            <path d="M81 20 L96 10" />
-            <!-- apertura / rever interno -->
-            <path d="M72 39 L93 30 L93 76" />
-            <path d="M93 76 L121 89 L121 406 L57 406 L57 142 L72 39" fill="${color}" />
-            <!-- pannello frontale interno -->
-            <path d="M82 54 L96 40 L125 56 L136 333 L124 403" fill="${color}" />
-            <!-- tasca -->
-            <path d="M69 326 L101 321 L111 329 L70 332 Z" fill="${color}" />
-            <path d="M70 332 L70 351 L124 358" />
-        </g>
-    `;
+    const customInput = document.getElementById('cloth-color-custom');
+    const customRadio = document.getElementById('radio-custom-color');
 
-    return `
-    <svg viewBox="0 -25 180 460" width="30" height="60" style="filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.15));">
-        ${content}
-        ${hook}
-    </svg>
-    `;
+    const syncCustomSwatch = () => {
+        const label = customInput.closest('.swatch');
+        if (label) { label.style.backgroundImage = 'none'; label.style.backgroundColor = customInput.value; }
+    };
+    customInput.addEventListener('input', () => { customRadio.value = customInput.value; customRadio.checked = true; syncCustomSwatch(); });
+    customInput.addEventListener('click', () => { customRadio.value = customInput.value; customRadio.checked = true; syncCustomSwatch(); });
+
+    document.getElementById('btn-cancel-edit').addEventListener('click', cancelEditClothing);
+
+    form.addEventListener('submit', async e => {
+        e.preventDefault();
+        if (!selectedSection) { alert('Seleziona prima una sezione dell\'armadio.'); return; }
+
+        const name  = document.getElementById('cloth-name').value.trim();
+        const type  = document.getElementById('cloth-type').value;
+        const brand = document.getElementById('cloth-brand').value.trim();
+        const notes = document.getElementById('cloth-notes').value.trim();
+
+        let color = '#ffffff';
+        const colorRadio = form.querySelector('input[name="cloth-color"]:checked');
+        if (colorRadio) color = colorRadio.value === 'custom' ? customInput.value : colorRadio.value;
+
+        if (editingItemId) {
+            const idx = clothes.findIndex(c => c.id === editingItemId);
+            if (idx >= 0) Object.assign(clothes[idx], { name, type, color, brand, notes });
+            editingItemId = null;
+            document.getElementById('form-title').textContent = 'AGGIUNGI';
+            document.getElementById('btn-submit-cloth').textContent = 'REGISTRA';
+            document.getElementById('btn-cancel-edit').style.display = 'none';
+        } else {
+            clothes.push({ id: 'c_' + Date.now() + '_' + Math.floor(Math.random() * 1000), house: currentHouse, section: selectedSection, name, type, color, brand, notes });
+        }
+
+        await saveData();
+        resetFormFields(form, customInput);
+        renderSectionInventory();
+        renderClothesInWardrobe();
+    });
 }
 
-// 15. DYNAMIC FOLDED STACK SVG GENERATOR (Exact replica of T-shirt stack screenshot)
+function resetFormFields(form, customInput) {
+    document.getElementById('cloth-name').value = '';
+    document.getElementById('cloth-brand').value = '';
+    document.getElementById('cloth-notes').value = '';
+    const first = form.querySelector('input[name="cloth-color"]');
+    if (first) first.checked = true;
+    if (customInput) {
+        customInput.value = '#000000';
+        const label = customInput.closest('.swatch');
+        if (label) { label.style.backgroundColor = ''; label.style.backgroundImage = 'linear-gradient(135deg,#ef4444,#3b82f6,#22c55e)'; }
+    }
+}
+
+function startEditClothing(id) {
+    const item = clothes.find(c => c.id === id);
+    if (!item) return;
+    editingItemId = id;
+
+    document.getElementById('cloth-name').value  = item.name;
+    document.getElementById('cloth-type').value  = item.type;
+    document.getElementById('cloth-brand').value = item.brand || '';
+    document.getElementById('cloth-notes').value = item.notes || '';
+
+    const customInput = document.getElementById('cloth-color-custom');
+    const customRadio = document.getElementById('radio-custom-color');
+    let matched = false;
+    document.querySelectorAll('input[name="cloth-color"]').forEach(r => { r.checked = false; });
+    document.querySelectorAll('input[name="cloth-color"]').forEach(r => {
+        if (r.value.toLowerCase() === item.color.toLowerCase() && r.id !== 'radio-custom-color') { r.checked = true; matched = true; }
+    });
+    if (!matched && customInput) {
+        customInput.value = item.color;
+        customRadio.value = item.color;
+        customRadio.checked = true;
+        const label = customInput.closest('.swatch');
+        if (label) { label.style.backgroundImage = 'none'; label.style.backgroundColor = item.color; }
+    }
+
+    document.getElementById('form-title').textContent = 'MODIFICA';
+    document.getElementById('btn-submit-cloth').textContent = 'SALVA';
+    document.getElementById('btn-cancel-edit').style.display = 'block';
+    document.getElementById('add-clothing-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function cancelEditClothing() {
+    editingItemId = null;
+    const form = document.getElementById('add-clothing-form');
+    const customInput = document.getElementById('cloth-color-custom');
+    if (form) resetFormFields(form, customInput);
+    document.getElementById('form-title').textContent = 'AGGIUNGI';
+    document.getElementById('btn-submit-cloth').textContent = 'REGISTRA';
+    document.getElementById('btn-cancel-edit').style.display = 'none';
+}
+
+// ─── COMPARTMENT CLICKS ────────────────────────────────────────────────────────
+function initCompartmentClicks() {
+    document.querySelectorAll('.compartment-node').forEach(node => {
+        node.addEventListener('click', e => { e.stopPropagation(); selectSection(node.dataset.section); });
+    });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+    await loadData();
+    initNavigation();
+    initDoors();
+    initCompartmentClicks();
+    initForm();
+    initDrawers();
+    updateStats();
+    renderClothesInWardrobe();
+    document.getElementById('btn-back-to-default').addEventListener('click', resetInspector);
+});
+
+/* ==========================================================================
+   SVG GENERATORS — CLOTHING SILHOUETTES
+   All use viewBox="0 -25 180 460", displayed at width="32" height="90"
+   Inspired by the hanging jacket silhouette style.
+   ========================================================================== */
+
+const INK = '#1A1816';
+
+function svgWrap(content) {
+    return `<svg viewBox="0 -25 180 460" width="32" height="90" style="display:block;overflow:visible;">
+        ${content}
+    </svg>`;
+}
+
+const HOOK = `<path d="M92,5 C92,-5 81,-16 92,-21 C103,-16 99,-5 92,5" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
+
+function getHangerSvg(type, color) {
+    switch (type) {
+        case 'shirt':   return getShirtSvg(color);
+        case 'hoodie':  return getHoodieSvg(color);
+        case 'sweater': return getSweaterSvg(color);
+        case 'pants':   return getPantsSvg(color);
+        case 'shorts':  return getShortsSvg(color);
+        case 'tshirt':  return getTshirtSvg(color);
+        case 'jacket':
+        default:        return getJacketSvg(color);
+    }
+}
+
+// GIACCA — coat with lapels and front panel
+function getJacketSvg(color) {
+    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+    return svgWrap(`
+        ${HOOK}
+        <g fill="${color}" ${stroke}>
+            <path d="M92,5 L66,34 L54,124 L44,430 L136,430 L136,220 L130,76 L112,29 Z"/>
+            <path d="M66,34 L92,24 L112,29" fill="none"/>
+            <path d="M72,40 L92,30 L92,80 L120,93 L120,408 L57,408 L57,145 L72,40 Z" fill="${color}"/>
+            <path d="M68,327 L102,322 L112,330 L68,333 Z" fill="${color}"/>
+            <line x1="68" y1="333" x2="68" y2="352" stroke-width="1.8"/>
+            <line x1="68" y1="352" x2="112" y2="359" stroke-width="1.8"/>
+        </g>
+    `);
+}
+
+// CAMICIA — shirt with collar points and button placket
+function getShirtSvg(color) {
+    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+    return svgWrap(`
+        ${HOOK}
+        <g fill="${color}" ${stroke}>
+            <path d="M92,8 L60,31 L48,110 L46,430 L134,430 L132,110 L120,31 Z"/>
+            <path d="M92,8 L60,31 L76,54 L91,39 Z"/>
+            <path d="M92,8 L120,31 L104,54 L91,39 Z"/>
+            <path d="M76,54 L91,39 L104,54" fill="none"/>
+            <line x1="91" y1="54" x2="91" y2="430" stroke-width="1.2"/>
+            <circle cx="91" cy="100" r="4" fill="${INK}" stroke="none"/>
+            <circle cx="91" cy="185" r="4" fill="${INK}" stroke="none"/>
+            <circle cx="91" cy="270" r="4" fill="${INK}" stroke="none"/>
+        </g>
+    `);
+}
+
+// FELPA — hoodie with visible hood arch and kangaroo pocket
+function getHoodieSvg(color) {
+    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+    return svgWrap(`
+        ${HOOK}
+        <g fill="${color}" ${stroke}>
+            <path d="M52,38 Q92,-8 132,38 Q130,22 92,22 Q54,22 52,38 Z"/>
+            <path d="M52,38 L42,430 L142,430 L132,38 Z"/>
+            <ellipse cx="92" cy="38" rx="22" ry="14" fill="${color}" stroke-width="2"/>
+            <path d="M65,292 L65,366 L119,366 L119,292" fill="none" stroke-width="1.8"/>
+            <line x1="65" y1="292" x2="119" y2="292" stroke-width="1.8"/>
+        </g>
+    `);
+}
+
+// MAGLIONE — sweater with round crew neck and ribbed hem
+function getSweaterSvg(color) {
+    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+    return svgWrap(`
+        ${HOOK}
+        <g fill="${color}" ${stroke}>
+            <path d="M92,12 L60,32 L50,115 L47,385 L133,385 L130,115 L122,32 Z"/>
+            <ellipse cx="92" cy="28" rx="22" ry="15" fill="${color}" stroke-width="2.2"/>
+            <line x1="47" y1="390" x2="133" y2="390" stroke-width="1.8"/>
+            <line x1="47" y1="400" x2="133" y2="400" stroke-width="1.8"/>
+            <line x1="47" y1="410" x2="133" y2="410" stroke-width="1.8"/>
+            <line x1="47" y1="428" x2="133" y2="428" stroke-width="2.2"/>
+        </g>
+    `);
+}
+
+// T-SHIRT / POLO — short body, round neck, short sleeves visible
+function getTshirtSvg(color) {
+    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+    return svgWrap(`
+        ${HOOK}
+        <g fill="${color}" ${stroke}>
+            <path d="M92,12 L58,30 L38,90 L48,105 L55,80 L52,280 L132,280 L129,80 L136,105 L146,90 L122,30 Z"/>
+            <ellipse cx="92" cy="26" rx="20" ry="13" fill="${color}" stroke-width="2"/>
+        </g>
+    `);
+}
+
+// PANTALONE LUNGO — long trousers hanging by waistband
+function getPantsSvg(color) {
+    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+    return svgWrap(`
+        ${HOOK}
+        <g fill="${color}" ${stroke}>
+            <rect x="30" y="5" width="120" height="26" rx="2"/>
+            <rect x="50" y="2" width="8"  height="13" rx="1" stroke-width="1.5"/>
+            <rect x="86" y="2" width="8"  height="13" rx="1" stroke-width="1.5"/>
+            <rect x="122" y="2" width="8" height="13" rx="1" stroke-width="1.5"/>
+            <path d="M30,31 L24,430 L82,430 C80,210 86,95 90,90 C94,95 100,210 98,430 L156,430 L150,31 Z"/>
+            <path d="M90,60 Q87,85 86,105" fill="none" stroke-width="1.5"/>
+        </g>
+    `);
+}
+
+// PANTALONE CORTO — shorts hanging by waistband
+function getShortsSvg(color) {
+    const stroke = `stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+    return svgWrap(`
+        ${HOOK}
+        <g fill="${color}" ${stroke}>
+            <rect x="30" y="5" width="120" height="26" rx="2"/>
+            <rect x="50" y="2" width="8"  height="13" rx="1" stroke-width="1.5"/>
+            <rect x="86" y="2" width="8"  height="13" rx="1" stroke-width="1.5"/>
+            <rect x="122" y="2" width="8" height="13" rx="1" stroke-width="1.5"/>
+            <path d="M30,31 L28,222 L82,222 C80,140 86,90 90,85 C94,90 100,140 98,222 L152,222 L150,31 Z"/>
+        </g>
+    `);
+}
+
+/* ==========================================================================
+   FOLDED STACK SVG (for shelves and drawers — t-shirt style)
+   ========================================================================== */
+
 function getFoldedStackSvg(items) {
-    if (!items || items.length === 0) return '';
-    
+    if (!items || !items.length) return '';
     const maxLayers = 6;
-    const displayItems = items.slice(-maxLayers);
-    const K = displayItems.length;
-    
-    const dy = 7; // Spacing between layers
-    
-    let layersSvg = '';
-    
-    // Draw the floor line first
-    const floorLine = `<line x1="6" y1="44" x2="74" y2="44" stroke="#333" stroke-width="1.5" stroke-linecap="round" />`;
-    
+    const display = items.slice(-maxLayers);
+    const K = display.length;
+    const dy = 7;
+    let layers = '';
+
+    const floorLine = `<line x1="6" y1="44" x2="74" y2="44" stroke="${INK}" stroke-width="1.5" stroke-linecap="round"/>`;
+
     for (let i = 0; i < K; i++) {
-        const item = displayItems[i];
+        const item = display[i];
         const color = item.color || '#fff';
         const isTop = (i === K - 1);
-        
-        const y_bottom = 44 - i * dy;
-        const y_top = y_bottom - 8;
-        
-        let details = '';
+        const yBottom = 44 - i * dy;
+        const yTop = yBottom - 8;
+
+        let detail = '';
         if (isTop) {
-            const y = y_top;
-            details = `
-                <!-- Collar outline from user T-shirt screenshot -->
-                <path d="M 33,${y} Q 36,${y-3} 39,${y} Q 36,${y+2} 33,${y} Z" fill="${color}" stroke="#333" stroke-width="1.2" />
-                <path d="M 47,${y} Q 44,${y-3} 41,${y} Q 44,${y+2} 47,${y} Z" fill="${color}" stroke="#333" stroke-width="1.2" />
-                <path d="M 39,${y} L 40,${y+2} L 41,${y}" fill="none" stroke="#333" stroke-width="1.2" />
-            `;
+            detail = `
+                <path d="M33,${yTop} Q36,${yTop-3} 39,${yTop} Q36,${yTop+2} 33,${yTop} Z" fill="${color}" stroke="${INK}" stroke-width="1.2"/>
+                <path d="M47,${yTop} Q44,${yTop-3} 41,${yTop} Q44,${yTop+2} 47,${yTop} Z" fill="${color}" stroke="${INK}" stroke-width="1.2"/>
+                <path d="M39,${yTop} L40,${yTop+2} L41,${yTop}" fill="none" stroke="${INK}" stroke-width="1.2"/>`;
         }
-        
-        // Soft rounded capsule representing the folded garment layer
-        layersSvg += `
-            <g class="folded-item-group" data-id="${item.id}">
-                <path d="M 12,${y_top} L 68,${y_top} Q 71,${y_top} 71,${y_top+4} Q 71,${y_bottom} 68,${y_bottom} L 12,${y_bottom} Q 9,${y_bottom} 9,${y_top+4} Q 9,${y_top} 12,${y_top} Z" fill="${color}" stroke="#333" stroke-width="1.5" stroke-linejoin="round" />
-                ${details}
-                <title>${item.name}${item.brand ? ' [' + item.brand + ']' : ''}</title>
-            </g>
-        `;
+
+        layers += `<g class="folded-item-group" data-id="${item.id}">
+            <path d="M12,${yTop} L68,${yTop} Q71,${yTop} 71,${yTop+4} Q71,${yBottom} 68,${yBottom} L12,${yBottom} Q9,${yBottom} 9,${yTop+4} Q9,${yTop} 12,${yTop} Z"
+                  fill="${color}" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/>
+            ${detail}
+            <title>${item.name}${item.brand ? ' [' + item.brand + ']' : ''}</title>
+        </g>`;
     }
-    
-    return `
-    <svg viewBox="0 0 80 50" width="100%" height="100%" style="overflow: visible;">
-        ${floorLine}
-        ${layersSvg}
-    </svg>
-    `;
+
+    return `<svg viewBox="0 0 80 50" width="100%" height="100%" style="overflow:visible;">${floorLine}${layers}</svg>`;
 }

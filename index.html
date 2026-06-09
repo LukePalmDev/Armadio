@@ -3,326 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Armadio — Archivio Guardaroba Retro OS</title>
-    <meta name="description" content="Un archivio minimalista e interattivo per la gestione del guardaroba nelle case di Milano, Reggio e Sardegna.">
-    <!-- Google Fonts -->
+    <title>Armadio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Main Stylesheet -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- CAD Blueprint Rulers -->
-    <div class="ruler ruler-top" id="ruler-top"></div>
-    <div class="ruler ruler-left" id="ruler-left"></div>
+    <div class="app-root">
 
-    <div class="app-container">
-        <!-- Main Window (Retro OS Style) -->
-        <main class="window-container" id="main-window">
-            <header class="window-header">
-                <div class="window-title">
-                    <span class="icon">💾</span> WARDROBE_ARCHIVE.EXE - v1.0.0
-                </div>
-                <div class="window-controls">
-                    <button class="win-btn minimize-btn" aria-label="Minimize" onclick="alert('App minimizzata nel vassoio di sistema.')"></button>
-                    <button class="win-btn maximize-btn" aria-label="Maximize"></button>
-                    <button class="win-btn close-btn" aria-label="Close" onclick="window.close()"></button>
-                </div>
-            </header>
-
-            <!-- Menu Ribbon / Tabs -->
-            <nav class="menu-ribbon" aria-label="Seleziona la Casa">
-                <div class="menu-tabs">
-                    <button class="menu-tab active" data-house="Milano" id="tab-milano">
-                        <span class="tab-dot"></span> MILANO
-                    </button>
-                    <button class="menu-tab" data-house="Reggio" id="tab-reggio">
-                        <span class="tab-dot"></span> REGGIO
-                    </button>
-                    <button class="menu-tab" data-house="Sardegna" id="tab-sardegna">
-                        <span class="tab-dot"></span> SARDEGNA
-                    </button>
-                </div>
-                <div class="status-indicator">
-                    STATUS: <span id="current-house-status" class="blink-amber">MILANO_ONLINE</span>
-                </div>
-            </nav>
-
-            <!-- Dashboard Content Grid -->
-            <div class="window-content">
-                <!-- Left Panel: Interactive Wardrobe -->
-                <section class="wardrobe-section">
-                    <div class="wardrobe-toolbar">
-                        <h1 class="section-title">INTERFACCIA ARMADIO</h1>
-                        <div class="toolbar-controls">
-                            <button id="btn-toggle-doors" class="retro-btn">APRI TUTTO</button>
-                        </div>
-                    </div>
-                    
-                    <div class="wardrobe-outer-wrapper">
-                        <!-- Wardrobe Container with 3D Perspective -->
-                        <div class="wardrobe-container" id="wardrobe">
-                            
-                            <!-- Left Compartment: Columns 1 & 2 (Section 1) -->
-                            <div class="wardrobe-compartment compartment-left" id="compartment-1-2">
-                                <!-- Interior columns (visible when doors open) -->
-                                <div class="interior-vertical">
-                                    <!-- Top Hanging Rail -->
-                                    <div class="compartment-node rail-node" data-section="sec1-top-rail" id="sec-sec1-top-rail">
-                                        <span class="node-label">APPENDIABITI SUP. (SEZ. 1)</span>
-                                        <div class="hanging-bar"></div>
-                                        <div class="clothes-container rail-items" id="container-sec1-top-rail"></div>
-                                    </div>
-                                    
-                                    <!-- Bottom Hanging Rail -->
-                                    <div class="compartment-node rail-node" data-section="sec1-bottom-rail" id="sec-sec1-bottom-rail">
-                                        <span class="node-label">APPENDIABITI INF. (SEZ. 1)</span>
-                                        <div class="hanging-bar"></div>
-                                        <div class="clothes-container rail-items" id="container-sec1-bottom-rail"></div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Left Double Doors -->
-                                <div class="wardrobe-door door-left-left" id="door-l1" data-door="l1">
-                                    <div class="door-inner">
-                                        <span class="door-handle handle-right"></span>
-                                        <span class="door-label-vert">COL. 1</span>
-                                    </div>
-                                </div>
-                                <div class="wardrobe-door door-left-right" id="door-l2" data-door="l2">
-                                    <div class="door-inner">
-                                        <span class="door-handle handle-left"></span>
-                                        <span class="door-label-vert">COL. 2</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Right Compartment: Columns 3 & 4 (Section 2) -->
-                            <div class="wardrobe-compartment compartment-right" id="compartment-3-4">
-                                <!-- Interior columns -->
-                                <div class="interior-vertical">
-                                    <!-- Top Shelf (25% height) -->
-                                    <div class="compartment-node shelf-node" data-section="sec2-top-shelf" id="sec-sec2-top-shelf" style="height: 25%;">
-                                        <span class="node-label">RIPIANO SUP. (SEZ. 2)</span>
-                                        <div class="clothes-container shelf-items" id="container-sec2-top-shelf"></div>
-                                    </div>
-
-                                    <!-- Middle Hanging Rail (50% height) -->
-                                    <div class="compartment-node rail-node" data-section="sec2-middle-rail" id="sec-sec2-middle-rail" style="height: 50%;">
-                                        <span class="node-label">APPENDIABITI CENTR. (SEZ. 2)</span>
-                                        <div class="hanging-bar"></div>
-                                        <div class="clothes-container rail-items" id="container-sec2-middle-rail"></div>
-                                    </div>
-
-                                    <!-- Bottom 3 Horizontal Drawers (25% height) stacked vertically -->
-                                    <div class="drawers-stack" style="height: 25%; display: flex; flex-direction: column; width: 100%;">
-                                        <!-- Drawer 1 (Top) - Empty -->
-                                        <div class="drawer-node" id="sec-sec2-drawer1" style="flex: 1; width: 100%;">
-                                            <div class="drawer-face">
-                                                <span class="drawer-handle"></span>
-                                                <span class="node-label">CASS. 1 (VUOTO)</span>
-                                            </div>
-                                            <div class="drawer-interior">
-                                                <div class="drawer-empty-interior">CASSETTO VUOTO</div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Drawer 2 (Middle) - 2 Columns (Left & Center) -->
-                                        <div class="drawer-node" id="sec-sec2-drawer2" style="flex: 1; width: 100%;">
-                                            <div class="drawer-face">
-                                                <span class="drawer-handle"></span>
-                                                <span class="node-label">CASS. 2</span>
-                                            </div>
-                                            <div class="drawer-interior" style="display: none; width: 100%; height: 100%;">
-                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer2-col1" id="sec-sec2-drawer2-col1" style="flex: 1; height: 100%;"></div>
-                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer2-col2" id="sec-sec2-drawer2-col2" style="flex: 1; height: 100%;"></div>
-                                                <div class="drawer-col-placeholder" style="flex: 1; height: 100%;"></div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Drawer 3 (Bottom) - 3 Columns -->
-                                        <div class="drawer-node" id="sec-sec2-drawer3" style="flex: 1; width: 100%;">
-                                            <div class="drawer-face">
-                                                <span class="drawer-handle"></span>
-                                                <span class="node-label">CASS. 3</span>
-                                            </div>
-                                            <div class="drawer-interior" style="display: none; width: 100%; height: 100%;">
-                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer3-col1" id="sec-sec2-drawer3-col1" style="flex: 1; height: 100%;"></div>
-                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer3-col2" id="sec-sec2-drawer3-col2" style="flex: 1; height: 100%;"></div>
-                                                <div class="drawer-col-container compartment-node" data-section="sec2-drawer3-col3" id="sec-sec2-drawer3-col3" style="flex: 1; height: 100%;"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Right Double Doors -->
-                                <div class="wardrobe-door door-right-left" id="door-r1" data-door="r1">
-                                    <div class="door-inner">
-                                        <span class="door-handle handle-right"></span>
-                                        <span class="door-label-vert">COL. 3</span>
-                                    </div>
-                                </div>
-                                <div class="wardrobe-door door-right-right" id="door-r2" data-door="r2">
-                                    <div class="door-inner">
-                                        <span class="door-handle handle-left"></span>
-                                        <span class="door-label-vert">COL. 4</span>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Right Panel: Inspector & Inventory (CAD Style) -->
-                <section class="inspector-section" id="inspector-panel">
-                    <!-- Default State: No Section Selected -->
-                    <div id="inspector-default" class="inspector-state active">
-                        <div class="inspector-header">
-                            <h2>DETTAGLIO SEZIONE</h2>
-                        </div>
-                        <div class="inspector-body empty-inspector">
-                            <div class="dither-pattern-box"></div>
-                            <p class="instruction">Seleziona una sezione dell'armadio aperta per visualizzarne il contenuto e registrare nuovi capi d'abbigliamento.</p>
-                            <div class="stats-box">
-                                <h3>RIASSUNTO CASA: <span id="summary-house-name">MILANO</span></h3>
-                                <ul class="retro-list">
-                                    <li>Capi totali: <strong id="stat-total-items">0</strong></li>
-                                    <li>Appendiabiti: <strong id="stat-hanging-items">0</strong></li>
-                                    <li>Ripiani: <strong id="stat-shelf-items">0</strong></li>
-                                    <li>Cassettoni: <strong id="stat-drawer-items">0</strong></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Active State: Section Selected -->
-                    <div id="inspector-active" class="inspector-state">
-                        <div class="inspector-header">
-                            <button id="btn-back-to-default" class="win-btn-small" aria-label="Torna al riassunto">&larr;</button>
-                            <h2 id="inspector-section-title">SEZIONE SELEZIONATA</h2>
-                        </div>
-                        
-                        <div class="inspector-body">
-                            <div class="section-meta">
-                                <div>CASA: <strong id="inspect-house-name">MILANO</strong></div>
-                                <div>ZONA: <strong id="inspect-section-name">CASSETTONE 1</strong></div>
-                            </div>
-
-                            <!-- Inventory List -->
-                            <div class="inventory-container">
-                                <h3>INVENTARIO CAPI (<span id="inventory-count">0</span>)</h3>
-                                <div class="inventory-scroll" id="inventory-list">
-                                    <!-- Items will be injected here -->
-                                </div>
-                            </div>
-
-                            <!-- Add Clothing Form -->
-                            <form id="add-clothing-form" class="retro-form">
-                                <h3 id="form-title">+ AGGIUNGI CAPO</h3>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label for="cloth-name">Descrizione/Nome *</label>
-                                        <input type="text" id="cloth-name" required placeholder="E.g. Camicia di Lino">
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="cloth-type">Tipo</label>
-                                            <select id="cloth-type">
-                                                <option value="jacket">Giacca</option>
-                                                <option value="sweater">Maglione</option>
-                                                <option value="hoodie">Felpa</option>
-                                                <option value="shirt">Camicia</option>
-                                                <option value="pants">Pantalone Lungo</option>
-                                                <option value="shorts">Pantalone Corto</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="cloth-brand">Marca</label>
-                                            <input type="text" id="cloth-brand" placeholder="E.g. Ralph Lauren">
-                                        </div>
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label>Colore</label>
-                                            <div class="color-picker-grid">
-                                                <!-- Row 1: Grayscale & Neutrals -->
-                                                <label class="color-swatch-label" style="background-color: #ffffff; border: 1px solid #333;" title="Bianco"><input type="radio" name="cloth-color" value="#ffffff" checked></label>
-                                                <label class="color-swatch-label" style="background-color: #e7e5e4;" title="Grigio Pietra Chiaro"><input type="radio" name="cloth-color" value="#e7e5e4"></label>
-                                                <label class="color-swatch-label" style="background-color: #d6d3d1;" title="Grigio Caldo"><input type="radio" name="cloth-color" value="#d6d3d1"></label>
-                                                <label class="color-swatch-label" style="background-color: #8c8c8c;" title="Grigio Medio"><input type="radio" name="cloth-color" value="#8c8c8c"></label>
-                                                <label class="color-swatch-label" style="background-color: #333333;" title="Antracite"><input type="radio" name="cloth-color" value="#333333"></label>
-                                                <label class="color-swatch-label" style="background-color: #000000;" title="Nero"><input type="radio" name="cloth-color" value="#000000"></label>
-                                                <label class="color-swatch-label" style="background-color: #f5f5dc;" title="Beige / Sabbia"><input type="radio" name="cloth-color" value="#f5f5dc"></label>
-                                                <label class="color-swatch-label" style="background-color: #ffedd5;" title="Pesca"><input type="radio" name="cloth-color" value="#ffedd5"></label>
-                                                <label class="color-swatch-label" style="background-color: #b45309;" title="Marrone"><input type="radio" name="cloth-color" value="#b45309"></label>
-                                                <label class="color-swatch-label" style="background-color: #4a0404;" title="Cioccolato Fondente"><input type="radio" name="cloth-color" value="#4a0404"></label>
-
-                                                <!-- Row 2: Warm Tones (Reds, Pinks, Oranges, Yellows) -->
-                                                <label class="color-swatch-label" style="background-color: #ef4444;" title="Rosso"><input type="radio" name="cloth-color" value="#ef4444"></label>
-                                                <label class="color-swatch-label" style="background-color: #991b1b;" title="Rosso Mattone"><input type="radio" name="cloth-color" value="#991b1b"></label>
-                                                <label class="color-swatch-label" style="background-color: #be123c;" title="Cremisi"><input type="radio" name="cloth-color" value="#be123c"></label>
-                                                <label class="color-swatch-label" style="background-color: #f43f5e;" title="Rosa Scuro"><input type="radio" name="cloth-color" value="#f43f5e"></label>
-                                                <label class="color-swatch-label" style="background-color: #ec4899;" title="Rosa"><input type="radio" name="cloth-color" value="#ec4899"></label>
-                                                <label class="color-swatch-label" style="background-color: #fbcfe8;" title="Rosa Pastello"><input type="radio" name="cloth-color" value="#fbcfe8"></label>
-                                                <label class="color-swatch-label" style="background-color: #fda4af;" title="Rosa Antico"><input type="radio" name="cloth-color" value="#fda4af"></label>
-                                                <label class="color-swatch-label" style="background-color: #d97706;" title="Arancione"><input type="radio" name="cloth-color" value="#d97706"></label>
-                                                <label class="color-swatch-label" style="background-color: #c2410c;" title="Ruggine / Terracotta"><input type="radio" name="cloth-color" value="#c2410c"></label>
-                                                <label class="color-swatch-label" style="background-color: #eab308;" title="Giallo"><input type="radio" name="cloth-color" value="#eab308"></label>
-
-                                                <!-- Row 3: Cool Tones (Greens & Teals) -->
-                                                <label class="color-swatch-label" style="background-color: #fef08a;" title="Giallo Chiaro"><input type="radio" name="cloth-color" value="#fef08a"></label>
-                                                <label class="color-swatch-label" style="background-color: #22c55e;" title="Verde Lime"><input type="radio" name="cloth-color" value="#22c55e"></label>
-                                                <label class="color-swatch-label" style="background-color: #86efac;" title="Verde Salvia"><input type="radio" name="cloth-color" value="#86efac"></label>
-                                                <label class="color-swatch-label" style="background-color: #bbf7d0;" title="Verde Menta"><input type="radio" name="cloth-color" value="#bbf7d0"></label>
-                                                <label class="color-swatch-label" style="background-color: #10b981;" title="Verde Smeraldo"><input type="radio" name="cloth-color" value="#10b981"></label>
-                                                <label class="color-swatch-label" style="background-color: #14532d;" title="Verde Bosco"><input type="radio" name="cloth-color" value="#14532d"></label>
-                                                <label class="color-swatch-label" style="background-color: #3f6212;" title="Verde Oliva"><input type="radio" name="cloth-color" value="#3f6212"></label>
-                                                <label class="color-swatch-label" style="background-color: #14b8a6;" title="Ottanio"><input type="radio" name="cloth-color" value="#14b8a6"></label>
-                                                <label class="color-swatch-label" style="background-color: #115e59;" title="Ottanio Scuro"><input type="radio" name="cloth-color" value="#115e59"></label>
-                                                <label class="color-swatch-label" style="background-color: #06b6d4;" title="Celeste Scuro"><input type="radio" name="cloth-color" value="#06b6d4"></label>
-
-                                                <!-- Row 4: Cool Tones (Blues, Purples & Custom) -->
-                                                <label class="color-swatch-label" style="background-color: #cffafe;" title="Ghiaccio"><input type="radio" name="cloth-color" value="#cffafe"></label>
-                                                <label class="color-swatch-label" style="background-color: #3b82f6;" title="Blu Ciano"><input type="radio" name="cloth-color" value="#3b82f6"></label>
-                                                <label class="color-swatch-label" style="background-color: #bfdbfe;" title="Celeste Pastello"><input type="radio" name="cloth-color" value="#bfdbfe"></label>
-                                                <label class="color-swatch-label" style="background-color: #1e3a8a;" title="Blu Notte"><input type="radio" name="cloth-color" value="#1e3a8a"></label>
-                                                <label class="color-swatch-label" style="background-color: #3730a3;" title="Indaco"><input type="radio" name="cloth-color" value="#3730a3"></label>
-                                                <label class="color-swatch-label" style="background-color: #a855f7;" title="Viola"><input type="radio" name="cloth-color" value="#a855f7"></label>
-                                                <label class="color-swatch-label" style="background-color: #e9d5ff;" title="Lilla"><input type="radio" name="cloth-color" value="#e9d5ff"></label>
-                                                <label class="color-swatch-label" style="background-color: #581c87;" title="Viola Reale"><input type="radio" name="cloth-color" value="#581c87"></label>
-                                                <label class="color-swatch-label" style="background-color: #db2777;" title="Prugna"><input type="radio" name="cloth-color" value="#db2777"></label>
-                                                <label class="color-swatch-label swatch-custom" title="Seleziona colore personalizzato">
-                                                    <input type="color" id="cloth-color-custom" value="#000000">
-                                                    <input type="radio" name="cloth-color" id="radio-custom-color" value="custom">
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="cloth-notes">Note aggiuntive</label>
-                                        <textarea id="cloth-notes" rows="2" placeholder="Taglia, stagionalità, tessuto, ecc."></textarea>
-                                    </div>
-                                </div>
-                                <div class="form-actions" style="display: flex; gap: 8px; margin-top: 15px; width: 100%;">
-                                    <button type="submit" id="btn-submit-cloth" class="retro-btn" style="flex: 1; padding: 10px; font-size: 13px; margin-top: 0;">REGISTRA CAPO</button>
-                                    <button type="button" id="btn-cancel-edit" class="retro-btn" style="display: none; padding: 10px; font-size: 13px; margin-top: 0; background-color: var(--surface-dark);">ANNULLA</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </section>
+        <!-- Header -->
+        <header class="app-header">
+            <div class="app-header-left">
+                <span class="app-logo">ARMADIO</span>
+                <span class="app-version">v2.0</span>
             </div>
-            
-            <!-- Bottom Status Info Bar -->
-            <footer class="window-footer">
-                <div class="footer-segment">SYS_OK: WARDROBE_CONNECTED</div>
-                <div class="footer-segment text-right" id="db-size-indicator">ITEMS: 0</div>
-            </footer>
+            <nav class="house-nav" aria-label="Seleziona casa">
+                <button class="house-btn active" data-house="Milano">MILANO</button>
+                <button class="house-btn" data-house="Reggio">REGGIO</button>
+                <button class="house-btn" data-house="Sardegna">SARDEGNA</button>
+            </nav>
+            <div class="app-header-right">
+                <span class="status-dot active"></span>
+                <span class="status-label" id="current-house-status">MILANO</span>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <main class="app-main">
+
+            <!-- Left: Wardrobe -->
+            <section class="wardrobe-section">
+                <div class="wardrobe-toolbar">
+                    <span class="panel-label">ARMADIO</span>
+                    <button id="btn-toggle-doors" class="btn-ghost">APRI TUTTO</button>
+                </div>
+
+                <div class="wardrobe-outer">
+                    <div class="wardrobe-body" id="wardrobe">
+
+                        <!-- Left Compartment: Sec 1 -->
+                        <div class="wardrobe-compartment compartment-left" id="compartment-1-2">
+                            <div class="interior-vertical">
+                                <div class="compartment-node rail-node" data-section="sec1-top-rail" id="sec-sec1-top-rail">
+                                    <span class="node-label">APPENDIABITI SUP.</span>
+                                    <div class="hanging-bar"></div>
+                                    <div class="clothes-container rail-items" id="container-sec1-top-rail"></div>
+                                </div>
+                                <div class="compartment-node rail-node" data-section="sec1-bottom-rail" id="sec-sec1-bottom-rail">
+                                    <span class="node-label">APPENDIABITI INF.</span>
+                                    <div class="hanging-bar"></div>
+                                    <div class="clothes-container rail-items" id="container-sec1-bottom-rail"></div>
+                                </div>
+                            </div>
+                            <div class="wardrobe-door door-left-left" id="door-l1" data-door="l1">
+                                <div class="door-inner">
+                                    <span class="door-handle handle-right"></span>
+                                </div>
+                            </div>
+                            <div class="wardrobe-door door-left-right" id="door-l2" data-door="l2">
+                                <div class="door-inner">
+                                    <span class="door-handle handle-left"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Compartment: Sec 2 -->
+                        <div class="wardrobe-compartment compartment-right" id="compartment-3-4">
+                            <div class="interior-vertical">
+                                <div class="compartment-node shelf-node" data-section="sec2-top-shelf" id="sec-sec2-top-shelf">
+                                    <span class="node-label">RIPIANO</span>
+                                    <div class="clothes-container shelf-items" id="container-sec2-top-shelf"></div>
+                                </div>
+                                <div class="compartment-node rail-node" data-section="sec2-middle-rail" id="sec-sec2-middle-rail">
+                                    <span class="node-label">APPENDIABITI</span>
+                                    <div class="hanging-bar"></div>
+                                    <div class="clothes-container rail-items" id="container-sec2-middle-rail"></div>
+                                </div>
+                                <div class="drawers-stack">
+                                    <div class="drawer-node" id="sec-sec2-drawer1">
+                                        <div class="drawer-face">
+                                            <span class="drawer-handle"></span>
+                                            <span class="node-label">CASSETTO 1</span>
+                                        </div>
+                                        <div class="drawer-interior">
+                                            <div class="drawer-empty-interior">VUOTO</div>
+                                        </div>
+                                    </div>
+                                    <div class="drawer-node" id="sec-sec2-drawer2">
+                                        <div class="drawer-face">
+                                            <span class="drawer-handle"></span>
+                                            <span class="node-label">CASSETTO 2</span>
+                                        </div>
+                                        <div class="drawer-interior">
+                                            <div class="drawer-col-container compartment-node" data-section="sec2-drawer2-col1" id="sec-sec2-drawer2-col1"></div>
+                                            <div class="drawer-col-container compartment-node" data-section="sec2-drawer2-col2" id="sec-sec2-drawer2-col2"></div>
+                                            <div class="drawer-col-placeholder"></div>
+                                        </div>
+                                    </div>
+                                    <div class="drawer-node" id="sec-sec2-drawer3">
+                                        <div class="drawer-face">
+                                            <span class="drawer-handle"></span>
+                                            <span class="node-label">CASSETTO 3</span>
+                                        </div>
+                                        <div class="drawer-interior">
+                                            <div class="drawer-col-container compartment-node" data-section="sec2-drawer3-col1" id="sec-sec2-drawer3-col1"></div>
+                                            <div class="drawer-col-container compartment-node" data-section="sec2-drawer3-col2" id="sec-sec2-drawer3-col2"></div>
+                                            <div class="drawer-col-container compartment-node" data-section="sec2-drawer3-col3" id="sec-sec2-drawer3-col3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="wardrobe-door door-right-left" id="door-r1" data-door="r1">
+                                <div class="door-inner">
+                                    <span class="door-handle handle-right"></span>
+                                </div>
+                            </div>
+                            <div class="wardrobe-door door-right-right" id="door-r2" data-door="r2">
+                                <div class="door-inner">
+                                    <span class="door-handle handle-left"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /wardrobe-body -->
+                </div><!-- /wardrobe-outer -->
+            </section>
+
+            <!-- Right: Inspector -->
+            <aside class="inspector-section" id="inspector-panel">
+
+                <!-- Default state -->
+                <div id="inspector-default" class="inspector-state active">
+                    <div class="inspector-header">
+                        <span class="panel-label">ARCHIVIO</span>
+                    </div>
+                    <div class="inspector-body">
+                        <div class="stats-grid">
+                            <div class="stat-cell">
+                                <span class="stat-value" id="stat-total-items">0</span>
+                                <span class="stat-label">CAPI</span>
+                            </div>
+                            <div class="stat-cell">
+                                <span class="stat-value" id="stat-hanging-items">0</span>
+                                <span class="stat-label">APPESI</span>
+                            </div>
+                            <div class="stat-cell">
+                                <span class="stat-value" id="stat-shelf-items">0</span>
+                                <span class="stat-label">RIPIANI</span>
+                            </div>
+                            <div class="stat-cell">
+                                <span class="stat-value" id="stat-drawer-items">0</span>
+                                <span class="stat-label">CASSETTI</span>
+                            </div>
+                        </div>
+                        <p class="hint-text">Apri l'armadio e seleziona una sezione per visualizzarne il contenuto.</p>
+                    </div>
+                </div>
+
+                <!-- Active state -->
+                <div id="inspector-active" class="inspector-state">
+                    <div class="inspector-header">
+                        <button id="btn-back-to-default" class="btn-back" aria-label="Indietro">←</button>
+                        <span class="panel-label" id="inspector-section-title">SEZIONE</span>
+                    </div>
+                    <div class="inspector-body">
+                        <div class="section-meta">
+                            <span><span class="meta-key">CASA</span> <span id="inspect-house-name">MILANO</span></span>
+                            <span><span class="meta-key">ZONA</span> <span id="inspect-section-name">—</span></span>
+                        </div>
+
+                        <div class="inventory-block">
+                            <div class="inventory-header">
+                                <span class="panel-label">CAPI <span id="inventory-count">0</span></span>
+                            </div>
+                            <div class="inventory-list" id="inventory-list"></div>
+                        </div>
+
+                        <form id="add-clothing-form" class="add-form">
+                            <div class="form-title-row">
+                                <span class="panel-label" id="form-title">AGGIUNGI</span>
+                            </div>
+                            <div class="form-fields">
+                                <div class="field-group">
+                                    <label class="field-label" for="cloth-name">Nome / Descrizione *</label>
+                                    <input type="text" id="cloth-name" required placeholder="Es. Camicia di lino">
+                                </div>
+                                <div class="field-row">
+                                    <div class="field-group">
+                                        <label class="field-label" for="cloth-type">Tipo</label>
+                                        <select id="cloth-type">
+                                            <option value="jacket">Giacca</option>
+                                            <option value="shirt">Camicia</option>
+                                            <option value="hoodie">Felpa</option>
+                                            <option value="sweater">Maglione</option>
+                                            <option value="pants">Pantalone Lungo</option>
+                                            <option value="shorts">Pantalone Corto</option>
+                                            <option value="tshirt">T-shirt / Polo</option>
+                                        </select>
+                                    </div>
+                                    <div class="field-group">
+                                        <label class="field-label" for="cloth-brand">Marca</label>
+                                        <input type="text" id="cloth-brand" placeholder="Es. Zara">
+                                    </div>
+                                </div>
+                                <div class="field-group">
+                                    <label class="field-label">Colore</label>
+                                    <div class="color-grid">
+                                        <label class="swatch" style="background:#ffffff;border:1px solid #ccc" title="Bianco"><input type="radio" name="cloth-color" value="#ffffff" checked></label>
+                                        <label class="swatch" style="background:#e7e5e4" title="Grigio Pietra"><input type="radio" name="cloth-color" value="#e7e5e4"></label>
+                                        <label class="swatch" style="background:#d6d3d1" title="Grigio Caldo"><input type="radio" name="cloth-color" value="#d6d3d1"></label>
+                                        <label class="swatch" style="background:#8c8c8c" title="Grigio Medio"><input type="radio" name="cloth-color" value="#8c8c8c"></label>
+                                        <label class="swatch" style="background:#333333" title="Antracite"><input type="radio" name="cloth-color" value="#333333"></label>
+                                        <label class="swatch" style="background:#000000" title="Nero"><input type="radio" name="cloth-color" value="#000000"></label>
+                                        <label class="swatch" style="background:#f5f5dc" title="Beige"><input type="radio" name="cloth-color" value="#f5f5dc"></label>
+                                        <label class="swatch" style="background:#ffedd5" title="Pesca"><input type="radio" name="cloth-color" value="#ffedd5"></label>
+                                        <label class="swatch" style="background:#b45309" title="Marrone"><input type="radio" name="cloth-color" value="#b45309"></label>
+                                        <label class="swatch" style="background:#4a0404" title="Cioccolato"><input type="radio" name="cloth-color" value="#4a0404"></label>
+                                        <label class="swatch" style="background:#ef4444" title="Rosso"><input type="radio" name="cloth-color" value="#ef4444"></label>
+                                        <label class="swatch" style="background:#991b1b" title="Rosso Mattone"><input type="radio" name="cloth-color" value="#991b1b"></label>
+                                        <label class="swatch" style="background:#be123c" title="Cremisi"><input type="radio" name="cloth-color" value="#be123c"></label>
+                                        <label class="swatch" style="background:#f43f5e" title="Rosa Scuro"><input type="radio" name="cloth-color" value="#f43f5e"></label>
+                                        <label class="swatch" style="background:#ec4899" title="Rosa"><input type="radio" name="cloth-color" value="#ec4899"></label>
+                                        <label class="swatch" style="background:#fbcfe8" title="Rosa Pastello"><input type="radio" name="cloth-color" value="#fbcfe8"></label>
+                                        <label class="swatch" style="background:#fda4af" title="Rosa Antico"><input type="radio" name="cloth-color" value="#fda4af"></label>
+                                        <label class="swatch" style="background:#d97706" title="Arancione"><input type="radio" name="cloth-color" value="#d97706"></label>
+                                        <label class="swatch" style="background:#c2410c" title="Terracotta"><input type="radio" name="cloth-color" value="#c2410c"></label>
+                                        <label class="swatch" style="background:#eab308" title="Giallo"><input type="radio" name="cloth-color" value="#eab308"></label>
+                                        <label class="swatch" style="background:#22c55e" title="Verde Lime"><input type="radio" name="cloth-color" value="#22c55e"></label>
+                                        <label class="swatch" style="background:#86efac" title="Verde Salvia"><input type="radio" name="cloth-color" value="#86efac"></label>
+                                        <label class="swatch" style="background:#10b981" title="Smeraldo"><input type="radio" name="cloth-color" value="#10b981"></label>
+                                        <label class="swatch" style="background:#14532d" title="Verde Bosco"><input type="radio" name="cloth-color" value="#14532d"></label>
+                                        <label class="swatch" style="background:#3f6212" title="Oliva"><input type="radio" name="cloth-color" value="#3f6212"></label>
+                                        <label class="swatch" style="background:#14b8a6" title="Ottanio"><input type="radio" name="cloth-color" value="#14b8a6"></label>
+                                        <label class="swatch" style="background:#115e59" title="Ottanio Scuro"><input type="radio" name="cloth-color" value="#115e59"></label>
+                                        <label class="swatch" style="background:#06b6d4" title="Celeste"><input type="radio" name="cloth-color" value="#06b6d4"></label>
+                                        <label class="swatch" style="background:#3b82f6" title="Blu"><input type="radio" name="cloth-color" value="#3b82f6"></label>
+                                        <label class="swatch" style="background:#1e3a8a" title="Blu Notte"><input type="radio" name="cloth-color" value="#1e3a8a"></label>
+                                        <label class="swatch" style="background:#bfdbfe" title="Celeste Pastello"><input type="radio" name="cloth-color" value="#bfdbfe"></label>
+                                        <label class="swatch" style="background:#3730a3" title="Indaco"><input type="radio" name="cloth-color" value="#3730a3"></label>
+                                        <label class="swatch" style="background:#a855f7" title="Viola"><input type="radio" name="cloth-color" value="#a855f7"></label>
+                                        <label class="swatch" style="background:#e9d5ff" title="Lilla"><input type="radio" name="cloth-color" value="#e9d5ff"></label>
+                                        <label class="swatch" style="background:#581c87" title="Viola Reale"><input type="radio" name="cloth-color" value="#581c87"></label>
+                                        <label class="swatch" style="background:#db2777" title="Prugna"><input type="radio" name="cloth-color" value="#db2777"></label>
+                                        <label class="swatch" style="background:#4b5563" title="Jeans"><input type="radio" name="cloth-color" value="#4b5563"></label>
+                                        <label class="swatch" style="background:#cffafe" title="Ghiaccio"><input type="radio" name="cloth-color" value="#cffafe"></label>
+                                        <label class="swatch" style="background:#fef08a" title="Giallo Chiaro"><input type="radio" name="cloth-color" value="#fef08a"></label>
+                                        <label class="swatch swatch-custom" title="Colore personalizzato">
+                                            <input type="color" id="cloth-color-custom" value="#000000">
+                                            <input type="radio" name="cloth-color" id="radio-custom-color" value="custom">
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="field-group">
+                                    <label class="field-label" for="cloth-notes">Note</label>
+                                    <textarea id="cloth-notes" rows="2" placeholder="Taglia, stagione, tessuto…"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" id="btn-submit-cloth" class="btn-primary">REGISTRA</button>
+                                <button type="button" id="btn-cancel-edit" class="btn-secondary" style="display:none">ANNULLA</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </aside>
         </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <span>ARMADIO — ARCHIVIO GUARDAROBA</span>
+            <span id="db-size-indicator">0 CAPI</span>
+        </footer>
+
     </div>
 
-    <!-- Script Entrypoint -->
     <script src="app.js"></script>
 </body>
 </html>
