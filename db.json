@@ -378,5 +378,105 @@
         "color": "#eab308",
         "brand": "PRIMARK",
         "notes": ""
+    },
+    {
+        "id": "cloth_1780770348218_537",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "Pippo",
+        "type": "jacket",
+        "color": "#f43f5e",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780770353588_639",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "pluto",
+        "type": "jacket",
+        "color": "#ffffff",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780770356200_744",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "dee",
+        "type": "jacket",
+        "color": "#ffffff",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780770358853_246",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "wwww",
+        "type": "jacket",
+        "color": "#ffffff",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780770361193_630",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "d32fd2d",
+        "type": "jacket",
+        "color": "#ffffff",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780770366654_934",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "34f43",
+        "type": "jacket",
+        "color": "#ec4899",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780770371506_384",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "f43f34",
+        "type": "jacket",
+        "color": "#14532d",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780770376606_269",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "43f34f34",
+        "type": "jacket",
+        "color": "#14532d",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780770381162_154",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "4f33f3",
+        "type": "jacket",
+        "color": "#86efac",
+        "brand": "",
+        "notes": ""
+    },
+    {
+        "id": "cloth_1780770385793_644",
+        "house": "Milano",
+        "section": "sec1-top-rail",
+        "name": "3f443f34f",
+        "type": "jacket",
+        "color": "#bbf7d0",
+        "brand": "",
+        "notes": ""
     }
 ]
