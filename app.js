@@ -80,6 +80,17 @@ function runMigrations() {
 }
 
 // 4. CORE DATA METHODS
+let offlineMode = false;
+
+function showOfflineBanner() {
+    if (document.getElementById('offline-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'offline-banner';
+    banner.textContent = '⚠️ Modalità offline: il server non è raggiungibile. Stai usando i dati salvati nel browser (localStorage); le modifiche a db.json non vengono lette né salvate. Avvia "python3 server.py" e ricarica per sincronizzare.';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#b91c1c;color:#fff;padding:8px 16px;font-size:13px;text-align:center;font-family:sans-serif;';
+    document.body.prepend(banner);
+}
+
 async function loadData() {
     let serverLoaded = false;
     try {
@@ -93,10 +104,29 @@ async function loadData() {
             }
         }
     } catch (err) {
-        console.warn("Impossibile caricare da server, uso localStorage...", err);
+        console.warn("Impossibile caricare da /api/load...", err);
+    }
+
+    // Fallback: prova a leggere db.json come file statico (es. server statico senza API)
+    if (!serverLoaded) {
+        try {
+            const res = await fetch('db.json', { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && Array.isArray(data)) {
+                    clothes = data;
+                    serverLoaded = true;
+                    console.log("Dati caricati da db.json statico (server senza API: i salvataggi restano solo in localStorage)");
+                }
+            }
+        } catch (err) {
+            console.warn("Impossibile leggere db.json statico, uso localStorage...", err);
+        }
     }
 
     if (!serverLoaded) {
+        offlineMode = true;
+        showOfflineBanner();
         const stored = localStorage.getItem('armadio_clothes');
         if (stored) {
             try {
@@ -130,8 +160,11 @@ async function saveData() {
             body: JSON.stringify(clothes)
         });
         console.log("Dati sincronizzati/salvati sul server backend (db.json)");
+        const banner = document.getElementById('offline-banner');
+        if (banner) banner.remove();
     } catch (e) {
         console.error("Errore nel salvataggio remoto", e);
+        showOfflineBanner();
     }
 }
 
