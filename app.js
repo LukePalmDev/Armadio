@@ -28,6 +28,16 @@ let currentHouse  = 'Milano';
 let selectedSection = null;
 let clothes = [];
 let editingItemId = null;
+let offlineMode = false;
+
+function showOfflineBanner() {
+    if (document.getElementById('offline-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'offline-banner';
+    banner.textContent = '⚠️  Server non raggiungibile — le modifiche restano solo nel browser. Avvia "python3 server.py" e ricarica per sincronizzare.';
+    banner.style.cssText = 'position:fixed;top:48px;left:0;right:0;z-index:9999;background:var(--red);color:#fff;padding:7px 16px;font-family:Space Mono,monospace;font-size:11px;text-align:center;letter-spacing:0.03em;';
+    document.body.prepend(banner);
+}
 
 // ─── MIGRATIONS ─────────────────────────────────────────────────────────────
 function runMigrations() {
@@ -53,18 +63,34 @@ function runMigrations() {
 // ─── DATA PERSISTENCE ────────────────────────────────────────────────────────
 async function loadData() {
     let loaded = false;
+
+    // 1) Try the API server (wardrobe.json via server.py)
     try {
         const res = await fetch('/api/load');
         if (res.ok) {
             const data = await res.json();
             if (Array.isArray(data)) { clothes = data; loaded = true; }
         }
-    } catch (e) { console.warn('Server non raggiungibile, uso localStorage.', e); }
+    } catch (e) { console.warn('Server non raggiungibile, provo wardrobe.json statico...', e); }
 
+    // 2) Fallback: fetch wardrobe.json as a static file (e.g. python3 -m http.server)
     if (!loaded) {
+        try {
+            const res = await fetch('wardrobe.json', { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data)) { clothes = data; loaded = true; console.log('Dati caricati da wardrobe.json statico.'); }
+            }
+        } catch (e) { console.warn('wardrobe.json statico non disponibile.', e); }
+    }
+
+    // 3) Final fallback: localStorage / seed data
+    if (!loaded) {
+        offlineMode = true;
+        showOfflineBanner();
         const stored = localStorage.getItem('armadio_clothes');
         if (stored) { try { clothes = JSON.parse(stored); } catch { clothes = []; } }
-        else { clothes = getSeedData(); await saveData(); }
+        else { clothes = getSeedData(); }
     }
 
     if (runMigrations()) await saveData();
