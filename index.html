@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Armadio</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%231A1816' width='32' height='32'/%3E%3Crect fill='%23C0392B' x='7' y='5' width='7' height='22'/%3E%3Crect fill='%23F2EFE7' x='18' y='5' width='7' height='22'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -19,9 +20,9 @@
                 <span class="app-version">v2.0</span>
             </div>
             <nav class="house-nav" aria-label="Seleziona casa">
-                <button class="house-btn active" data-house="Milano">MILANO</button>
-                <button class="house-btn" data-house="Reggio">REGGIO</button>
-                <button class="house-btn" data-house="Sardegna">SARDEGNA</button>
+                <button class="house-btn active" data-house="Milano" aria-pressed="true">MILANO</button>
+                <button class="house-btn" data-house="Reggio" aria-pressed="false">REGGIO</button>
+                <button class="house-btn" data-house="Sardegna" aria-pressed="false">SARDEGNA</button>
             </nav>
             <div class="app-header-right">
                 <span class="status-dot active"></span>
@@ -36,7 +37,7 @@
             <section class="wardrobe-section">
                 <div class="wardrobe-toolbar">
                     <span class="panel-label">ARMADIO</span>
-                    <button id="btn-toggle-doors" class="btn-ghost">APRI TUTTO</button>
+                    <button id="btn-toggle-doors" class="btn-ghost" type="button" aria-pressed="false">APRI TUTTO</button>
                 </div>
 
                 <div class="wardrobe-outer">
@@ -208,8 +209,8 @@
                                     </div>
                                 </div>
                                 <div class="field-group">
-                                    <label class="field-label">Colore</label>
-                                    <div class="color-grid">
+                                    <label class="field-label" id="cloth-color-label">Colore</label>
+                                    <div class="color-grid" role="radiogroup" aria-labelledby="cloth-color-label">
                                         <label class="swatch" style="background:#ffffff;border:1px solid #ccc" title="Bianco"><input type="radio" name="cloth-color" value="#ffffff" checked></label>
                                         <label class="swatch" style="background:#e7e5e4" title="Grigio Pietra"><input type="radio" name="cloth-color" value="#e7e5e4"></label>
                                         <label class="swatch" style="background:#d6d3d1" title="Grigio Caldo"><input type="radio" name="cloth-color" value="#d6d3d1"></label>
@@ -274,6 +275,7 @@
         <!-- Footer -->
         <footer class="app-footer">
             <span>ARMADIO — ARCHIVIO GUARDAROBA</span>
+            <span id="persist-status"></span>
             <span id="db-size-indicator">0 CAPI</span>
         </footer>
 

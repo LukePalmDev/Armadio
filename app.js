@@ -28,15 +28,63 @@ let currentHouse  = 'Milano';
 let selectedSection = null;
 let clothes = [];
 let editingItemId = null;
-let offlineMode = false;
+let serverAvailable = false;
+
+const STORAGE_KEY = 'armadio_clothes';
+const DIRTY_KEY = 'armadio_dirty';
+
+function shouldTryApi() {
+    const host = location.hostname.replace(/^\[|\]$/g, '');
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1' || location.port === '8000';
+}
+
+function safeColor(c) {
+    const s = String(c ?? '').trim();
+    return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(s) ? s : '#cccccc';
+}
+
+function readStored() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '');
+        return Array.isArray(parsed) ? parsed : null;
+    } catch {
+        return null;
+    }
+}
+
+function updatePersistenceStatus() {
+    const el = document.getElementById('persist-status');
+    if (!el) return;
+    if (serverAvailable) {
+        el.textContent = 'SUL FILE';
+        el.title = 'Le modifiche sono scritte in wardrobe.json';
+    } else {
+        el.textContent = 'NEL BROWSER';
+        el.title = 'Hosting statico: le modifiche restano in questo browser. Con python3 server.py vengono scritte in wardrobe.json.';
+    }
+}
 
 function showOfflineBanner() {
     if (document.getElementById('offline-banner')) return;
     const banner = document.createElement('div');
     banner.id = 'offline-banner';
-    banner.textContent = '⚠️  Server non raggiungibile — le modifiche restano solo nel browser. Avvia "python3 server.py" e ricarica per sincronizzare.';
-    banner.style.cssText = 'position:fixed;top:48px;left:0;right:0;z-index:9999;background:var(--red);color:#fff;padding:7px 16px;font-family:Space Mono,monospace;font-size:11px;text-align:center;letter-spacing:0.03em;';
-    document.body.prepend(banner);
+    banner.setAttribute('role', 'status');
+    banner.textContent = 'Archivio non trovato: sto usando dati di esempio, salvati solo in questo browser.';
+    banner.style.cssText = 'background:var(--red);color:#fff;padding:8px 16px;font-family:Space Mono,monospace;font-size:11px;text-align:center;letter-spacing:0.03em;';
+    (document.querySelector('.app-root') || document.body).prepend(banner);
+}
+
+function armButton(el, label) {
+    if (!el || el.dataset.armed === '1') return;
+    el.dataset.armed = '1';
+    el.setAttribute('role', 'button');
+    el.tabIndex = 0;
+    if (label) el.setAttribute('aria-label', label);
+    el.addEventListener('keydown', e => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        el.click();
+    });
 }
 
 // ─── MIGRATIONS ─────────────────────────────────────────────────────────────
@@ -61,51 +109,89 @@ function runMigrations() {
 }
 
 // ─── DATA PERSISTENCE ────────────────────────────────────────────────────────
+async function loadStaticFile() {
+    try {
+        const res = await fetch('wardrobe.json', { cache: 'no-store' });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return Array.isArray(data) ? data : null;
+    } catch {
+        return null;
+    }
+}
+
 async function loadData() {
+    const dirty = localStorage.getItem(DIRTY_KEY) === '1';
+    const stored = readStored();
     let loaded = false;
 
-    // 1) Try the API server (wardrobe.json via server.py)
-    try {
-        const res = await fetch('/api/load');
-        if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data)) { clothes = data; loaded = true; }
-        }
-    } catch (e) { console.warn('Server non raggiungibile, provo wardrobe.json statico...', e); }
-
-    // 2) Fallback: fetch wardrobe.json as a static file (e.g. python3 -m http.server)
-    if (!loaded) {
+    // API only on the local server. The public site is static; probing /api would 404.
+    if (shouldTryApi()) {
         try {
-            const res = await fetch('wardrobe.json', { cache: 'no-store' });
+            const res = await fetch('api/load', { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
-                if (Array.isArray(data)) { clothes = data; loaded = true; console.log('Dati caricati da wardrobe.json statico.'); }
+                if (Array.isArray(data)) {
+                    if (dirty && stored) {
+                        clothes = stored;
+                        await saveData();
+                        return;
+                    }
+                    clothes = data;
+                    serverAvailable = true;
+                    loaded = true;
+                }
             }
-        } catch (e) { console.warn('wardrobe.json statico non disponibile.', e); }
+        } catch { /* wardrobe.json or localStorage */ }
     }
 
-    // 3) Final fallback: localStorage / seed data
+    if (!loaded && dirty && stored) {
+        clothes = stored;
+        loaded = true;
+    }
+
     if (!loaded) {
-        offlineMode = true;
+        const fileData = await loadStaticFile();
+        if (fileData) {
+            clothes = fileData;
+            loaded = true;
+        }
+    }
+
+    if (!loaded) {
+        clothes = stored || getSeedData();
         showOfflineBanner();
-        const stored = localStorage.getItem('armadio_clothes');
-        if (stored) { try { clothes = JSON.parse(stored); } catch { clothes = []; } }
-        else { clothes = getSeedData(); }
     }
 
     if (runMigrations()) await saveData();
+    else updatePersistenceStatus();
 }
 
 async function saveData() {
-    localStorage.setItem('armadio_clothes', JSON.stringify(clothes));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(clothes));
     updateStats();
+
+    if (!shouldTryApi()) {
+        localStorage.setItem(DIRTY_KEY, '1');
+        serverAvailable = false;
+        updatePersistenceStatus();
+        return;
+    }
+
     try {
-        await fetch('/api/save', {
+        const res = await fetch('api/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(clothes)
         });
-    } catch (e) { console.error('Errore salvataggio remoto', e); }
+        serverAvailable = res.ok;
+    } catch {
+        serverAvailable = false;
+    }
+
+    if (serverAvailable) localStorage.removeItem(DIRTY_KEY);
+    else localStorage.setItem(DIRTY_KEY, '1');
+    updatePersistenceStatus();
 }
 
 function getSeedData() {
@@ -127,10 +213,11 @@ function getSeedData() {
 // ─── STATS ────────────────────────────────────────────────────────────────────
 function updateStats() {
     const hc = clothes.filter(c => c.house === currentHouse);
+    const sec = c => c.section || '';
     document.getElementById('stat-total-items').textContent   = hc.length;
-    document.getElementById('stat-hanging-items').textContent = hc.filter(c => c.section.includes('rail')).length;
-    document.getElementById('stat-shelf-items').textContent   = hc.filter(c => c.section.includes('shelf')).length;
-    document.getElementById('stat-drawer-items').textContent  = hc.filter(c => c.section.includes('drawer')).length;
+    document.getElementById('stat-hanging-items').textContent = hc.filter(c => sec(c).includes('rail')).length;
+    document.getElementById('stat-shelf-items').textContent   = hc.filter(c => sec(c).includes('shelf')).length;
+    document.getElementById('stat-drawer-items').textContent  = hc.filter(c => sec(c).includes('drawer')).length;
     document.getElementById('db-size-indicator').textContent  = `${clothes.length} CAPI`;
 }
 
@@ -143,6 +230,9 @@ function initNavigation() {
             btn.classList.add('active');
             currentHouse = btn.dataset.house;
             statusLabel.textContent = currentHouse.toUpperCase();
+            document.querySelectorAll('.house-btn').forEach(b => {
+                b.setAttribute('aria-pressed', b.classList.contains('active') ? 'true' : 'false');
+            });
             resetInspector();
             updateStats();
             renderClothesInWardrobe();
@@ -174,14 +264,19 @@ function initDoors() {
     dr1.addEventListener('click', e => { e.stopPropagation(); togglePair(dr1, dr2, 'sec2'); });
     dr2.addEventListener('click', e => { e.stopPropagation(); togglePair(dr1, dr2, 'sec2'); });
 
+    armButton(dl1, 'Apri o chiudi il lato sinistro');
+    armButton(dl2, 'Apri o chiudi il lato sinistro');
+    armButton(dr1, 'Apri o chiudi il lato destro');
+    armButton(dr2, 'Apri o chiudi il lato destro');
+
     toggleBtn.addEventListener('click', () => {
         const doors = [dl1, dl2, dr1, dr2];
-        const anyOpen = doors.some(d => d.classList.contains('open'));
-        if (!anyOpen) {
-            doors.forEach(d => d.classList.add('open'));
-        } else {
+        const allOpen = doors.every(d => d.classList.contains('open'));
+        if (allOpen) {
             doors.forEach(d => d.classList.remove('open'));
             resetInspector();
+        } else {
+            doors.forEach(d => d.classList.add('open'));
         }
         updateToggleBtn();
     });
@@ -189,9 +284,13 @@ function initDoors() {
 
 function updateToggleBtn() {
     const btn = document.getElementById('btn-toggle-doors');
-    if (!btn) return;
-    const allOpen = Array.from(document.querySelectorAll('.wardrobe-door')).every(d => d.classList.contains('open'));
-    btn.textContent = allOpen ? 'CHIUDI TUTTO' : 'APRI TUTTO';
+    const doors = Array.from(document.querySelectorAll('.wardrobe-door'));
+    const allOpen = doors.length > 0 && doors.every(d => d.classList.contains('open'));
+    if (btn) {
+        btn.textContent = allOpen ? 'CHIUDI TUTTO' : 'APRI TUTTO';
+        btn.setAttribute('aria-pressed', allOpen ? 'true' : 'false');
+    }
+    doors.forEach(d => d.setAttribute('aria-expanded', d.classList.contains('open') ? 'true' : 'false'));
 }
 
 function ensureDoorsOpen(sectionId) {
@@ -212,20 +311,19 @@ function renderClothesInWardrobe() {
 
     const hc = clothes.filter(c => c.house === currentHouse);
 
-    // Rails — 8 hangers per row fit the compartment width without squeezing
-    const PER_ROW = 8;
     ['sec1-top-rail', 'sec1-bottom-rail', 'sec2-middle-rail'].forEach(sid => {
         const container = document.getElementById(`container-${sid}`);
         if (!container) return;
+        const perRow = hangersPerRow(container);
         const items = hc.filter(c => c.section === sid);
-        for (let i = 0; i < items.length; i += PER_ROW) {
+        for (let i = 0; i < items.length; i += perRow) {
             const row = document.createElement('div');
             row.className = 'rail-row';
-            items.slice(i, i + PER_ROW).forEach(item => {
+            items.slice(i, i + perRow).forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'visual-hanger';
-                div.innerHTML = `${getHangerSvg(item.type, item.color)}
-                    <div class="cloth-tooltip"><strong>${esc(item.name)}</strong>${item.brand ? '<br>' + esc(item.brand) : ''}</div>`;
+                div.innerHTML = getHangerSvg(item.type, item.color);
+                div.title = item.brand ? `${item.name} — ${item.brand}` : item.name;
                 div.addEventListener('click', e => { e.stopPropagation(); selectSection(item.section); });
                 row.appendChild(div);
             });
@@ -243,13 +341,29 @@ function renderClothesInWardrobe() {
     // Drawers
     renderDrawerColumns();
 
-    // Re-apply selection
     if (selectedSection?.includes('drawer')) {
         const parts = selectedSection.split('-');
         const drawerId = `sec-${parts[0]}-${parts[1]}`;
         document.getElementById(drawerId)?.classList.add('pulled-out');
-        document.getElementById(`sec-${selectedSection}`)?.classList.add('selected');
     }
+    applySectionSelection(selectedSection);
+}
+
+function hangersPerRow(container) {
+    const styles = getComputedStyle(container);
+    const pad = (parseFloat(styles.paddingLeft) || 0) + (parseFloat(styles.paddingRight) || 0);
+    const width = container.clientWidth - pad;
+    const slot = 34 + 3;
+    if (width <= 0) return 4;
+    return Math.max(2, Math.floor(width / slot));
+}
+
+function applySectionSelection(sectionId) {
+    document.querySelectorAll('.compartment-node').forEach(n => {
+        const on = !!sectionId && n.dataset.section === sectionId;
+        n.classList.toggle('selected', on);
+        n.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
 }
 
 // ─── SECTION SELECTION ────────────────────────────────────────────────────────
@@ -258,8 +372,7 @@ function selectSection(sectionId) {
     selectedSection = sectionId;
     ensureDoorsOpen(sectionId);
 
-    document.querySelectorAll('.compartment-node').forEach(n => n.classList.remove('selected'));
-    document.getElementById(`sec-${sectionId}`)?.classList.add('selected');
+    applySectionSelection(sectionId);
 
     document.getElementById('inspector-default').classList.remove('active');
     document.getElementById('inspector-active').classList.add('active');
@@ -272,8 +385,8 @@ function selectSection(sectionId) {
 function resetInspector() {
     cancelEditClothing();
     selectedSection = null;
-    document.querySelectorAll('.compartment-node').forEach(n => n.classList.remove('selected'));
     document.querySelectorAll('.drawer-node').forEach(d => d.classList.remove('pulled-out'));
+    applySectionSelection(null);
     document.getElementById('inspector-active').classList.remove('active');
     document.getElementById('inspector-default').classList.add('active');
     renderClothesInWardrobe();
@@ -298,17 +411,17 @@ function renderSectionInventory() {
         card.className = 'clothing-item-card';
         card.innerHTML = `
             <div class="clothing-item-info">
-                <span class="clothing-color-badge" style="background:${esc(item.color)}"></span>
+                <span class="clothing-color-badge" style="background:${safeColor(item.color)}"></span>
                 <div class="clothing-text-details">
                     <span class="cloth-title">${esc(item.name)}</span>
-                    <span class="cloth-meta-label">${item.brand ? esc(item.brand.toUpperCase()) : 'GENERICO'}${item.notes ? ' · ' + esc(item.notes) : ''}</span>
+                    <span class="cloth-meta-label">${item.brand ? esc(String(item.brand).toUpperCase()) : 'GENERICO'}${item.notes ? ' · ' + esc(item.notes) : ''}</span>
                 </div>
             </div>
             <div class="card-actions">
-                <button class="btn-move-up"    title="Su"       data-id="${item.id}" ${i === 0 ? 'disabled' : ''}>▲</button>
-                <button class="btn-move-down"  title="Giù"      data-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}>▼</button>
-                <button class="btn-edit-cloth"  title="Modifica" data-id="${item.id}">✏️</button>
-                <button class="btn-delete-cloth" title="Elimina" data-id="${item.id}">×</button>
+                <button type="button" class="btn-move-up" aria-label="Sposta su" data-id="${esc(item.id)}" ${i === 0 ? 'disabled' : ''}>▲</button>
+                <button type="button" class="btn-move-down" aria-label="Sposta giù" data-id="${esc(item.id)}" ${i === items.length - 1 ? 'disabled' : ''}>▼</button>
+                <button type="button" class="btn-edit-cloth" aria-label="Modifica" data-id="${esc(item.id)}">✏️</button>
+                <button type="button" class="btn-delete-cloth" aria-label="Elimina" data-id="${esc(item.id)}">×</button>
             </div>`;
 
         if (i > 0) card.querySelector('.btn-move-up').addEventListener('click', e => { e.stopPropagation(); moveClothing(item.id, 'up'); });
@@ -349,6 +462,10 @@ async function moveClothing(id, dir) {
 // ─── DRAWERS ENGINE ───────────────────────────────────────────────────────────
 function initDrawers() {
     document.querySelectorAll('.drawer-node').forEach(drawer => {
+        const face = drawer.querySelector('.drawer-face');
+        const faceLabel = face?.querySelector('.node-label')?.textContent?.trim() || 'Cassetto';
+        armButton(face, faceLabel);
+
         drawer.addEventListener('click', e => {
             if (drawer.classList.contains('pulled-out')) return;
             e.stopPropagation();
@@ -357,6 +474,7 @@ function initDrawers() {
             document.getElementById('door-r1')?.classList.add('open');
             document.getElementById('door-r2')?.classList.add('open');
             updateToggleBtn();
+
             const firstCol = drawer.querySelector('.drawer-col-container');
             if (firstCol) {
                 selectSection(firstCol.dataset.section);
@@ -368,9 +486,6 @@ function initDrawers() {
         });
     });
 
-    document.querySelectorAll('.drawer-col-container').forEach(col => {
-        col.addEventListener('click', e => { e.stopPropagation(); selectSection(col.dataset.section); });
-    });
 }
 
 function renderDrawerColumns() {
@@ -397,6 +512,12 @@ function initForm() {
     const customInput = document.getElementById('cloth-color-custom');
     const customRadio = document.getElementById('radio-custom-color');
 
+    document.querySelectorAll('.swatch').forEach(swatch => {
+        const radio = swatch.querySelector('input[type="radio"]');
+        const title = swatch.getAttribute('title');
+        if (radio && title && !radio.getAttribute('aria-label')) radio.setAttribute('aria-label', title);
+    });
+
     const syncCustomSwatch = () => {
         const label = customInput.closest('.swatch');
         if (label) { label.style.backgroundImage = 'none'; label.style.backgroundColor = customInput.value; }
@@ -417,7 +538,7 @@ function initForm() {
 
         let color = '#ffffff';
         const colorRadio = form.querySelector('input[name="cloth-color"]:checked');
-        if (colorRadio) color = colorRadio.value === 'custom' ? customInput.value : colorRadio.value;
+        if (colorRadio) color = safeColor(colorRadio.value === 'custom' ? customInput.value : colorRadio.value);
 
         if (editingItemId) {
             const idx = clothes.findIndex(c => c.id === editingItemId);
@@ -462,17 +583,18 @@ function startEditClothing(id) {
 
     const customInput = document.getElementById('cloth-color-custom');
     const customRadio = document.getElementById('radio-custom-color');
+    const color = safeColor(item.color);
     let matched = false;
     document.querySelectorAll('input[name="cloth-color"]').forEach(r => { r.checked = false; });
     document.querySelectorAll('input[name="cloth-color"]').forEach(r => {
-        if (r.value.toLowerCase() === item.color.toLowerCase() && r.id !== 'radio-custom-color') { r.checked = true; matched = true; }
+        if (r.value.toLowerCase() === color.toLowerCase() && r.id !== 'radio-custom-color') { r.checked = true; matched = true; }
     });
     if (!matched && customInput) {
-        customInput.value = item.color;
-        customRadio.value = item.color;
+        customInput.value = color;
+        customRadio.value = color;
         customRadio.checked = true;
         const label = customInput.closest('.swatch');
-        if (label) { label.style.backgroundImage = 'none'; label.style.backgroundColor = item.color; }
+        if (label) { label.style.backgroundImage = 'none'; label.style.backgroundColor = color; }
     }
 
     document.getElementById('form-title').textContent = 'MODIFICA';
@@ -494,6 +616,9 @@ function cancelEditClothing() {
 // ─── COMPARTMENT CLICKS ────────────────────────────────────────────────────────
 function initCompartmentClicks() {
     document.querySelectorAll('.compartment-node').forEach(node => {
+        const name = SECTION_NAMES[node.dataset.section] || 'Sezione';
+        node.setAttribute('aria-pressed', 'false');
+        armButton(node, name);
         node.addEventListener('click', e => { e.stopPropagation(); selectSection(node.dataset.section); });
     });
 }
@@ -508,7 +633,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     initDrawers();
     updateStats();
     renderClothesInWardrobe();
+    updatePersistenceStatus();
     document.getElementById('btn-back-to-default').addEventListener('click', resetInspector);
+
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(renderClothesInWardrobe, 150);
+    });
 });
 
 /* ==========================================================================
@@ -530,6 +662,7 @@ const STROKE = `stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-l
 const THIN = `stroke="${INK}" stroke-width="2" stroke-linecap="round" fill="none"`;
 
 function getHangerSvg(type, color) {
+    color = safeColor(color);
     switch (type) {
         case 'shirt':   return getShirtSvg(color);
         case 'hoodie':  return getHoodieSvg(color);
@@ -687,7 +820,7 @@ function getFoldedStackSvg(items) {
 
     for (let i = 0; i < K; i++) {
         const item = display[i];
-        const color = item.color || '#fff';
+        const color = safeColor(item.color);
         const isTop = (i === K - 1);
         const yBottom = 44 - i * dy;
         const yTop = yBottom - 8;
@@ -700,7 +833,7 @@ function getFoldedStackSvg(items) {
                 <path d="M39,${yTop} L40,${yTop+2} L41,${yTop}" fill="none" stroke="${INK}" stroke-width="1.2"/>`;
         }
 
-        layers += `<g class="folded-item-group" data-id="${item.id}">
+        layers += `<g class="folded-item-group" data-id="${esc(item.id)}">
             <path d="M12,${yTop} L68,${yTop} Q71,${yTop} 71,${yTop+4} Q71,${yBottom} 68,${yBottom} L12,${yBottom} Q9,${yBottom} 9,${yTop+4} Q9,${yTop} 12,${yTop} Z"
                   fill="${color}" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/>
             ${detail}
