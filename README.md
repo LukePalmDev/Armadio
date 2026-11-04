@@ -14,6 +14,8 @@ python3 server.py
 
 Poi apri il browser su [http://localhost:8000](http://localhost:8000).
 
+Il sito pubblico è [https://armadio.byluke.org](https://armadio.byluke.org) (GitHub Pages, root del branch `main`). Lì non c'è il server Python: i dati iniziali arrivano da `wardrobe.json` e le modifiche restano nel browser.
+
 > ⚠️ Usa `server.py` e non `python3 -m http.server`: il server integrato espone le API `/api/load` e `/api/save` che leggono e scrivono il database. Senza di esse l'app funziona comunque, ma salva solo nel `localStorage` del browser.
 
 ## Il Database: `wardrobe.json`
