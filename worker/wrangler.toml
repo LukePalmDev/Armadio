@@ -1,0 +1,45 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+name = "armadio-api"
+main = "src/index.ts"
+compatibility_date = "2026-11-15"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+
+# Served only for /api/* on the proxied hostname. GitHub Pages keeps the rest.
+[[routes]]
+pattern = "armadio.byluke.org/api/*"
+zone_name = "byluke.org"
+
+# Replace id at deploy time: wrangler kv namespace create armadio-wardrobe
+[[kv_namespaces]]
+binding = "WARDROBE"
+id = "00000000000000000000000000000000"
+
+[vars]
+# Application Audience (AUD) tag of the Access app for armadio.byluke.org.
+ACCESS_AUD = "replace-with-access-application-aud"
+# Comma-separated emails. Empty means anyone allowed by Access.
+ALLOWED_EMAILS = ""
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+
+# Vitest only. Not used by `wrangler deploy` (that publishes the top-level Worker).
+[env.test]
+workers_dev = false
+
+[env.test.vars]
+ACCESS_AUD = "test-audience"
+ALLOWED_EMAILS = "ada@byluke.org"
+
+[[env.test.kv_namespaces]]
+binding = "WARDROBE"
+id = "00000000000000000000000000000000"

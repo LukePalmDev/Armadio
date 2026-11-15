@@ -1099,3 +1099,58 @@ body {
         flex-wrap: wrap;
     }
 }
+
+.sync-banner {
+    background: var(--ink);
+    color: var(--white);
+    padding: 8px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-align: center;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+}
+
+.sync-banner[hidden] { display: none; }
+
+.conflict-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 24, 22, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 24px;
+}
+
+.conflict-backdrop[hidden] { display: none; }
+
+.conflict-dialog {
+    background: var(--surface);
+    border: var(--border);
+    max-width: 440px;
+    width: 100%;
+    padding: 24px;
+}
+
+.conflict-dialog h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.conflict-dialog p {
+    font-size: 14px;
+    line-height: 1.45;
+    margin-bottom: 20px;
+}
+
+.conflict-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}

@@ -1,6 +1,10 @@
 .DS_Store
 .antigravitycli/
 *.log
+__pycache__/
 node_modules/
 dist/
+.wrangler/
+worker-configuration.d.ts
 wardrobe.backup.json
+wardrobe.version

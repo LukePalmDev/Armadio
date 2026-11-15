@@ -29,12 +29,17 @@ let selectedSection = null;
 let clothes = [];
 let editingItemId = null;
 let serverAvailable = false;
-// True only after server.py identifies itself. Static hosts never set this,
-// so a missing /api/load is not requested and does not 404 in the console.
+// True when this host should talk to /api (the public site, or server.py).
 let apiEnabled = false;
+let serverVersion = null;
+let conflictOpen = false;
+let pendingConflict = null;
+let retryArmed = false;
 
 const STORAGE_KEY = 'armadio_clothes';
 const DIRTY_KEY = 'armadio_dirty';
+const VERSION_KEY = 'armadio_version';
+const DEVICE_ONLY = 'Modifiche salvate solo su questo dispositivo';
 
 function isBylukeHost(hostname) {
     const host = String(hostname ?? '')
@@ -46,8 +51,6 @@ function isBylukeHost(hostname) {
 }
 
 function shouldTryApi() {
-    // armadio.byluke.org is GitHub Pages. There is no /api/load there.
-    if (isBylukeHost(location.hostname)) return false;
     return apiEnabled;
 }
 
@@ -68,13 +71,117 @@ function readStored() {
 function updatePersistenceStatus() {
     const el = document.getElementById('persist-status');
     if (!el) return;
-    if (serverAvailable) {
-        el.textContent = 'SUL FILE';
-        el.title = 'Le modifiche sono scritte in wardrobe.json';
-    } else {
-        el.textContent = 'NEL BROWSER';
-        el.title = 'Hosting statico: le modifiche restano in questo browser. Con python3 server.py vengono scritte in wardrobe.json.';
+    if (conflictOpen) {
+        el.textContent = 'CONFLITTO';
+        el.title = 'L\'armadio sul server è diverso da questo dispositivo.';
+        return;
     }
+    if (serverAvailable) {
+        const onFile = !isBylukeHost(location.hostname);
+        el.textContent = onFile ? 'SUL FILE' : 'SUL SERVER';
+        el.title = onFile
+            ? 'Le modifiche sono scritte in wardrobe.json'
+            : 'Le modifiche sono sincronizzate tra i dispositivi';
+        return;
+    }
+    el.textContent = 'NEL BROWSER';
+    el.title = 'Le modifiche restano in questo browser finché il server non è raggiungibile.';
+}
+
+function showDeviceBanner() {
+    const banner = document.getElementById('sync-banner');
+    if (!banner) return;
+    banner.textContent = DEVICE_ONLY;
+    banner.hidden = false;
+}
+
+function hideDeviceBanner() {
+    const banner = document.getElementById('sync-banner');
+    if (banner) banner.hidden = true;
+}
+
+function rememberVersion(version) {
+    serverVersion = typeof version === 'string' && version ? version : null;
+    if (serverVersion) localStorage.setItem(VERSION_KEY, serverVersion);
+    else localStorage.removeItem(VERSION_KEY);
+}
+
+function sameClothes(a, b) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    const canon = item => JSON.stringify({
+        id: item && item.id,
+        house: item && item.house,
+        section: item && item.section,
+        name: item && item.name,
+        type: item && item.type || '',
+        color: item && item.color || '',
+        brand: item && item.brand || '',
+        notes: item && item.notes || '',
+    });
+    for (let i = 0; i < a.length; i++) {
+        if (canon(a[i]) !== canon(b[i])) return false;
+    }
+    return true;
+}
+
+function showConflictDialog(items, version, message) {
+    conflictOpen = true;
+    pendingConflict = { items: Array.isArray(items) ? items : [], version: version ?? null };
+    const root = document.getElementById('conflict-dialog');
+    const msg = document.getElementById('conflict-message');
+    if (msg) {
+        msg.textContent = message || 'L\'armadio è stato aggiornato su un altro dispositivo. Ricarica per usare quella versione, oppure sovrascrivi il server con le modifiche di questo dispositivo.';
+    }
+    if (root) root.hidden = false;
+    document.getElementById('conflict-reload')?.focus();
+    updatePersistenceStatus();
+}
+
+function renderAll() {
+    updateStats();
+    renderClothesInWardrobe();
+    renderDrawerColumns();
+    if (selectedSection) renderSectionInventory();
+}
+
+async function resolveConflict(choice) {
+    const pending = pendingConflict;
+    if (!pending) return;
+    const reloadBtn = document.getElementById('conflict-reload');
+    const overwriteBtn = document.getElementById('conflict-overwrite');
+    if (reloadBtn) reloadBtn.disabled = true;
+    if (overwriteBtn) overwriteBtn.disabled = true;
+    try {
+        if (choice === 'reload') {
+            clothes = pending.items;
+            rememberVersion(pending.version);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(clothes));
+            localStorage.removeItem(DIRTY_KEY);
+            serverAvailable = true;
+            conflictOpen = false;
+            pendingConflict = null;
+            const root = document.getElementById('conflict-dialog');
+            if (root) root.hidden = true;
+            hideDeviceBanner();
+            renderAll();
+            updatePersistenceStatus();
+            return;
+        }
+        conflictOpen = false;
+        pendingConflict = null;
+        const root = document.getElementById('conflict-dialog');
+        if (root) root.hidden = true;
+        await saveData({ force: true });
+        renderAll();
+    } finally {
+        if (reloadBtn) reloadBtn.disabled = false;
+        if (overwriteBtn) overwriteBtn.disabled = false;
+    }
+}
+
+function initSyncUi() {
+    document.getElementById('conflict-reload')?.addEventListener('click', () => resolveConflict('reload'));
+    document.getElementById('conflict-overwrite')?.addEventListener('click', () => resolveConflict('overwrite'));
 }
 
 function showOfflineBanner() {
@@ -145,103 +252,224 @@ async function probeWardrobeFile() {
     }
 }
 
-async function loadFromApi(dirty, stored) {
-    apiEnabled = true;
+async function fetchRemote() {
     try {
         const res = await fetch('/api/load', { cache: 'no-store' });
-        if (!res.ok) {
-            apiEnabled = false;
-            return false;
-        }
+        if (!res.ok) return { ok: false, status: res.status };
         const data = await res.json();
-        if (!Array.isArray(data)) {
-            apiEnabled = false;
-            return false;
+        if (Array.isArray(data)) return { ok: true, items: data, version: null };
+        if (data && Array.isArray(data.items)) {
+            return { ok: true, items: data.items, version: data.version ?? null };
         }
-        if (dirty && stored) {
-            clothes = stored;
-            await saveData();
-            return true;
-        }
-        clothes = data;
-        serverAvailable = true;
-        return true;
+        return { ok: false };
     } catch {
-        apiEnabled = false;
-        return false;
+        return { ok: false };
     }
+}
+
+function armRetry() {
+    if (retryArmed) return;
+    retryArmed = true;
+    window.addEventListener('online', () => retrySync());
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') retrySync();
+    });
+    setInterval(() => {
+        if (apiEnabled && !serverAvailable && !conflictOpen) retrySync();
+    }, 20000);
+}
+
+async function adoptRemote(remote, dirty, stored, storedVersion) {
+    hideDeviceBanner();
+    serverAvailable = true;
+    const remoteEmpty = remote.version == null && remote.items.length === 0;
+
+    // An unseeded server must not replace a wardrobe that exists only on this device.
+    if (remoteEmpty && stored && stored.length > 0) {
+        clothes = stored;
+        serverVersion = null;
+        showConflictDialog(
+            remote.items,
+            null,
+            'Il server non ha ancora un guardaroba, mentre questo dispositivo sì. Ricarica per partire da un archivio vuoto, oppure sovrascrivi il server con i dati di questo dispositivo.'
+        );
+        return;
+    }
+
+    if (!dirty || !stored || (stored.length === 0 && remote.items.length > 0) || sameClothes(stored, remote.items)) {
+        clothes = remote.items;
+        rememberVersion(remote.version);
+        localStorage.removeItem(DIRTY_KEY);
+        return;
+    }
+
+    if (storedVersion && storedVersion === remote.version) {
+        clothes = stored;
+        serverVersion = remote.version;
+        await saveData();
+        return;
+    }
+
+    clothes = stored;
+    serverVersion = storedVersion;
+    showConflictDialog(
+        remote.items,
+        remote.version,
+        'L\'armadio è stato aggiornato su un altro dispositivo. Ricarica per usare quella versione, oppure sovrascrivi il server con le modifiche di questo dispositivo.'
+    );
+}
+
+function pickOffline(stored, fileData) {
+    const version = localStorage.getItem(VERSION_KEY);
+    if (stored && (stored.length > 0 || version)) return { clothes: stored, seeded: false };
+    if (fileData) return { clothes: fileData, seeded: false };
+    if (stored) return { clothes: stored, seeded: false };
+    return { clothes: getSeedData(), seeded: true };
+}
+
+async function finishLoad(seeded, persist = true) {
+    const migrated = runMigrations();
+    if (persist) localStorage.setItem(STORAGE_KEY, JSON.stringify(clothes));
+    if (migrated && serverAvailable && !conflictOpen && serverVersion) await saveData();
+    if (seeded && !serverAvailable) showOfflineBanner();
+    updatePersistenceStatus();
 }
 
 async function loadData() {
     const dirty = localStorage.getItem(DIRTY_KEY) === '1';
     const stored = readStored();
-    let loaded = false;
-    let fileData = null;
+    const storedVersion = localStorage.getItem(VERSION_KEY);
+    const onPublic = isBylukeHost(location.hostname);
 
-    // Public site: do not request /api/load. Use this browser, then wardrobe.json.
-    if (isBylukeHost(location.hostname)) {
-        if (dirty && stored) {
-            clothes = stored;
-            loaded = true;
-        } else {
-            fileData = await loadStaticFile();
-        }
-    } else {
+    let fileData = null;
+    let serverProbed = false;
+    if (!onPublic) {
         const probed = await probeWardrobeFile();
         fileData = probed.data;
-        // server.py stamps X-Armadio-Server. A static file server does not,
-        // so /api/load is skipped and cannot 404 in the console.
-        if (probed.server) {
-            const fromApi = await loadFromApi(dirty, stored);
-            if (fromApi && dirty && stored) return;
-            loaded = fromApi;
+        serverProbed = probed.server;
+    }
+
+    if (onPublic || serverProbed) {
+        apiEnabled = true;
+        armRetry();
+        const remote = await fetchRemote();
+        if (remote.ok && remote.version == null && remote.items.length === 0 && !(stored && stored.length)) {
+            if (!fileData && onPublic) fileData = await loadStaticFile();
+            clothes = fileData && fileData.length ? fileData : [];
+            serverVersion = null;
+            serverAvailable = false;
+            await finishLoad(false, false);
+            return;
         }
+        if (remote.ok) {
+            await adoptRemote(remote, dirty, stored, storedVersion);
+            await finishLoad(false);
+            return;
+        }
+        if (!fileData && onPublic) fileData = await loadStaticFile();
+        const picked = pickOffline(stored, fileData);
+        clothes = picked.clothes;
+        serverVersion = storedVersion;
+        serverAvailable = false;
+        showDeviceBanner();
+        await finishLoad(picked.seeded);
+        return;
     }
 
-    if (!loaded && dirty && stored) {
-        clothes = stored;
-        loaded = true;
-    }
-
-    if (!loaded && fileData) {
-        clothes = fileData;
-        loaded = true;
-    }
-
-    if (!loaded) {
-        clothes = stored || getSeedData();
+    apiEnabled = false;
+    if (dirty && stored) clothes = stored;
+    else if (fileData) clothes = fileData;
+    else if (stored) clothes = stored;
+    else {
+        clothes = getSeedData();
         showOfflineBanner();
     }
-
-    if (runMigrations()) await saveData();
-    else updatePersistenceStatus();
+    if (runMigrations()) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(clothes));
+        localStorage.setItem(DIRTY_KEY, '1');
+    }
+    updatePersistenceStatus();
 }
 
-async function saveData() {
+async function retrySync() {
+    if (!apiEnabled || conflictOpen) return;
+    const remote = await fetchRemote();
+    if (!remote.ok) {
+        serverAvailable = false;
+        showDeviceBanner();
+        updatePersistenceStatus();
+        return;
+    }
+    const dirty = localStorage.getItem(DIRTY_KEY) === '1';
+    const storedVersion = localStorage.getItem(VERSION_KEY);
+    const stored = dirty ? clothes : readStored();
+    await adoptRemote(remote, dirty, stored, storedVersion);
+    if (!conflictOpen) localStorage.setItem(STORAGE_KEY, JSON.stringify(clothes));
+    renderAll();
+    updatePersistenceStatus();
+}
+
+async function saveData(opts = {}) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(clothes));
     updateStats();
+
+    if (conflictOpen && !opts.force) {
+        localStorage.setItem(DIRTY_KEY, '1');
+        updatePersistenceStatus();
+        return 'conflict';
+    }
 
     if (!shouldTryApi()) {
         localStorage.setItem(DIRTY_KEY, '1');
         serverAvailable = false;
         updatePersistenceStatus();
-        return;
+        return 'local';
     }
+
+    // Never create the server wardrobe from an empty local state.
+    if (!opts.force && serverVersion == null && clothes.length === 0) {
+        localStorage.setItem(DIRTY_KEY, '1');
+        updatePersistenceStatus();
+        return 'skipped';
+    }
+
+    localStorage.setItem(DIRTY_KEY, '1');
 
     try {
         const res = await fetch('/api/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(clothes)
+            cache: 'no-store',
+            body: JSON.stringify({ items: clothes, version: serverVersion, force: opts.force === true })
         });
-        serverAvailable = res.ok;
+        if (res.status === 409) {
+            let body = {};
+            try { body = await res.json(); } catch { body = {}; }
+            serverAvailable = true;
+            hideDeviceBanner();
+            if (Array.isArray(body.items)) {
+                showConflictDialog(body.items, body.version ?? null);
+            } else {
+                const remote = await fetchRemote();
+                if (remote.ok) showConflictDialog(remote.items, remote.version);
+                else showDeviceBanner();
+            }
+            return 'conflict';
+        }
+        if (!res.ok) throw new Error('save failed');
+        const body = await res.json();
+        rememberVersion(body.version);
+        localStorage.removeItem(DIRTY_KEY);
+        serverAvailable = true;
+        hideDeviceBanner();
+        updatePersistenceStatus();
+        return 'ok';
     } catch {
         serverAvailable = false;
+        showDeviceBanner();
+        updatePersistenceStatus();
+        return 'offline';
     }
-
-    if (serverAvailable) localStorage.removeItem(DIRTY_KEY);
-    else localStorage.setItem(DIRTY_KEY, '1');
-    updatePersistenceStatus();
 }
 
 function getSeedData() {
@@ -675,6 +903,7 @@ function initCompartmentClicks() {
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
+    initSyncUi();
     await loadData();
     initNavigation();
     initDoors();
