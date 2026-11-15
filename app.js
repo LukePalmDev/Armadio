@@ -29,13 +29,26 @@ let selectedSection = null;
 let clothes = [];
 let editingItemId = null;
 let serverAvailable = false;
+// True only after server.py identifies itself. Static hosts never set this,
+// so a missing /api/load is not requested and does not 404 in the console.
+let apiEnabled = false;
 
 const STORAGE_KEY = 'armadio_clothes';
 const DIRTY_KEY = 'armadio_dirty';
 
+function isBylukeHost(hostname) {
+    const host = String(hostname ?? '')
+        .trim()
+        .replace(/^\[|\]$/g, '')
+        .replace(/\.$/, '')
+        .toLowerCase();
+    return host === 'byluke.org' || host.endsWith('.byluke.org');
+}
+
 function shouldTryApi() {
-    const host = location.hostname.replace(/^\[|\]$/g, '');
-    return host === 'localhost' || host === '127.0.0.1' || host === '::1' || location.port === '8000';
+    // armadio.byluke.org is GitHub Pages. There is no /api/load there.
+    if (isBylukeHost(location.hostname)) return false;
+    return apiEnabled;
 }
 
 function safeColor(c) {
@@ -120,29 +133,69 @@ async function loadStaticFile() {
     }
 }
 
+async function probeWardrobeFile() {
+    try {
+        const res = await fetch('wardrobe.json', { cache: 'no-store' });
+        const server = res.headers.get('X-Armadio-Server') === '1';
+        if (!res.ok) return { server, data: null };
+        const data = await res.json();
+        return { server, data: Array.isArray(data) ? data : null };
+    } catch {
+        return { server: false, data: null };
+    }
+}
+
+async function loadFromApi(dirty, stored) {
+    apiEnabled = true;
+    try {
+        const res = await fetch('/api/load', { cache: 'no-store' });
+        if (!res.ok) {
+            apiEnabled = false;
+            return false;
+        }
+        const data = await res.json();
+        if (!Array.isArray(data)) {
+            apiEnabled = false;
+            return false;
+        }
+        if (dirty && stored) {
+            clothes = stored;
+            await saveData();
+            return true;
+        }
+        clothes = data;
+        serverAvailable = true;
+        return true;
+    } catch {
+        apiEnabled = false;
+        return false;
+    }
+}
+
 async function loadData() {
     const dirty = localStorage.getItem(DIRTY_KEY) === '1';
     const stored = readStored();
     let loaded = false;
+    let fileData = null;
 
-    // API only on the local server. The public site is static; probing /api would 404.
-    if (shouldTryApi()) {
-        try {
-            const res = await fetch('api/load', { cache: 'no-store' });
-            if (res.ok) {
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    if (dirty && stored) {
-                        clothes = stored;
-                        await saveData();
-                        return;
-                    }
-                    clothes = data;
-                    serverAvailable = true;
-                    loaded = true;
-                }
-            }
-        } catch { /* wardrobe.json or localStorage */ }
+    // Public site: do not request /api/load. Use this browser, then wardrobe.json.
+    if (isBylukeHost(location.hostname)) {
+        if (dirty && stored) {
+            clothes = stored;
+            loaded = true;
+        } else {
+            fileData = await loadStaticFile();
+        }
+    } else {
+        const probed = await probeWardrobeFile();
+        fileData = probed.data;
+        // server.py stamps X-Armadio-Server. A static file server does not,
+        // so /api/load is skipped and cannot 404 in the console.
+        if (probed.server) {
+            const fromApi = await loadFromApi(dirty, stored);
+            if (fromApi && dirty && stored) return;
+            loaded = fromApi;
+        }
     }
 
     if (!loaded && dirty && stored) {
@@ -150,12 +203,9 @@ async function loadData() {
         loaded = true;
     }
 
-    if (!loaded) {
-        const fileData = await loadStaticFile();
-        if (fileData) {
-            clothes = fileData;
-            loaded = true;
-        }
+    if (!loaded && fileData) {
+        clothes = fileData;
+        loaded = true;
     }
 
     if (!loaded) {
@@ -179,7 +229,7 @@ async function saveData() {
     }
 
     try {
-        const res = await fetch('api/save', {
+        const res = await fetch('/api/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(clothes)

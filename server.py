@@ -45,6 +45,12 @@ class ArmadioHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
+    def end_headers(self):
+        # The page only calls /api/load when it sees this header, so a static
+        # file server is never probed and does not log a 404.
+        self.send_header('X-Armadio-Server', '1')
+        super().end_headers()
+
     def _send_json(self, status, payload):
         body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
         self.send_response(status)
