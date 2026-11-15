@@ -1,0 +1,67 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Default for any job that does not set its own permissions.
+permissions:
+  contents: read
+
+# Let an in-progress production deploy finish. A newer push waits.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: write # required to upload the Pages artifact
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Assemble static site
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LC_ALL=C
+          dest="_site"
+          mkdir -p "$dest"
+          # Allowlist only. The stylesheet is style.css, which index.html loads.
+          # favicon.ico is the icon. server.py and README stay out of the site.
+          cp index.html app.js style.css wardrobe.json CNAME favicon.ico "$dest/"
+          if [[ -e "$dest/server.py" || -e "$dest/README.md" ]]; then
+            echo "Refusing to publish server.py or README" >&2
+            exit 1
+          fi
+          got="$(find "$dest" -type f -printf '%f\n' | sort | paste -sd' ' -)"
+          want="CNAME app.js favicon.ico index.html style.css wardrobe.json"
+          if [[ "$got" != "$want" ]]; then
+            echo "unexpected site files: $got" >&2
+            exit 1
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
