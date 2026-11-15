@@ -214,6 +214,29 @@ describe("wardrobe api", () => {
     expect(after.items[0].name).toBe("Terza");
   });
 
+  it("lets only one of two concurrent saves win", async () => {
+    const token = await sign();
+    const first = await call("/api/save", {
+      token,
+      body: { items: [capo("a", "Base")], version: null },
+    });
+    const version = (await first.json() as { version: string }).version;
+    const [left, right] = await Promise.all([
+      call("/api/save", { token, body: { items: [capo("a", "Sinistra")], version } }),
+      call("/api/save", { token, body: { items: [capo("a", "Destra")], version } }),
+    ]);
+    const statuses = [left.status, right.status].sort();
+    expect(statuses).toEqual([200, 409]);
+    const winner = left.status === 200 ? await left.json() as { version: string } : await right.json() as { version: string };
+    const loaded = await (await call("/api/load", { token })).json() as { items: { name: string }[]; version: string };
+    expect(loaded.version).toBe(winner.version);
+    expect(["Sinistra", "Destra"]).toContain(loaded.items[0].name);
+    const history = await (await call("/api/history", { token })).json() as { versions: { id: string }[] };
+    expect(history.versions).toHaveLength(1);
+    const saved = await (await call(`/api/history?id=${encodeURIComponent(history.versions[0].id)}`, { token })).json() as { items: { name: string }[] };
+    expect(saved.items[0].name).toBe("Base");
+  });
+
   it("rejects an empty overwrite that does not know the current version", async () => {
     const token = await sign();
     const saved = await call("/api/save", {

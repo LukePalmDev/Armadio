@@ -1,3 +1,4 @@
+import { DurableObject } from "cloudflare:workers";
 import { authenticate } from "./auth";
 import { empty, json } from "./http";
 import { validateItems } from "./model.js";
@@ -174,6 +175,52 @@ async function handleRestoreRequest(request: Request, env: Env): Promise<Respons
   );
 }
 
+async function dispatch(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  try {
+    if (url.pathname === "/api/load" && request.method === "GET") return await handleLoad(env);
+    if (url.pathname === "/api/save" && request.method === "POST") return await handleSave(request, env);
+    if (url.pathname === "/api/history" && request.method === "GET") return await handleHistory(url, env);
+    if (url.pathname === "/api/restore" && request.method === "POST") return await handleRestoreRequest(request, env);
+    if (
+      (url.pathname === "/api/load" && request.method !== "GET") ||
+      (url.pathname === "/api/save" && request.method !== "POST") ||
+      (url.pathname === "/api/history" && request.method !== "GET") ||
+      (url.pathname === "/api/restore" && request.method !== "POST")
+    ) {
+      return json({ error: "method_not_allowed", message: "Metodo non consentito." }, 405);
+    }
+    return json({ error: "not_found", message: "Percorso non trovato." }, 404);
+  } catch (err) {
+    console.error(JSON.stringify({
+      message: "request failed",
+      path: url.pathname,
+      error: err instanceof Error ? err.message : String(err),
+    }));
+    return json({ error: "error", message: "Errore interno." }, 500);
+  }
+}
+
+// One object for the whole wardrobe. KV has no compare-and-swap, so this
+// object runs each read and write to completion before the next begins.
+export class WardrobeLock extends DurableObject<Env> {
+  #pending: Promise<void> = Promise.resolve();
+
+  async fetch(request: Request): Promise<Response> {
+    const previous = this.#pending;
+    let release!: () => void;
+    this.#pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await previous;
+    try {
+      return await dispatch(request, this.env);
+    } finally {
+      release();
+    }
+  }
+}
+
 export default {
   async fetch(request, env, _ctx): Promise<Response> {
     const url = new URL(request.url);
@@ -186,27 +233,7 @@ export default {
     const identity = await authenticate(request, env);
     if (identity instanceof Response) return identity;
 
-    try {
-      if (url.pathname === "/api/load" && request.method === "GET") return await handleLoad(env);
-      if (url.pathname === "/api/save" && request.method === "POST") return await handleSave(request, env);
-      if (url.pathname === "/api/history" && request.method === "GET") return await handleHistory(url, env);
-      if (url.pathname === "/api/restore" && request.method === "POST") return await handleRestoreRequest(request, env);
-      if (
-        (url.pathname === "/api/load" && request.method !== "GET") ||
-        (url.pathname === "/api/save" && request.method !== "POST") ||
-        (url.pathname === "/api/history" && request.method !== "GET") ||
-        (url.pathname === "/api/restore" && request.method !== "POST")
-      ) {
-        return json({ error: "method_not_allowed", message: "Metodo non consentito." }, 405);
-      }
-      return json({ error: "not_found", message: "Percorso non trovato." }, 404);
-    } catch (err) {
-      console.error(JSON.stringify({
-        message: "request failed",
-        path: url.pathname,
-        error: err instanceof Error ? err.message : String(err),
-      }));
-      return json({ error: "error", message: "Errore interno." }, 500);
-    }
+    const id = env.WARDROBE_LOCK.idFromName("wardrobe");
+    return env.WARDROBE_LOCK.get(id).fetch(request);
   },
 } satisfies ExportedHandler<Env>;

@@ -15,6 +15,15 @@ zone_name = "byluke.org"
 binding = "WARDROBE"
 id = "00000000000000000000000000000000"
 
+# Serializes KV reads and writes. Created by `wrangler deploy`; no id to fill in.
+[[durable_objects.bindings]]
+name = "WARDROBE_LOCK"
+class_name = "WardrobeLock"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WardrobeLock"]
+
 [vars]
 # Application Audience (AUD) tag of the Access app for armadio.byluke.org.
 ACCESS_AUD = "replace-with-access-application-aud"
@@ -43,3 +52,7 @@ ALLOWED_EMAILS = "ada@byluke.org"
 [[env.test.kv_namespaces]]
 binding = "WARDROBE"
 id = "00000000000000000000000000000000"
+
+[[env.test.durable_objects.bindings]]
+name = "WARDROBE_LOCK"
+class_name = "WardrobeLock"

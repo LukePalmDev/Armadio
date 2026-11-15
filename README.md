@@ -84,7 +84,7 @@ Ogni modifica viene scritta nel `localStorage` e, se l'API risponde, anche sul s
 - Il primo caricamento non sostituisce mai l'archivio sul server con uno stato locale vuoto. Se il browser ha modifiche non sincronizzate e il server ne ha di diverse, compare un dialogo (Ricarica / Sovrascrivi) invece di una scrittura silenziosa.
 - Payload non validi sono rifiutati. Il corpo di un salvataggio non può superare 1 MB.
 
-`GET /api/load` risponde `{ "items": [ ... ], "version": "<id>" }` con `Cache-Control: no-store` e `ETag`. `POST /api/save` riceve `{ "items": [ ... ], "version": "<id caricato>", "force": false }`.
+`GET /api/load` risponde `{ "items": [ ... ], "version": "<id>" }` con `Cache-Control: no-store` e `ETag`. `POST /api/save` riceve `{ "items": [ ... ], "version": "<id caricato>", "force": false }`. Due salvataggi partiti dalla stessa versione non possono riuscire entrambi: un Durable Object (`WardrobeLock`) esegue lettura, controllo e scrittura uno alla volta. `wrangler deploy` crea quell'oggetto con la migration già in `wrangler.toml`; non c'è un id da copiare. I capi restano nel KV `WARDROBE`.
 
 ## Sincronizzazione sul sito pubblico
 

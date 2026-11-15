@@ -296,6 +296,26 @@ async function adoptRemote(remote, dirty, stored, storedVersion) {
         return;
     }
 
+    // A dirty empty list that remembers the version it loaded is a real deletion.
+    // An empty cache with no version is not, and must not wipe the server.
+    const versionedEmpty = !!(dirty && stored && stored.length === 0 && storedVersion);
+    if (versionedEmpty && storedVersion === remote.version) {
+        clothes = stored;
+        serverVersion = remote.version;
+        await saveData();
+        return;
+    }
+    if (versionedEmpty) {
+        clothes = stored;
+        serverVersion = storedVersion;
+        showConflictDialog(
+            remote.items,
+            remote.version,
+            'L\'armadio è stato aggiornato su un altro dispositivo. Ricarica per usare quella versione, oppure sovrascrivi il server con le modifiche di questo dispositivo.'
+        );
+        return;
+    }
+
     if (!dirty || !stored || (stored.length === 0 && remote.items.length > 0) || sameClothes(stored, remote.items)) {
         clothes = remote.items;
         rememberVersion(remote.version);

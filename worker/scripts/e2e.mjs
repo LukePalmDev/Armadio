@@ -224,13 +224,13 @@ const syncedName = `E2E Cappotto ${Date.now()}`;
 await addCapo(first.page, syncedName);
 const status = await first.page.$eval("#persist-status", (el) => el.textContent.trim());
 if (status !== "SUL SERVER") throw new Error(`save status ${status}`);
-await first.page.screenshot({ path: join(artifacts, "sync-saved.png") });
+await first.page.screenshot({ path: join(artifacts, "sync-lock-saved.png") });
 note(`saved ${syncedName}`);
 
 const fresh = await openPage();
 const freshNames = await names(fresh.page);
 if (!freshNames.includes(syncedName)) throw new Error("fresh profile did not see the edit");
-await fresh.page.screenshot({ path: join(artifacts, "sync-fresh-profile.png") });
+await fresh.page.screenshot({ path: join(artifacts, "sync-lock-fresh.png") });
 note("fresh browser profile loaded the edit from the worker");
 
 const otherName = `E2E Altro ${Date.now()}`;
@@ -240,7 +240,7 @@ await addCapo(first.page, localName);
 await first.page.waitForSelector("#conflict-dialog:not([hidden])", { timeout: 10000 });
 const conflictText = await first.page.$eval("#conflict-message", (el) => el.textContent.trim());
 if (!conflictText.includes("altro dispositivo")) throw new Error(`unexpected conflict copy: ${conflictText}`);
-await first.page.screenshot({ path: join(artifacts, "sync-conflict.png") });
+await first.page.screenshot({ path: join(artifacts, "sync-lock-conflict.png") });
 note("conflict dialog shown");
 await first.page.click("#conflict-reload");
 await first.page.waitForFunction(() => document.getElementById("conflict-dialog")?.hidden, { timeout: 10000 });
@@ -272,7 +272,7 @@ await afterOverwrite.page.waitForFunction((text) => {
 }, { timeout: 10000 }, "Modifiche salvate solo su questo dispositivo");
 const offlineStatus = await afterOverwrite.page.$eval("#persist-status", (el) => el.textContent.trim());
 if (offlineStatus !== "NEL BROWSER") throw new Error(`offline status ${offlineStatus}`);
-await afterOverwrite.page.screenshot({ path: join(artifacts, "sync-offline.png") });
+await afterOverwrite.page.screenshot({ path: join(artifacts, "sync-lock-offline.png") });
 note("offline edit stayed on this device");
 
 apiOffline = false;
@@ -282,6 +282,37 @@ const syncedBack = await openPage();
 const backNames = await names(syncedBack.page);
 if (!backNames.includes(offlineName)) throw new Error("offline edit did not sync after reconnect");
 note("offline edit synced after the API returned");
+
+const deletePage = await openPage();
+const liveVersion = await deletePage.page.evaluate(() => localStorage.getItem("armadio_version"));
+const liveCount = (await names(deletePage.page)).length;
+await deletePage.page.evaluate(() => {
+  localStorage.setItem("armadio_clothes", "[]");
+  localStorage.setItem("armadio_dirty", "1");
+  localStorage.setItem("armadio_version", "stale-version");
+});
+await deletePage.page.reload({ waitUntil: "networkidle0" });
+await deletePage.page.waitForSelector("#conflict-dialog:not([hidden])", { timeout: 10000 });
+const held = await harness.fetch("http://armadio.byluke.org/api/load", {
+  headers: { "cf-access-jwt-assertion": await token() },
+});
+const heldBody = await held.json();
+if (heldBody.items.length !== liveCount) throw new Error("stale empty local state replaced the server");
+note("stale empty local state did not replace the server");
+
+await deletePage.page.evaluate((version) => {
+  localStorage.setItem("armadio_clothes", "[]");
+  localStorage.setItem("armadio_dirty", "1");
+  localStorage.setItem("armadio_version", version);
+}, liveVersion);
+await deletePage.page.reload({ waitUntil: "networkidle0" });
+await deletePage.page.waitForFunction(() => {
+  const status = document.getElementById("persist-status")?.textContent;
+  const count = document.getElementById("db-size-indicator")?.textContent;
+  const dialog = document.getElementById("conflict-dialog");
+  return status === "SUL SERVER" && count === "0 CAPI" && (!dialog || dialog.hidden);
+}, { timeout: 10000 });
+note("offline deletion of every item synced");
 
 const unexpected = consoleErrors.slice(0, beforeOfflineErrors).filter((line) => !/fonts\.googleapis|fonts\.gstatic|Failed to load resource/i.test(line));
 if (pageErrors.length) throw new Error(`page errors:\n${pageErrors.join("\n")}`);
